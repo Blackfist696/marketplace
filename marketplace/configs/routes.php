@@ -2,28 +2,28 @@
 
 return [
     // Home route
-    'GET /' => 'HomeController@index',
+    'GET /' => 'App\\Controllers\\HomeController@index',
     
     // Product routes
-    'GET /products' => 'ProductController@index',
-    'GET /products/{id}' => 'ProductController@show',
-    'POST /products' => 'ProductController@store',
-    'PUT /products/{id}' => 'ProductController@update',
-    'DELETE /products/{id}' => 'ProductController@destroy',
+    'GET /products' => 'App\\Controllers\\ProductController@index',
+    'GET /products/{id}' => 'App\\Controllers\\ProductController@show',
+    'POST /products' => 'App\\Controllers\\ProductController@store',
+    'PUT /products/{id}' => 'App\\Controllers\\ProductController@update',
+    'DELETE /products/{id}' => 'App\\Controllers\\ProductController@destroy',
     
     // Cart routes
-    'GET /cart' => 'CartController@index',
-    'POST /cart' => 'CartController@add',
-    'DELETE /cart/{id}' => 'CartController@remove',
+    'GET /cart' => 'App\\Controllers\\CartController@index',
+    'POST /cart' => 'App\\Controllers\\CartController@add',
+    'DELETE /cart/{id}' => 'App\\Controllers\\CartController@remove',
     
     // Order routes
-    'GET /orders' => 'OrderController@index',
-    'POST /orders' => 'OrderController@store',
+    'GET /orders' => 'App\\Controllers\\OrderController@index',
+    'POST /orders' => 'App\\Controllers\\OrderController@store',
     
     // User routes
-    'GET /login' => 'AuthController@loginForm',
-    'POST /login' => 'AuthController@login',
-    'POST /logout' => 'AuthController@logout',
-    'GET /register' => 'AuthController@registerForm',
-    'POST /register' => 'AuthController@register',
+    'GET /login' => 'App\\Controllers\\AuthController@loginForm',
+    'POST /login' => 'App\\Controllers\\AuthController@login',
+    'POST /logout' => 'App\\Controllers\\AuthController@logout',
+    'GET /register' => 'App\\Controllers\\AuthController@registerForm',
+    'POST /register' => 'App\\Controllers\\AuthController@register',
 ];

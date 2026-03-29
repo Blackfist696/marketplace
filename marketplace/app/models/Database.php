@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Models;
+
+use PDO;
+
 class Database
 {
     private static ?PDO $pdo = null;
@@ -7,7 +11,7 @@ class Database
     public static function getConnection(): PDO
     {
         if (self::$pdo === null) {
-            $configFile = __DIR__ . '/../../configs/databaseConfig.php';
+            $configFile = __DIR__ . '/../configs/databaseConfig.php';
             $config = file_exists($configFile) ? require $configFile : [];
 
             $host = $config['host'];

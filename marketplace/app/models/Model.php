@@ -1,5 +1,10 @@
 <?php
 
+namespace App\Models;
+
+use PDO;
+use InvalidArgumentException;
+
 require_once __DIR__ . '/Database.php';
 
 abstract class Model

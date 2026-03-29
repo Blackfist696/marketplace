@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Models;
+
 require_once __DIR__ . '/Model.php';
 
 class LignePanier extends Model

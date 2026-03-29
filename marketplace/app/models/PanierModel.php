@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Models;
+
 require_once __DIR__ . '/Model.php';
 
 class Panier extends Model
