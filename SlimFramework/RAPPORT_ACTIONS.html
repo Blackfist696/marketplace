@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport - Cheminement des Actions du Site</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2ecc71;
+            border-bottom: 3px solid #2ecc71;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #27ae60;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-left: 5px solid #2ecc71;
+            padding-left: 15px;
+            font-size: 20px;
+        }
+
+        h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .table-of-contents {
+            background-color: #f9f9f9;
+            border: 2px solid #2ecc71;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .table-of-contents h2 {
+            margin-top: 0;
+            border-left: none;
+            padding-left: 0;
+        }
+
+        .table-of-contents ol {
+            margin-left: 20px;
+        }
+
+        .table-of-contents li {
+            margin: 8px 0;
+            color: #2ecc71;
+            font-weight: 500;
+        }
+
+        .table-of-contents a {
+            color: #2ecc71;
+            text-decoration: none;
+        }
+
+        .action-block {
+            background-color: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            break-inside: avoid;
+        }
+
+        .action-block.home { border-left: 5px solid #3498db; }
+        .action-block.products { border-left: 5px solid #9b59b6; }
+        .action-block.cart { border-left: 5px solid #e74c3c; }
+        .action-block.contact { border-left: 5px solid #f39c12; }
+
+        .action-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .action-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            color: white;
+        }
+
+        .method-get {
+            background-color: #3498db;
+        }
+
+        .method-post {
+            background-color: #e74c3c;
+        }
+
+        .url {
+            background-color: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .flow-step::before {
+            content: "→";
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 15px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .flow-step:first-of-type::before {
+            content: "▶";
+        }
+
+        .flow-content {
+            flex: 1;
+        }
+
+        .flow-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+
+        .flow-description {
+            color: #555;
+            font-size: 14px;
+            margin-left: 15px;
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 3px;
+        }
+
+        .section-architecture {
+            background-color: #ecf0f1;
+            border: 2px solid #95a5a6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .architecture-item {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: white;
+            border-left: 4px solid #2ecc71;
+            border-radius: 3px;
+        }
+
+        .file-path {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+            padding: 3px 8px;
+            border-radius: 3px;
+            color: #c7254e;
+        }
+
+        .class-name {
+            font-family: 'Courier New', monospace;
+            color: #0a5f0a;
+            font-weight: bold;
+        }
+
+        .model-info {
+            background-color: #e8f8f5;
+            border: 1px solid #2ecc71;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .model-methods {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .method-item {
+            background-color: #f9f9f9;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border-left: 3px solid #2ecc71;
+        }
+
+        .summary-box {
+            background-color: #e8f5e9;
+            border: 2px solid #2ecc71;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .key-point {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .key-point::before {
+            content: "✓";
+            color: #2ecc71;
+            font-weight: bold;
+            margin-left: -15px;
+            margin-right: 10px;
+        }
+
+        .session-storage {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .diagram {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #2ecc71;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                max-width: 100%;
+                padding: 20mm;
+                box-shadow: none;
+            }
+            .action-block {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            h2 {
+                page-break-after: avoid;
+            }
+            h3 {
+                page-break-after: avoid;
+            }
+            .flow-step {
+                page-break-inside: avoid;
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #2ecc71;
+            color: white;
+            font-weight: bold;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Rapport: Cheminement des Actions du Site</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            <strong>Épicerie BIO NATURE</strong> - Documentation Technique<br>
+            Douyez Pascal 2026
+        </p>
+
+        <!-- Table des matières -->
+        <div class="table-of-contents">
+            <h2>📑 Table des Matières</h2>
+            <ol>
+                <li><a href="#architecture">Architecture Générale</a></li>
+                <li><a href="#action-home">Action 1: Accueil (GET /)</a></li>
+                <li><a href="#action-products">Action 2: Produits (GET /products)</a></li>
+                <li><a href="#action-add-cart">Action 3: Ajouter au Panier (POST /products/add/{id})</a></li>
+                <li><a href="#action-remove-cart">Action 4: Retirer du Panier (POST /products/remove/{id})</a></li>
+                <li><a href="#action-clear-cart">Action 5: Vider le Panier (POST /clear-cart)</a></li>
+                <li><a href="#action-contact">Action 6: Contact (GET /contact)</a></li>
+                <li><a href="#action-send-contact">Action 7: Envoyer Message (POST /send-contact)</a></li>
+                <li><a href="#action-validate">Action 8: Valider Commande (GET /validate-order)</a></li>
+                <li><a href="#models">Modèles de Données</a></li>
+                <li><a href="#resume">Résumé Technique</a></li>
+            </ol>
+        </div>
+
+        <!-- Architecture générale -->
+        <h2 id="architecture">🏗️ 1. Architecture Générale</h2>
+        
+        <p>Le site utilise le framework <strong>Slim Framework 4</strong>, un micro-framework PHP moderne basé sur les PSR (PHP Standards Recommendations).</p>
+
+        <div class="section-architecture">
+            <h3>Structure du Projet</h3>
+            
+            <div class="architecture-item">
+                <strong>Fichier d'entrée:</strong><br>
+                <span class="file-path">index.php</span><br>
+                <small>Initialise l'application Slim, enregistre toutes les routes et lance l'application.</small>
+            </div>
+
+            <div class="architecture-item">
+                <strong>Bootstrap:</strong><br>
+                <span class="file-path">app/bootstrap.php</span><br>
+                <small>Enregistre l'autoloader PSR-4 personnalisé pour charger les classes de l'application.</small>
+            </div>
+
+            <div class="architecture-item">
+                <strong>Contrôleurs:</strong><br>
+                <span class="file-path">app/Controllers/</span>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li><span class="file-path">HomeController.php</span> - Gère la page d'accueil</li>
+                    <li><span class="file-path">ProductController.php</span> - Gère les produits et panier</li>
+                    <li><span class="file-path">ContactController.php</span> - Gère la page de contact</li>
+                </ul>
+            </div>
+
+            <div class="architecture-item">
+                <strong>Modèles:</strong><br>
+                <span class="file-path">app/Models/</span>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li><span class="file-path">Product.php</span> - Représente un produit</li>
+                    <li><span class="file-path">Cart.php</span> - Gère la session du panier</li>
+                </ul>
+            </div>
+
+            <div class="architecture-item">
+                <strong>Vues:</strong><br>
+                <span class="file-path">app/Views/</span>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li><span class="file-path">layout.php</span> - Modèle HTML global</li>
+                    <li><span class="file-path">home.php</span> - Contenu de l'accueil</li>
+                    <li><span class="file-path">products.php</span> - Contenu des produits</li>
+                    <li><span class="file-path">contact.php</span> - Contenu du contact</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="summary-box">
+            <h3 style="margin-top: 0;">Flux Général Appliqué à Tous les Contrôleurs</h3>
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">1. Requête HTTP</div>
+                    <div class="flow-description">GET/POST vers une URL du site</div>
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">2. Routeur Slim</div>
+                    <div class="flow-description">index.php compare l'URL avec les routes enregistrées</div>
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">3. Instanciation du Contrôleur</div>
+                    <div class="flow-description">Création d'un objet du contrôleur approprié</div>
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">4. Appel de la Méthode</div>
+                    <div class="flow-description">Exécution de la méthode du contrôleur</div>
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">5. Gestion de la Vue</div>
+                    <div class="flow-description">Rendu HTML via Output Buffering (ob_*)</div>
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">6. Réponse HTTP</div>
+                    <div class="flow-description">Envoi du HTML au navigateur avec les headers appropriés</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action 1: Accueil -->
+        <h2 id="action-home">⭐ 2. Action 1: Afficher la Page d'Accueil</h2>
+
+        <div class="action-block home">
+            <div class="action-header">
+                <div class="action-title">Accueil - Page Principale</div>
+                <span class="method-badge method-get">GET</span>
+            </div>
+
+            <div class="url">GET /</div>
+
+            <h3>Cheminement Détaillé</h3>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">1. Requête du Navigateur</div>
+                    <div class="flow-description">GET http://localhost/</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">2. Routage (index.php, ligne 35-37)</div>
+                    <div class="flow-description">$app->get('/', function (Request $request, Response $response) { ... })</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">3. Instanciation du Contrôleur</div>
+                    <div class="flow-description">$controller = new HomeController();</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">4. Appel de la Méthode</div>
+                    <div class="flow-description">$controller->index($request, $response)</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">5. Dans HomeController::index()</div>
+                    <div class="flow-description">
+                        • Initialise $pageTitle = 'Accueil - Épicerie BIO NATURE'<br>
+                        • Commence le buffering: ob_start()<br>
+                        • Inclut app/Views/home.php<br>
+                        • Récupère le contenu: $mainContent = ob_get_clean()
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">6. Rendu du Layout</div>
+                    <div class="flow-description">
+                        • Nouveau buffering: ob_start()<br>
+                        • Inclut app/Views/layout.php<br>
+                        • Le layout utilise $mainContent et $pageTitle<br>
+                        • Récupère le HTML final: $output = ob_get_clean()
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">7. Envoi de la Réponse</div>
+                    <div class="flow-description">
+                        $response->getBody()->write($output);<br>
+                        return $response->withHeader('Content-Type', 'text/html; charset=utf-8');
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">Résumé de l'Action</h3>
+                <div class="key-point">Affiche la page d'accueil du site avec informations sur l'épicerie</div>
+                <div class="key-point">Pas d'interaction avec la base de données ou session</div>
+                <div class="key-point">Rendu simple et direct de la vue HTML</div>
+            </div>
+        </div>
+
+        <!-- Action 2: Produits -->
+        <h2 id="action-products">🛒 3. Action 2: Afficher la Catégorie Produits</h2>
+
+        <div class="action-block products">
+            <div class="action-header">
+                <div class="action-title">Liste des Produits</div>
+                <span class="method-badge method-get">GET</span>
+            </div>
+
+            <div class="url">GET /products</div>
+
+            <h3>Cheminement Détaillé</h3>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">1. Requête du Navigateur</div>
+                    <div class="flow-description">GET http://localhost/products</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">2. Routage (index.php, ligne 39-42)</div>
+                    <div class="flow-description">$app->get('/products', function (Request $request, Response $response) { ... })</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">3. Instanciation du Contrôleur</div>
+                    <div class="flow-description">$controller = new ProductController();</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">4. Appel de la Méthode</div>
+                    <div class="flow-description">$controller->index($request, $response)</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">5. Dans ProductController::index()</div>
+                    <div class="flow-description">
+                        • Récupère tous les produits:<br>
+                        <span style="margin-left: 20px;">$products = Product::getAllProducts();</span><br>
+                        • Crée une instance du panier:<br>
+                        <span style="margin-left: 20px;">$cart = new Cart();</span><br>
+                        • Initialise $pageTitle = 'Produits - Épicerie BIO NATURE'
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">6. Modèle Product - getAllProducts()</div>
+                    <div class="flow-description">
+                        Retourne un tableau de 10 objets Product (5 fruits + 5 légumes)<br>
+                        Fruits: Pommes, Bananes, Oranges, Fraises, Raisins<br>
+                        Légumes: Tomates, Carottes, Laitue, Poivrons, Brocoli
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">7. Rendu de la Vue</div>
+                    <div class="flow-description">
+                        • ob_start()<br>
+                        • Inclut app/Views/products.php<br>
+                        • La vue utilise $products et $cart<br>
+                        • $mainContent = ob_get_clean()
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">8. Rendu du Layout</div>
+                    <div class="flow-description">
+                        • ob_start()<br>
+                        • Inclut app/Views/layout.php<br>
+                        • $output = ob_get_clean()
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">9. Envoi de la Réponse</div>
+                    <div class="flow-description">
+                        $response->getBody()->write($output);<br>
+                        return $response->withHeader('Content-Type', 'text/html; charset=utf-8');
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">Résumé de l'Action</h3>
+                <div class="key-point">Affiche une liste complète de 10 produits</div>
+                <div class="key-point">Initialise le panier dans la session</div>
+                <div class="key-point">Données en mémoire (pas de base de données)</div>
+                <div class="key-point">Affiche les prix et descriptions des produits</div>
+                <div class="key-point">Chaque produit a un bouton pour l'ajouter au panier</div>
+            </div>
+        </div>
+
+        <!-- Action 3: Ajouter au panier -->
+        <h2 id="action-add-cart">➕ 4. Action 3: Ajouter un Produit au Panier</h2>
+
+        <div class="action-block cart">
+            <div class="action-header">
+                <div class="action-title">Ajouter au Panier</div>
+                <span class="method-badge method-post">POST</span>
+            </div>
+
+            <div class="url">POST /products/add/{id}</div>
+            <p><strong>Exemple:</strong> POST /products/add/1 (ajouter le produit avec l'ID 1)</p>
+
+            <h3>Cheminement Détaillé</h3>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">1. Requête du Navigateur</div>
+                    <div class="flow-description">
+                        Formulaire HTML avec POST<br>
+                        <code>form method="POST" action="/products/add/1"</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">2. Routage (index.php, ligne 44-47)</div>
+                    <div class="flow-description">$app->post('/products/add/{id}', function (Request $request, Response $response, array $args) { ... })</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">3. Récupération de l'ID</div>
+                    <div class="flow-description">
+                        $args['id'] est extrait de l'URL<br>
+                        Exemple: /products/add/3 → $args['id'] = '3'
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">4. Instanciation du Contrôleur</div>
+                    <div class="flow-description">$controller = new ProductController();</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">5. Appel de la Méthode</div>
+                    <div class="flow-description">$controller->addToCart($request, $response, $args)</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">6. Dans ProductController::addToCart()</div>
+                    <div class="flow-description">
+                        • $productId = (int)$args['id'];<br>
+                        • $cart = new Cart();<br>
+                        • $cart->addProduct($productId);<br>
+                        (Appelle le modèle Cart)
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">7. Dans Cart::addProduct()</div>
+                    <div class="flow-description">
+                        • $product = Product::getProductById($productId);<br>
+                        • Vérifie que le produit existe<br>
+                        • Ajoute ou augmente la quantité dans $_SESSION['grocery_cart']
+                    </div>
+                </div>
+            </div>
+
+            <div class="session-storage">
+                <strong>📦 Stockage en Session:</strong><br>
+                <code>$_SESSION['grocery_cart'][1] = ['product' => Product Object, 'quantity' => 1];</code>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">8. Redirection</div>
+                    <div class="flow-description">
+                        return $response->withStatus(302)->withHeader('Location', '/products');<br>
+                        (Redirection HTTP 302 vers la page produits)
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">Résumé de l'Action</h3>
+                <div class="key-point">Ajoute ou augmente la quantité d'un produit au panier</div>
+                <div class="key-point">Utilise la session PHP pour persister les données du panier</div>
+                <div class="key-point">Valide l'existence du produit avant l'ajout</div>
+                <div class="key-point">Redirige l'utilisateur vers la page produits après l'ajout</div>
+                <div class="key-point">Le panier persiste entre les pages grâce à la session</div>
+            </div>
+        </div>
+
+        <!-- Action 4: Retirer du panier -->
+        <h2 id="action-remove-cart">➖ 5. Action 4: Retirer un Produit du Panier</h2>
+
+        <div class="action-block cart">
+            <div class="action-header">
+                <div class="action-title">Retirer du Panier</div>
+                <span class="method-badge method-post">POST</span>
+            </div>
+
+            <div class="url">POST /products/remove/{id}</div>
+            <p><strong>Exemple:</strong> POST /products/remove/1 (retirer le produit avec l'ID 1)</p>
+
+            <h3>Cheminement Détaillé</h3>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">1. Requête du Navigateur</div>
+                    <div class="flow-description">
+                        Formulaire HTML avec POST<br>
+                        <code>form method="POST" action="/products/remove/1"</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">2. Routage (index.php, ligne 49-52)</div>
+                    <div class="flow-description">$app->post('/products/remove/{id}', function (Request $request, Response $response, array $args) { ... })</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">3. Récupération de l'ID</div>
+                    <div class="flow-description">
+                        $args['id'] contient l'ID du produit à retirer<br>
+                        Exemple: /products/remove/3 → $args['id'] = '3'
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">4. Instanciation du Contrôleur</div>
+                    <div class="flow-description">$controller = new ProductController();</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">5. Appel de la Méthode</div>
+                    <div class="flow-description">$controller->removeFromCart($request, $response, $args)</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">6. Dans ProductController::removeFromCart()</div>
+                    <div class="flow-description">
+                        • $productId = (int)$args['id'];<br>
+                        • $cart = new Cart();<br>
+                        • $cart->removeProduct($productId);<br>
+                        (Appelle le modèle Cart)
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">7. Dans Cart::removeProduct()</div>
+                    <div class="flow-description">
+                        unset($_SESSION['grocery_cart'][$productId]);<br>
+                        (Supprime complètement le produit du panier)
+                    </div>
+                </div>
+            </div>
+
+            <div class="session-storage">
+                <strong>📦 Effet sur la Session:</strong><br>
+                Le produit avec l'ID spécifié est supprimé du panier.<br>
+                S'il y a plusieurs quantités, tout est supprimé (pas de gestion partielle).
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">8. Redirection</div>
+                    <div class="flow-description">
+                        return $response->withStatus(302)->withHeader('Location', '/products');<br>
+                        (Redirection HTTP 302 vers la page produits)
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">Résumé de l'Action</h3>
+                <div class="key-point">Supprime complètement un produit du panier</div>
+                <div class="key-point">Utilise unset() pour supprimer l'entrée de la session</div>
+                <div class="key-point">Ne supprime que la quantité, le produit disparaît du panier</div>
+                <div class="key-point">Redirige vers la page produits</div>
+                <div class="key-point">Similaire à addToCart mais avec opération inverse</div>
+            </div>
+        </div>
+
+        <!-- Action 5: Vider le panier -->
+        <h2 id="action-clear-cart">🗑️ 6. Action 5: Vider le Panier Complètement</h2>
+
+        <div class="action-block cart">
+            <div class="action-header">
+                <div class="action-title">Vider le Panier</div>
+                <span class="method-badge method-post">POST</span>
+            </div>
+
+            <div class="url">POST /clear-cart</div>
+
+            <h3>Cheminement Détaillé</h3>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">1. Requête du Navigateur</div>
+                    <div class="flow-description">
+                        Bouton ou lien dans le formulaire HTML<br>
+                        <code>form method="POST" action="/clear-cart"</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">2. Routage (index.php, ligne 54-58)</div>
+                    <div class="flow-description">$app->post('/clear-cart', function (Request $request, Response $response) { ... })</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">3. Instanciation du Modèle</div>
+                    <div class="flow-description">
+                        $cart = new Cart();<br>
+                        (Pas de contrôleur, ligne de route directe)
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">4. Appel de la Méthode</div>
+                    <div class="flow-description">$cart->clearCart();</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">5. Dans Cart::clearCart()</div>
+                    <div class="flow-description">
+                        $_SESSION['grocery_cart'] = [];<br>
+                        (Établis le panier à un tableau vide)
+                    </div>
+                </div>
+            </div>
+
+            <div class="session-storage">
+                <strong>📦 Effet sur la Session:</strong><br>
+                Tous les produits sont supprimés du panier.<br>
+                La clé 'grocery_cart' existe toujours mais contient un tableau vide.
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">6. Redirection</div>
+                    <div class="flow-description">
+                        return $response->withStatus(302)->withHeader('Location', '/products');<br>
+                        (Redirection HTTP 302 vers la page produits)
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">Résumé de l'Action</h3>
+                <div class="key-point">Vide complètement le panier en une seule action</div>
+                <div class="key-point">Route directe sans contrôleur ou vue</div>
+                <div class="key-point">Réinitialise la session du panier</div>
+                <div class="key-point">Redirige vers la page produits</div>
+                <div class="key-point">Plus rapide que retirer chaque produit individuellement</div>
+            </div>
+        </div>
+
+        <!-- Action 6: Page Contact -->
+        <h2 id="action-contact">📞 7. Action 6: Afficher la Page de Contact</h2>
+
+        <div class="action-block contact">
+            <div class="action-header">
+                <div class="action-title">Page de Contact</div>
+                <span class="method-badge method-get">GET</span>
+            </div>
+
+            <div class="url">GET /contact</div>
+
+            <h3>Cheminement Détaillé</h3>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">1. Requête du Navigateur</div>
+                    <div class="flow-description">GET http://localhost/contact</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">2. Routage (index.php, ligne 72-75)</div>
+                    <div class="flow-description">$app->get('/contact', function (Request $request, Response $response) { ... })</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">3. Instanciation du Contrôleur</div>
+                    <div class="flow-description">$controller = new ContactController();</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">4. Appel de la Méthode</div>
+                    <div class="flow-description">$controller->index($request, $response)</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">5. Dans ContactController::index()</div>
+                    <div class="flow-description">
+                        • Initialise $pageTitle = 'Contact - Épicerie BIO NATURE'<br>
+                        • Récupère le tableau CONTACT_INFO (constante de classe)
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">6. Données de Contact</div>
+                    <div class="flow-description">
+                        Le contrôleur expose les informations:<br>
+                        • Nom: Épicerie BIO NATURE<br>
+                        • Email: contact@epiceribio.fr<br>
+                        • Téléphone: +33 1 23 45 67 89<br>
+                        • Adresse: 123 Rue du Marché, 75000 Paris<br>
+                        • Horaires: Lun-Ven 8h-19h, Sam 9h-18h, Dim 10h-12h30
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">7. Rendu de la Vue</div>
+                    <div class="flow-description">
+                        • ob_start()<br>
+                        • Inclut app/Views/contact.php<br>
+                        • La vue utilise $pageTitle et $contactInfo<br>
+                        • $mainContent = ob_get_clean()
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">8. Rendu du Layout</div>
+                    <div class="flow-description">
+                        • ob_start()<br>
+                        • Inclut app/Views/layout.php<br>
+                        • $output = ob_get_clean()
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">9. Envoi de la Réponse</div>
+                    <div class="flow-description">
+                        $response->getBody()->write($output);<br>
+                        return $response->withHeader('Content-Type', 'text/html; charset=utf-8');
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h3 style="margin-top: 0;">Résumé de l'Action</h3>
+                <div class="key-point">Affiche les coordonnées de contact de l'épicerie</div>
+                <div class="key-point">Données statiques stockées dans le contrôleur</div>
+                <div class="key-point">Pas d'interaction avec l'utilisateur</div>
+                <div class="key-point">Affiche téléphone, email, adresse et horaires</div>
+                <div class="key-point">Formulaire de contact (peut être présent dans la vue)</div>
+            </div>
+        </div>
+
+        <!-- Action 7: Envoyer Message -->
+        <h2 id="action-send-contact">✉️ 8. Action 7: Envoyer un Message de Contact</h2>
+
+        <div class="action-block contact">
+            <div class="action-header">
+                <div class="action-title">Envoyer Message (Placeholder)</div>
+                <span class="method-badge method-post">POST</span>
+            </div>
+
+            <div class="url">POST /send-contact</div>
+
+            <h3>Cheminement Détaillé</h3>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">1. Requête du Navigateur</div>
+                    <div class="flow-description">
+                        Formulaire HTML depuis la page contact<br>
+                        <code>form method="POST" action="/send-contact"</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">2. Routage (index.php, ligne 77-82)</div>
+                    <div class="flow-description">$app->post('/send-contact', function (Request $request, Response $response) { ... })</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">3. Traitement des Données</div>
+                    <div class="flow-description">
+                        ⚠️ Fonction Placeholder (non implémentée)<br>
+                        Les données du formulaire peuvent être récupérées via:<br>
+                        <code>$data = $request->getParsedBody();</code><br>
+                        Mais aucun traitement n'est effectué actuellement
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">4. Fonction Vide</div>
+                    <div class="flow-description">
+                        Aucun email n'est envoyé<br>
+                        Aucune validation des données<br>
+                        Aucune sauvegarde en base de données<br>
+                        (À implémenter ultérieurement)
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">5. Redirection</div>
+                    <div class="flow-description">
+                        return $response->withStatus(302)->withHeader('Location', '/contact');<br>
+                        (Redirige vers la page contact sans confirmation)
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box" style="background-color: #ffe8e8; border-color: #e74c3c;">
+                <h3 style="margin-top: 0; color: #e74c3c;">⚠️ État Actuel: Placeholder</h3>
+                <div class="key-point">Fonction non implémentée</div>
+                <div class="key-point">Aucune validation des données du formulaire</div>
+                <div class="key-point">Aucun envoi d'email</div>
+                <div class="key-point">Aucune sauvegarde des messages</div>
+                <div class="key-point">À développer pour une utilisation réelle</div>
+            </div>
+
+            <div class="summary-box" style="background-color: #e8f5e9;">
+                <h3 style="margin-top: 0;">Implémentation Recommandée</h3>
+                <div class="key-point">Créer un contrôleur ContactController avec une méthode sendMessage()</div>
+                <div class="key-point">Valider les données du formulaire (nom, email, message)</div>
+                <div class="key-point">Utiliser une bibliothèque de mail (PHPMailer, SwiftMailer)</div>
+                <div class="key-point">Optionnel: Créer un modèle Message pour sauvegarder en base de données</div>
+                <div class="key-point">Ajouter un message de confirmation à l'utilisateur</div>
+            </div>
+        </div>
+
+        <!-- Action 8: Validation Commande -->
+        <h2 id="action-validate">✅ 9. Action 8: Valider la Commande</h2>
+
+        <div class="action-block">
+            <div class="action-header">
+                <div class="action-title">Validation de Commande (Placeholder)</div>
+                <span class="method-badge method-get">GET</span>
+            </div>
+
+            <div class="url">GET /validate-order</div>
+
+            <h3>Cheminement Détaillé</h3>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">1. Requête du Navigateur</div>
+                    <div class="flow-description">
+                        GET http://localhost/validate-order<br>
+                        Ou redirection depuis une page de paiement
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">2. Routage (index.php, ligne 84-89)</div>
+                    <div class="flow-description">$app->get('/validate-order', function (Request $request, Response $response) { ... })</div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">3. Traitement</div>
+                    <div class="flow-description">
+                        ⚠️ Fonction Placeholder (simple)<br>
+                        Aucune validation réelle de commande<br>
+                        Pas d'interaction avec le panier
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">4. Génération de la Réponse</div>
+                    <div class="flow-description">
+                        $response->getBody()->write('<html>...');<br>
+                        Écrit directement un HTML simple:<br>
+                        &lt;h1&gt;Commande validée !&lt;/h1&gt;<br>
+                        &lt;p&gt;Merci pour votre achat.&lt;/p&gt;
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="flow-content">
+                    <div class="flow-label">5. Envoi de la Réponse</div>
+                    <div class="flow-description">
+                        return $response->withHeader('Content-Type', 'text/html');<br>
+                        (Répond avec un HTML minimaliste)
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box" style="background-color: #ffe8e8; border-color: #e74c3c;">
+                <h3 style="margin-top: 0; color: #e74c3c;">⚠️ État Actuel: Placeholder Minimal</h3>
+                <div class="key-point">Pas de contrôleur ou vue associé</div>
+                <div class="key-point">HTML écrit directement dans la route</div>
+                <div class="key-point">Aucune validation de commande</div>
+                <div class="key-point">Aucune interaction avec le panier</div>
+                <div class="key-point">Aucune gestion de paiement</div>
+                <div class="key-point">À implémenter pour un système de commande réel</div>
+            </div>
+
+            <div class="summary-box" style="background-color: #e8f5e9;">
+                <h3 style="margin-top: 0;">Implémentation Recommandée</h3>
+                <div class="key-point">Créer un modèle Order pour représenter une commande</div>
+                <div class="key-point">Vérifier que le panier n'est pas vide</div>
+                <div class="key-point">Créer une table en base de données pour les commandes</div>
+                <div class="key-point">Sauvegarder les articles du panier avec la commande</div>
+                <div class="key-point">Vider le panier après validation</div>
+                <div class="key-point">Intégrer un système de paiement (Stripe, PayPal)</div>
+                <div class="key-point">Créer une vue pour afficher l'échéance et confirmation</div>
+            </div>
+        </div>
+
+        <!-- Modèles -->>
+        <h2 id="models">📊 10. Modèles de Données</h2>
+
+        <h3 id="model-product">📱 Modèle: Product</h3>
+        <p><strong>Fichier:</strong> <span class="file-path">app/Models/Product.php</span></p>
+
+        <div class="model-info">
+            <strong>Description:</strong> Représente un produit de l'épicerie
+            
+            <h4 style="margin-top: 15px; color: #2ecc71;">Propriétés Privées:</h4>
+            <div class="model-methods">
+                <div class="method-item">int $id - Identifiant unique du produit</div>
+                <div class="method-item">string $name - Nom du produit</div>
+                <div class="method-item">string $category - Catégorie (Fruits/Légumes)</div>
+                <div class="method-item">float $price - Prix en euros</div>
+                <div class="method-item">string $description - Description du produit</div>
+            </div>
+
+            <h4 style="margin-top: 15px; color: #2ecc71;">Méthodes Publiques:</h4>
+            <div class="model-methods">
+                <div class="method-item">__construct(int, string, string, float, string) - Constructeur</div>
+                <div class="method-item">getId(): int - Retourne l'ID</div>
+                <div class="method-item">getName(): string - Retourne le nom</div>
+                <div class="method-item">getCategory(): string - Retourne la catégorie</div>
+                <div class="method-item">getPrice(): float - Retourne le prix</div>
+                <div class="method-item">getDescription(): string - Retourne la description</div>
+            </div>
+
+            <h4 style="margin-top: 15px; color: #2ecc71;">Méthodes Statiques:</h4>
+            <div class="model-methods">
+                <div class="method-item">getAllProducts(): array - Retourne les 10 produits</div>
+                <div class="method-item">getProductsByCategory(string): array - Filtre par catégorie</div>
+                <div class="method-item">getProductById(int): ?Product - Récupère un produit par ID</div>
+            </div>
+
+            <h4 style="margin-top: 15px; color: #2ecc71;">Produits Disponibles:</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Catégorie</th>
+                        <th>Prix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Pommes</td>
+                        <td>Fruits</td>
+                        <td>2,50€</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Bananes</td>
+                        <td>Fruits</td>
+                        <td>1,80€</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Oranges</td>
+                        <td>Fruits</td>
+                        <td>3,00€</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Fraises</td>
+                        <td>Fruits</td>
+                        <td>4,50€</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Raisins</td>
+                        <td>Fruits</td>
+                        <td>3,50€</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Tomates</td>
+                        <td>Légumes</td>
+                        <td>2,80€</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Carottes</td>
+                        <td>Légumes</td>
+                        <td>1,50€</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Laitue</td>
+                        <td>Légumes</td>
+                        <td>2,00€</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Poivrons</td>
+                        <td>Légumes</td>
+                        <td>3,20€</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Brocoli</td>
+                        <td>Légumes</td>
+                        <td>3,80€</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 id="model-cart">🛒 Modèle: Cart</h3>
+        <p><strong>Fichier:</strong> <span class="file-path">app/Models/Cart.php</span></p>
+
+        <div class="model-info">
+            <strong>Description:</strong> Gère le panier de l'utilisateur stocké en session
+            
+            <h4 style="margin-top: 15px; color: #2ecc71;">Constantes:</h4>
+            <div class="model-methods">
+                <div class="method-item">SESSION_KEY = 'grocery_cart' - Clé de session pour le panier</div>
+            </div>
+
+            <h4 style="margin-top: 15px; color: #2ecc71;">Constructeur:</h4>
+            <div class="model-methods">
+                <div class="method-item">__construct() - Initialise la session du panier s'il n'existe pas</div>
+            </div>
+
+            <h4 style="margin-top: 15px; color: #2ecc71;">Méthodes Publiques:</h4>
+            <div class="model-methods">
+                <div class="method-item">addProduct(int, int = 1): void - Ajoute/incrémente un produit</div>
+                <div class="method-item">removeProduct(int): void - Supprime complètement un produit</div>
+                <div class="method-item">updateQuantity(int, int): void - Met à jour la quantité d'un produit</div>
+                <div class="method-item">getCartItems(): array - Retourne tous les articles du panier</div>
+                <div class="method-item">getCartTotal(): float - Calcule le total du panier</div>
+                <div class="method-item">getItemCount(): int - Compte le nombre total d'articles</div>
+                <div class="method-item">clearCart(): void - Vide complètement le panier</div>
+                <div class="method-item">isEmpty(): bool - Vérifie si le panier est vide</div>
+            </div>
+
+            <h4 style="margin-top: 15px; color: #2ecc71;">Stockage en Session:</h4>
+            <div class="diagram">
+$_SESSION['grocery_cart'] = [
+    1 => ['product' => Product, 'quantity' => 2],
+    3 => ['product' => Product, 'quantity' => 1],
+    7 => ['product' => Product, 'quantity' => 3]
+]
+            </div>
+
+            <h4 style="margin-top: 15px; color: #2ecc71;">Exemple d'Utilisation:</h4>
+            <div class="diagram">
+$cart = new Cart();
+$cart->addProduct(1, 2);      // Ajoute 2 pommes
+$cart->addProduct(3);          // Ajoute 1 orange
+$total = $cart->getCartTotal(); // Récupère le total
+$items = $cart->getCartItems(); // Récupère tous les articles
+            </div>
+        </div>
+
+        <!-- Résumé -->
+        <h2 id="resume">📝 11. Résumé Technique</h2>
+
+        <div class="section-architecture">
+            <h3>Routes Enregistrées</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Méthode</th>
+                        <th>URL</th>
+                        <th>Contrôleur/Action</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>GET</td>
+                        <td>/</td>
+                        <td>HomeController::index()</td>
+                        <td>Page</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/products</td>
+                        <td>ProductController::index()</td>
+                        <td>Page</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/products/add/{id}</td>
+                        <td>ProductController::addToCart()</td>
+                        <td>Action</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/products/remove/{id}</td>
+                        <td>ProductController::removeFromCart()</td>
+                        <td>Action</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/clear-cart</td>
+                        <td>Cart::clearCart()</td>
+                        <td>Action</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/contact</td>
+                        <td>ContactController::index()</td>
+                        <td>Page</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/send-contact</td>
+                        <td>Placeholder</td>
+                        <td>Action</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/validate-order</td>
+                        <td>Placeholder</td>
+                        <td>Page</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Flux Général d'une Requête HTTP</h3>
+        <div class="diagram">
+┌─────────────────────────┐
+│   Requête HTTP          │
+│  (GET/POST + URL)       │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│   index.php             │
+│  (Entrée de l'app)      │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│  Routeur Slim           │
+│  (Matching URL)         │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│  Callback/Contrôleur    │
+│  (Traitement métier)    │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│   Vue (if needed)       │
+│   (Output HTML)         │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│  Response Object        │
+│  (Avec headers)         │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│  Réponse HTTP           │
+│  (HTML au navigateur)   │
+└─────────────────────────┘
+        </div>
+
+        <h3>Technologies Utilisées</h3>
+        <div class="section-architecture">
+            <div class="architecture-item">
+                <strong>Framework:</strong> Slim Framework 4 (PSR-7, PSR-15)
+            </div>
+            <div class="architecture-item">
+                <strong>Langage:</strong> PHP 7.4+
+            </div>
+            <div class="architecture-item">
+                <strong>Architecture:</strong> MVC (Model-View-Controller)
+            </div>
+            <div class="architecture-item">
+                <strong>Pattern de Routage:</strong> FastRoute
+            </div>
+            <div class="architecture-item">
+                <strong>Gestion de Session:</strong> Native PHP ($_SESSION)
+            </div>
+            <div class="architecture-item">
+                <strong>Base de Données:</strong> Aucune (données en mémoire pour produits)
+            </div>
+        </div>
+
+        <h3>Gestion de la Session</h3>
+        <div class="summary-box">
+            <div class="key-point">La session est démarrée automatiquement dans le constructeur de Cart</div>
+            <div class="key-point">Les données du panier sont persistées dans $_SESSION['grocery_cart']</div>
+            <div class="key-point">La session existe tant que le cookie de session existe</div>
+            <div class="key-point">Le panier persiste entre les pages grâce à la session</div>
+            <div class="key-point">À la fermeture du navigateur, la session peut être perdue (paramètres PHP)</div>
+        </div>
+
+        <h3>Améliorations Futures à Considérer</h3>
+        <div class="summary-box" style="background-color: #fff3cd; border-color: #ffc107;">
+            <div class="key-point">Implémenter une base de données réelle (MySQL, PostgreSQL)</div>
+            <div class="key-point">Créer un système d'authentification utilisateur</div>
+            <div class="key-point">Implémenter les fonctions placeholder (contact, validation)</div>
+            <div class="key-point">Ajouter la gestion complète des commandes</div>
+            <div class="key-point">Intégrer un système de paiement</div>
+            <div class="key-point">Créer une interface d'administration</div>
+            <div class="key-point">Ajouter des tests unitaires et d'intégration</div>
+            <div class="key-point">Mettre en place une validation des formulaires robuste</div>
+        </div>
+
+        <div class="footer">
+            <p>Ce rapport a été généré le 23 février 2026.</p>
+            <p>Pour plus d'informations, veuillez consulter la documentation du projet.</p>
+            <p><strong>Version du site:</strong> Épicerie BIO NATURE - SlimFramework</p>
+        </div>
+    </div>
+</body>
+</html>
