@@ -14,8 +14,8 @@ spl_autoload_register(function (string $class): void {
         return;
     }
 
-    if (str_starts_with($relativeClass, 'Models/')) {
-        $modelName = substr($relativeClass, strlen('Models/'));
+    if (str_starts_with($relativeClass, 'Models\\') || str_starts_with($relativeClass, 'Models/')) {
+        $modelName = str_replace(['Models\\', 'Models/'], '', $relativeClass);
         $altFile = __DIR__ . '/models/' . $modelName . 'Model.php';
         if (file_exists($altFile)) {
             require_once $altFile;

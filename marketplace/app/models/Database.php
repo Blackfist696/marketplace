@@ -11,14 +11,14 @@ class Database
     public static function getConnection(): PDO
     {
         if (self::$pdo === null) {
-            $configFile = __DIR__ . '/../configs/databaseConfig.php';
+            $configFile = __DIR__ . '/../../configs/databaseConfig.php';
             $config = file_exists($configFile) ? require $configFile : [];
 
-            $host = $config['host'];
-            $dbname = $config['name'];
-            $user = $config['user'];
-            $password = $config['password'];
-            $charset = $config['charset'];
+            $host = $config['host'] ?? getenv('DB_HOST') ?: '127.0.0.1';
+            $dbname = $config['name'] ?? getenv('DB_NAME') ?: 'marketplace_artisanal';
+            $user = $config['user'] ?? getenv('DB_USER') ?: 'root';
+            $password = $config['password'] ?? getenv('DB_PASS') ?: '';
+            $charset = $config['charset'] ?? getenv('DB_CHARSET') ?: 'utf8mb4';
             $dsn = sprintf('mysql:host=%s;dbname=%s;charset=%s', $host, $dbname, $charset);
 
             self::$pdo = new PDO(
