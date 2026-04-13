@@ -1,3 +1,12 @@
+-- ============================================================
+--  MARKETPLACE DE PRODUITS ARTISANAUX
+--  Base de données : marketplace_artisanal
+--  SGBD : MariaDB 10.11+ / MySQL 8.0+
+--  Encodage : utf8mb4
+--  Auteurs : Ramy - Pascal
+--  Projet d'intégration 2025-2026
+-- ============================================================
+
 -- Création de la base de données
 CREATE DATABASE IF NOT EXISTS marketplace_artisanal
   CHARACTER SET utf8mb4 
