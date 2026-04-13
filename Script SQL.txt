@@ -121,7 +121,7 @@ CREATE TABLE artisans (
   description         TEXT,
   logo                VARCHAR(255),
   banniere            VARCHAR(255),
-  siret               VARCHAR(14) UNIQUE,
+  tva                 VARCHAR(14) UNIQUE,
   iban                VARCHAR(34),
   couleur_primaire    VARCHAR(7) DEFAULT '#D4A855',
   couleur_secondaire  VARCHAR(7),

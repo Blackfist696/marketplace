@@ -3,24 +3,123 @@
 namespace App\Models;
 
 use PDO;
+use App\Models\Validators\ValidationException;
+use App\Models\Validators\ValidationResult;
 use InvalidArgumentException;
 
 require_once __DIR__ . '/Database.php';
 
+/**
+ * Base model providing generic CRUD operations and validation support.
+ *
+ * Les classes enfants définissent le nom de la table, la clé primaire,
+ * les champs autorisés et le validateur optionnel.
+ */
 abstract class Model
 {
     protected static string $table;
     protected static string $primaryKey = 'id';
     protected static array $fields = [];
+    protected static ?string $validatorClass = null;
     protected array $attributes = [];
 
+    /**
+     * Retourne la classe de validateur associée au modèle.
+     *
+     * @return string|null Nom de la classe de validateur ou null si aucun validateur.
+     */
+    protected static function getValidatorClass(): ?string
+    {
+        return static::$validatorClass;
+    }
+
+    /**
+     * Valide un jeu de données via le validateur associé au modèle.
+     *
+     * @param array $data Données à valider.
+     * @return ValidationResult Résultat de la validation.
+     * @throws InvalidArgumentException Si la classe de validateur est introuvable ou incorrecte.
+     */
+    protected static function validateData(array $data): ValidationResult
+    {
+        $validatorClass = static::getValidatorClass();
+        if ($validatorClass === null) {
+            return new ValidationResult();
+        }
+
+        if (!class_exists($validatorClass)) {
+            throw new InvalidArgumentException(sprintf('Validator class "%s" not found.', $validatorClass));
+        }
+
+        $validator = new $validatorClass();
+        if (!method_exists($validator, 'validate')) {
+            throw new InvalidArgumentException(sprintf('Validator class "%s" must implement validate().', $validatorClass));
+        }
+
+        return $validator->validate($data);
+    }
+
+    /**
+     * Valide un ensemble de données pour le modèle.
+     *
+     * @param array $data Données à valider.
+     * @return ValidationResult Résultat de la validation.
+     */
+    public static function validate(array $data): ValidationResult
+    {
+        return static::validateData($data);
+    }
+
+    /**
+     * Nettoie une valeur pour éviter l'injection de code malicieux.
+     *
+     * @param mixed $value Valeur brute.
+     * @return mixed Valeur nettoyée.
+     */
+    protected static function sanitizeValue($value)
+    {
+        if (is_string($value)) {
+            return trim(strip_tags($value));
+        }
+
+        if (is_array($value)) {
+            return array_map(static fn($item) => static::sanitizeValue($item), $value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Nettoie un tableau de données en appliquant sanitizeValue() sur chaque élément.
+     *
+     * @param array $data Données à nettoyer.
+     * @return array Données nettoyées.
+     */
+    protected static function sanitizeData(array $data): array
+    {
+        return array_map(static fn($value) => static::sanitizeValue($value), $data);
+    }
+
+    /**
+     * Initialise le modèle avec des attributs optionnels.
+     *
+     * @param array $attributes Attributs initiales du modèle.
+     */
     public function __construct(array $attributes = [])
     {
         $this->fill($attributes);
     }
 
+    /**
+     * Remplit le modèle avec un tableau d'attributs valides.
+     *
+     * @param array $attributes Données à assigner au modèle.
+     * @return $this
+     */
     public function fill(array $attributes): self
     {
+        $attributes = static::sanitizeData($attributes);
+
         if (isset($attributes[static::$primaryKey])) {
             $this->attributes[static::$primaryKey] = $attributes[static::$primaryKey];
         }
@@ -34,11 +133,23 @@ abstract class Model
         return $this;
     }
 
+    /**
+     * Récupère dynamiquement une valeur d'attribut.
+     *
+     * @param string $name Nom de l'attribut.
+     * @return mixed|null Valeur de l'attribut ou null si non défini.
+     */
     public function __get(string $name)
     {
         return $this->attributes[$name] ?? null;
     }
 
+    /**
+     * Définit dynamiquement une valeur d'attribut si elle est autorisée.
+     *
+     * @param string $name Nom de l'attribut.
+     * @param mixed $value Valeur à assigner.
+     */
     public function __set(string $name, $value): void
     {
         if ($name === static::$primaryKey || in_array($name, static::$fields, true)) {
@@ -46,22 +157,43 @@ abstract class Model
         }
     }
 
+    /**
+     * Retourne les attributs du modèle sous forme de tableau.
+     *
+     * @return array Tableau des attributs.
+     */
     public function toArray(): array
     {
         return $this->attributes;
     }
 
+    /**
+     * Retourne la connexion PDO partagée.
+     *
+     * @return PDO Instance de connexion à la base de données.
+     */
     public static function getPDO(): PDO
     {
         return Database::getConnection();
     }
 
+    /**
+     * Récupère toutes les lignes de la table associée.
+     *
+     * @return array Résultats en tableau.
+     */
     public static function all(): array
     {
         $sql = sprintf('SELECT * FROM %s', static::$table);
         return static::getPDO()->query($sql)->fetchAll();
     }
 
+    /**
+     * Trouve une ligne par clé primaire.
+     *
+     * @param int $id Identifiant de la ligne.
+     * @return array|null Ligne trouvée ou null si absente.
+     */
     public static function find(int $id): ?array
     {
         $sql = sprintf('SELECT * FROM %s WHERE %s = :id', static::$table, static::$primaryKey);
@@ -72,11 +204,20 @@ abstract class Model
         return $result === false ? null : $result;
     }
 
+    /**
+     * Recherche des lignes par colonne autorisée.
+     *
+     * @param string $column Colonne autorisée.
+     * @param mixed $value Valeur recherchée.
+     * @return array Résultats correspondants.
+     */
     public static function where(string $column, $value): array
     {
         if ($column !== static::$primaryKey && !in_array($column, static::$fields, true)) {
             throw new InvalidArgumentException(sprintf('La colonne "%s" n\'est pas autorisée.', $column));
         }
+
+        $value = static::sanitizeValue($value);
 
         $sql = sprintf('SELECT * FROM %s WHERE %s = :value', static::$table, $column);
         $stmt = static::getPDO()->prepare($sql);
@@ -85,11 +226,25 @@ abstract class Model
         return $stmt->fetchAll();
     }
 
+    /**
+     * Insère une nouvelle ligne en base de données.
+     *
+     * @param array $data Données à insérer.
+     * @return int Identifiant de la nouvelle ligne.
+     * @throws InvalidArgumentException Si aucun champ valide n'est fourni.
+     * @throws ValidationException Si la validation échoue.
+     */
     public static function create(array $data): int
     {
         $fields = array_intersect_key($data, array_flip(static::$fields));
+        $fields = static::sanitizeData($fields);
         if (empty($fields)) {
             throw new InvalidArgumentException('Aucun champ valide fourni pour la création.');
+        }
+
+        $validation = static::validateData($fields);
+        if (!$validation->isValid()) {
+            throw new ValidationException($validation->getErrors(), 'Validation failed for create.');
         }
 
         $columns = array_keys($fields);
@@ -110,11 +265,26 @@ abstract class Model
         return (int) static::getPDO()->lastInsertId();
     }
 
+    /**
+     * Met à jour une ligne existante.
+     *
+     * @param int $id Identifiant de la ligne à modifier.
+     * @param array $data Données de mise à jour.
+     * @return bool True si la mise à jour a réussi.
+     * @throws InvalidArgumentException Si aucun champ valide n'est fourni.
+     * @throws ValidationException Si la validation échoue.
+     */
     public static function update(int $id, array $data): bool
     {
         $fields = array_intersect_key($data, array_flip(static::$fields));
+        $fields = static::sanitizeData($fields);
         if (empty($fields)) {
             throw new InvalidArgumentException('Aucun champ valide fourni pour la mise à jour.');
+        }
+
+        $validation = static::validateData($fields);
+        if (!$validation->isValid()) {
+            throw new ValidationException($validation->getErrors(), 'Validation failed for update.');
         }
 
         $assignments = array_map(fn($column) => sprintf('%s = :%s', $column, $column), array_keys($fields));
@@ -134,6 +304,12 @@ abstract class Model
         return $stmt->execute();
     }
 
+    /**
+     * Supprime une ligne par identifiant.
+     *
+     * @param int $id Identifiant de la ligne à supprimer.
+     * @return bool True si la suppression a réussi.
+     */
     public static function delete(int $id): bool
     {
         $sql = sprintf('DELETE FROM %s WHERE %s = :id', static::$table, static::$primaryKey);
@@ -141,6 +317,11 @@ abstract class Model
         return $stmt->execute(['id' => $id]);
     }
 
+    /**
+     * Sauvegarde le modèle : création ou mise à jour selon l'existence de la clé primaire.
+     *
+     * @return int Identifiant de l'enregistrement sauvegardé.
+     */
     public function save(): int
     {
         if (isset($this->attributes[static::$primaryKey])) {

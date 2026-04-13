@@ -1,18 +1,20 @@
 <?php
-
 namespace App\Controllers;
 
+use App\View\JsonView;
+
+/**
+ * Base controller permettant de renvoyer des réponses JSON standardisées.
+ */
 abstract class Controller
 {
-    protected function renderJson($data, int $status = 200): void
-    {
-        if (!headers_sent()) {
-            header('Content-Type: application/json; charset=utf-8', true, $status);
-        }
-
-        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    }
-
+    /**
+     * Envoie une réponse JSON uniforme au client.
+     *
+     * @param int $status Code HTTP de la réponse.
+     * @param string $message Message descriptif.
+     * @param array $data Données supplémentaires à renvoyer.
+     */
     protected function respond(int $status = 200, string $message = '', array $data = []): void
     {
         $payload = [
@@ -24,6 +26,6 @@ abstract class Controller
             $payload['data'] = $data;
         }
 
-        $this->renderJson($payload, $status);
+        JsonView::render($payload, $status);
     }
 }

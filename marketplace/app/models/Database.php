@@ -4,14 +4,22 @@ namespace App\Models;
 
 use PDO;
 
+/**
+ * Gestionnaire de connexion PDO singleton.
+ */
 class Database
 {
     private static ?PDO $pdo = null;
 
+    /**
+     * Retourne une instance PDO configurée pour la base de données.
+     *
+     * @return PDO Instance de connexion.
+     */
     public static function getConnection(): PDO
     {
         if (self::$pdo === null) {
-            $configFile = __DIR__ . '/../../configs/databaseConfig.php';
+            $configFile = __DIR__ . '/../config/databaseConfig.php';
             $config = file_exists($configFile) ? require $configFile : [];
 
             $host = $config['host'] ?? getenv('DB_HOST') ?: '127.0.0.1';

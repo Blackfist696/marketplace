@@ -14,6 +14,16 @@ spl_autoload_register(function (string $class): void {
         return;
     }
 
+    // support lower-case directory names for view and models on Windows
+    $relativeDir = dirname(str_replace('\\', '/', $relativeClass));
+    $className = basename(str_replace('\\', '/', $relativeClass));
+    $lowerDir = strtolower($relativeDir);
+    $altFile = __DIR__ . '/' . $lowerDir . '/' . $className . '.php';
+    if (file_exists($altFile)) {
+        require_once $altFile;
+        return;
+    }
+
     if (str_starts_with($relativeClass, 'Models\\') || str_starts_with($relativeClass, 'Models/')) {
         $modelName = str_replace(['Models\\', 'Models/'], '', $relativeClass);
         $altFile = __DIR__ . '/models/' . $modelName . 'Model.php';
