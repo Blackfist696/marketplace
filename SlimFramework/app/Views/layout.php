@@ -270,14 +270,15 @@
     </style>
 </head>
 <body>
+    <?php $mainContent = $mainContent ?? ''; ?>
     <header>
         <div class="header-container">
-            <a href="/" class="logo">🌱 Épicerie BIO</a>
+            <a href="<?php echo app_url('/'); ?>" class="logo">🌱 Épicerie BIO</a>
             <nav>
                 <ul>
-                    <li><a href="/">Accueil</a></li>
-                    <li><a href="/products">Produits</a></li>
-                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="<?php echo app_url('/'); ?>">Accueil</a></li>
+                    <li><a href="<?php echo app_url('/products'); ?>">Produits</a></li>
+                    <li><a href="<?php echo app_url('/contact'); ?>">Contact</a></li>
                 </ul>
             </nav>
             <?php if (session_id() === '' || !isset($_SESSION)): ?>

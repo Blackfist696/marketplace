@@ -1,5 +1,8 @@
 <?php
 use App\Models\Cart;
+
+$products = $products ?? [];
+$cart = $cart ?? new Cart();
 ?>
 
 <div class="container">
@@ -25,7 +28,7 @@ use App\Models\Cart;
                             <span class="product-category"><?php echo htmlspecialchars($product->getCategory()); ?></span>
                             <p class="product-description"><?php echo htmlspecialchars($product->getDescription()); ?></p>
                             <div class="product-price"><?php echo number_format($product->getPrice(), 2, ',', ' '); ?> €</div>
-                            <form method="POST" action="/products/add/<?php echo $product->getId(); ?>" style="display: inline;">
+                            <form method="POST" action="<?php echo app_url('/products/add/' . $product->getId()); ?>" style="display: inline;">
                                 <button type="submit" class="btn" style="width: 100%;">Ajouter au panier</button>
                             </form>
                         </div>
@@ -43,7 +46,7 @@ use App\Models\Cart;
                             <span class="product-category"><?php echo htmlspecialchars($product->getCategory()); ?></span>
                             <p class="product-description"><?php echo htmlspecialchars($product->getDescription()); ?></p>
                             <div class="product-price"><?php echo number_format($product->getPrice(), 2, ',', ' '); ?> €</div>
-                            <form method="POST" action="/products/add/<?php echo $product->getId(); ?>" style="display: inline;">
+                            <form method="POST" action="<?php echo app_url('/products/add/' . $product->getId()); ?>" style="display: inline;">
                                 <button type="submit" class="btn" style="width: 100%;">Ajouter au panier</button>
                             </form>
                         </div>
@@ -94,7 +97,7 @@ use App\Models\Cart;
                                     <br>
                                     <small style="color: #999;">Quantité: <?php echo $item['quantity']; ?></small>
                                 </span>
-                                <form method="POST" action="/products/remove/<?php echo $item['product']->getId(); ?>" style="display: inline;">
+                                <form method="POST" action="<?php echo app_url('/products/remove/' . $item['product']->getId()); ?>" style="display: inline;">
                                     <button type="submit" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;">✕</button>
                                 </form>
                             </li>
@@ -102,8 +105,8 @@ use App\Models\Cart;
                     </ul>
 
                     <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                        <a href="/validate-order" class="btn" style="text-align: center; width: 100%;">Passer la commande</a>
-                        <form method="POST" action="/clear-cart" style="width: 100%;">
+                        <a href="<?php echo app_url('/validate-order'); ?>" class="btn" style="text-align: center; width: 100%;">Passer la commande</a>
+                        <form method="POST" action="<?php echo app_url('/clear-cart'); ?>" style="width: 100%;">
                             <button type="submit" class="btn btn-danger" style="width: 100%; text-align: center;">Vider le panier</button>
                         </form>
                     </div>

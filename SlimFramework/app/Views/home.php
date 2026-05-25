@@ -41,7 +41,7 @@
     </p>
 
     <div style="text-align: center; margin-top: 30px;">
-        <a href="/products" class="btn" style="font-size: 16px; padding: 15px 30px;">
+        <a href="<?php echo app_url('/products'); ?>" class="btn" style="font-size: 16px; padding: 15px 30px;">
             Voir nos Produits 🛒
         </a>
     </div>

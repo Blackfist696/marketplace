@@ -14,6 +14,39 @@ require __DIR__ . '/vendor/autoload.php';
 // Créer l'application Slim
 $app = AppFactory::create();
 
+// Charger la configuration de l'application
+$config = require __DIR__ . '/app/config/app.php';
+
+// Configurer le base path (priorite a la variable d'environnement)
+$basePath = getenv('APP_BASE_PATH');
+if ($basePath === false || $basePath === '') {
+    $basePath = $config['base_path'] ?? '';
+}
+
+if ($basePath !== '') {
+    $basePath = '/' . trim($basePath, '/');
+}
+
+$app->setBasePath($basePath);
+
+if (!defined('APP_BASE_PATH')) {
+    define('APP_BASE_PATH', rtrim($basePath, '/'));
+}
+
+if (!function_exists('app_url')) {
+    function app_url(string $path = ''): string
+    {
+        $base = APP_BASE_PATH;
+        $normalizedPath = '/' . ltrim($path, '/');
+
+        if ($normalizedPath === '/') {
+            return $base !== '' ? $base : '/';
+        }
+
+        return ($base !== '' ? $base : '') . $normalizedPath;
+    }
+}
+
 // Ajouter Route Middleware
 $app->addRoutingMiddleware();
 
@@ -63,7 +96,7 @@ $app->post('/clear-cart', function (Request $request, Response $response) {
     $cart->clearCart();
     return $response
         ->withStatus(302)
-        ->withHeader('Location', '/products');
+        ->withHeader('Location', app_url('/products'));
 });
 
 // Page contact
@@ -78,14 +111,14 @@ $app->post('/send-contact', function (Request $request, Response $response) {
     // Pour une version complete, ajouter la gestion des emails ici
     return $response
         ->withStatus(302)
-        ->withHeader('Location', '/contact');
+        ->withHeader('Location', app_url('/contact'));
 });
 
 // Valider la commande (placeholder)
 $app->get('/validate-order', function (Request $request, Response $response) {
     // Placeholder pour la validation de commande
     // Vous pouvez créer une vue pour afficher un message de confirmation
-    $response->getBody()->write('<html><body><h1>Commande validée !</h1><p>Merci pour votre achat.</p><a href="/">Retour à l\'accueil</a></body></html>');
+    $response->getBody()->write('<html><body><h1>Commande validée !</h1><p>Merci pour votre achat.</p><a href="' . app_url('/') . '">Retour à l\'accueil</a></body></html>');
     return $response->withHeader('Content-Type', 'text/html');
 });
 

@@ -1,4 +1,14 @@
 <div class="container">
+    <?php
+    $contactInfo = $contactInfo ?? [
+        'name' => '',
+        'email' => '',
+        'phone' => '',
+        'address' => '',
+        'city' => '',
+        'hours' => [],
+    ];
+    ?>
     <h1>Contactez-nous</h1>
     <p style="font-size: 16px; color: #666; margin-bottom: 30px;">
         Nous sommes à votre écoute ! N'hésitez pas à nous contacter pour toute question ou suggestion.
@@ -51,7 +61,7 @@
     </div>
 
     <h2 style="margin-top: 50px;">Formulaire de contact</h2>
-    <form method="POST" action="/send-contact" style="max-width: 600px; margin-top: 20px;">
+    <form method="POST" action="<?php echo app_url('/send-contact'); ?>" style="max-width: 600px; margin-top: 20px;">
         <div style="margin-bottom: 20px;">
             <label for="name" style="display: block; margin-bottom: 5px; font-weight: bold;">Nom *</label>
             <input type="text" id="name" name="name" required 

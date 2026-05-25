@@ -41,7 +41,7 @@ class ProductController
 
         return $response
             ->withStatus(302)
-            ->withHeader('Location', '/products');
+            ->withHeader('Location', app_url('/products'));
     }
 
     public function removeFromCart(Request $request, Response $response, array $args): Response
@@ -52,6 +52,6 @@ class ProductController
 
         return $response
             ->withStatus(302)
-            ->withHeader('Location', '/products');
+            ->withHeader('Location', app_url('/products'));
     }
 }
