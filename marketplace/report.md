@@ -1,5 +1,9 @@
 # Rapport d'analyse du projet `marketplace`
 
+## Documentation d'architecture
+
+- Voir `ARCHITECTURE.md` pour la separation backend/frontend, les conventions d'integration API et la strategie d'evolution du depot.
+
 ## 1. Structure du projet
 
 - `app/`
