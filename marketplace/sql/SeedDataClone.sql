@@ -1,8 +1,11 @@
--- Seed data script for a second database.
--- Prerequisite: run schema from sql/Script SQL.sql first.
-
-CREATE DATABASE IF NOT EXISTS marketplace_seed_clone CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE marketplace_seed_clone;
+-- Seed data script.
+-- Prerequisite: run schema from sql/Script SQL.sql first
+-- in the CURRENTLY SELECTED database.
+--
+-- Example workflow:
+-- 1) Create/select your target database in MariaDB.
+-- 2) Import sql/Script SQL.sql into that database.
+-- 3) Run this seed file in the same selected database.
 
 SET FOREIGN_KEY_CHECKS = 0;
 
