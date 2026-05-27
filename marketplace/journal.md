@@ -2,15 +2,40 @@
 
 ## Check-list de reprise (5 minutes)
 
-- [ ] Ouvrir le projet et verifier l etat Git: `git status --short`
-- [ ] Corriger le trigger SQL `tr_check_adresse_utilisateur` dans `sql/Script SQL.sql`
-- [ ] Rejouer le schema SQL sur la base locale
-- [ ] Relancer le seed PHP: `php app/seed.php`
-- [ ] Verifier rapidement les endpoints:
+- [x] Ouvrir le projet et verifier l etat Git: `git status --short`
+- [x] Corriger le trigger SQL `tr_check_adresse_utilisateur` dans `sql/Script SQL.sql`
+- [x] Rejouer le schema SQL sur la base locale
+- [x] Relancer le seed PHP: `php app/seed.php`
+- [x] Verifier rapidement les endpoints:
   - `GET /api/lignes-commandes`
   - `GET /api/statistiques-artisans`
   - `GET /api/pays`
-- [ ] Mettre a jour ce journal avec les nouveaux resultats
+- [x] Mettre a jour ce journal avec les nouveaux resultats
+
+## 2026-05-27 (suite reprise)
+
+### Reprise effectuee
+1. Trigger SQL corrige dans `sql/Script SQL.sql`
+- `tr_check_adresse_utilisateur` ne lit plus `adresse.Id_utilisateur`.
+- Verification basee sur `r_utilisateur_adresse (Id_utilisateur, Id_adresse)`.
+
+2. Application en base locale
+- Le client `mysql` n etait pas disponible dans le terminal.
+- Correction appliquee directement en base via `php` + `mysqli` (drop/create trigger).
+
+3. Seed relance
+- Commande: `php app/seed.php`
+- Resultat: `Seed complete...` sans warning `Unknown column Id_utilisateur`.
+
+4. Correctif applicatif detecte pendant verification API
+- Erreur fatale constatee: `Call to a member function run() on array` dans `public/index.php`.
+- Cause: `app/config/routes.php` retourne un tableau de routes, pas une instance Slim.
+- Correctif: remplacement par un dispatcher HTTP simple base sur le mapping des routes.
+
+5. Verification endpoints (OK)
+- `GET /api/lignes-commandes` => HTTP 200
+- `GET /api/statistiques-artisans` => HTTP 200
+- `GET /api/pays` => HTTP 200
 
 ## 2026-05-27
 

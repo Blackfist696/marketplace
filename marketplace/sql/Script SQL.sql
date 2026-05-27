@@ -247,11 +247,13 @@ CREATE TRIGGER tr_check_adresse_utilisateur
 BEFORE INSERT ON commande
 FOR EACH ROW
 BEGIN
-   DECLARE owner INT;
-   SELECT Id_utilisateur INTO owner 
-   FROM adresse WHERE Id_adresse = NEW.Id_adresse;
-   
-   IF owner != NEW.Id_utilisateur THEN
+   DECLARE has_link INT DEFAULT 0;
+   SELECT COUNT(*) INTO has_link
+   FROM r_utilisateur_adresse
+   WHERE Id_adresse = NEW.Id_adresse
+     AND Id_utilisateur = NEW.Id_utilisateur;
+
+   IF has_link = 0 THEN
       SIGNAL SQLSTATE '45000'
       SET MESSAGE_TEXT = 'Cette adresse n appartient pas a cet utilisateur';
    END IF;

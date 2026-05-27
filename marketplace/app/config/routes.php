@@ -1,118 +1,128 @@
 <?php
 
-return [
-    // Home route
-    'GET /' => 'App\\Controllers\\HomeController@index',
+use App\Core\ControllerActionInvoker;
+use App\Middleware\AuthMiddleware;
+use App\Middleware\RoleMiddleware;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\App;
 
-    // ── Auth (visiteur anonyme) ─────────────────────────────────────────────
-    'GET /login'    => 'App\\Controllers\\AuthController@loginForm',
-    'POST /login'   => 'App\\Controllers\\AuthController@login',
-    'POST /logout'  => 'App\\Controllers\\AuthController@logout',
-    'GET /register' => 'App\\Controllers\\AuthController@registerForm',
-    'POST /register'=> 'App\\Controllers\\AuthController@register',
+return function (App $app): void {
+    $invoker = new ControllerActionInvoker();
 
-    // ── Artisans publics (lecture anonyme) ─────────────────────────────────
-    'GET /artisans'       => 'App\\Controllers\\ArtisanController@index',
-    'GET /artisans/{id}'  => 'App\\Controllers\\ArtisanController@show',
+    $register = static function (array|string $methods, string $path, string $handler, array $middlewares = []) use ($app, $invoker): void {
+        $route = $app->map((array) $methods, $path, function (Request $request, Response $response, array $args) use ($invoker, $handler): Response {
+            return $invoker->invoke($request, $response, $handler, $args);
+        });
 
-    // ── Produits (lecture anonyme, CRUD réservé artisan/admin) ─────────────
-    'GET /products'                        => 'App\\Controllers\\ProductController@index',
-    'GET /products/{id}'                   => 'App\\Controllers\\ProductController@show',
-    'GET /artisans/{artisan_id}/products'  => 'App\\Controllers\\ProductController@indexByArtisan',
-    'POST /products'                       => 'App\\Controllers\\ProductController@store',
-    'PUT /products/{id}'                   => 'App\\Controllers\\ProductController@update',
-    'DELETE /products/{id}'               => 'App\\Controllers\\ProductController@destroy',
+        foreach (array_reverse($middlewares) as $middleware) {
+            $route->add($middleware);
+        }
+    };
 
-    // ── Panier en session (visiteur anonyme + client authentifie) ──────────
-    'GET /cart'          => 'App\\Controllers\\CartController@index',
-    'POST /cart'         => 'App\\Controllers\\CartController@add',
-    'PUT /cart/{id_produit}'     => 'App\\Controllers\\CartController@updateLine',
-    'DELETE /cart/{id_produit}'  => 'App\\Controllers\\CartController@remove',
+    $auth = new AuthMiddleware();
+    $artisanRole = new RoleMiddleware([2]);
+    $clientRole = new RoleMiddleware([3]);
+    $adminRole = new RoleMiddleware([1]);
 
-    // ── Paiement fictif (Bancontact) ────────────────────────────────────────
-    'GET /payment'         => 'App\\Controllers\\PaymentController@page',
-    'POST /payment/process'=> 'App\\Controllers\\PaymentController@process',
+    $register('GET', '/', 'App\\Controllers\\HomeController@index');
 
-    // ── Commandes (client authentifié) ─────────────────────────────────────
-    'GET /orders'         => 'App\\Controllers\\OrderController@index',
-    'GET /orders/{id}'    => 'App\\Controllers\\OrderController@show',
-    'POST /orders'        => 'App\\Controllers\\OrderController@store',
+    $register('GET', '/login', 'App\\Controllers\\AuthController@loginForm');
+    $register('POST', '/login', 'App\\Controllers\\AuthController@login');
+    $register('POST', '/logout', 'App\\Controllers\\AuthController@logout', [$auth]);
+    $register('GET', '/register', 'App\\Controllers\\AuthController@registerForm');
+    $register('POST', '/register', 'App\\Controllers\\AuthController@register');
 
-    // ── Profil client (authentifié) ─────────────────────────────────────────
-    'GET /profile'        => 'App\\Controllers\\ProfileController@show',
-    'PUT /profile'        => 'App\\Controllers\\ProfileController@update',
-    'DELETE /profile'     => 'App\\Controllers\\ProfileController@deactivate',
+    $register('GET', '/artisans', 'App\\Controllers\\ArtisanController@index');
+    $register('GET', '/artisans/{id}', 'App\\Controllers\\ArtisanController@show');
 
-    // ── Espace artisan (rôle artisan requis) ────────────────────────────────
-    'GET /artisan/products'         => 'App\\Controllers\\ArtisanController@myProducts',
-    'GET /artisan/stats'            => 'App\\Controllers\\ArtisanController@stats',
+    $register('GET', '/products', 'App\\Controllers\\ProductController@index');
+    $register('GET', '/products/{id}', 'App\\Controllers\\ProductController@show');
+    $register('GET', '/artisans/{artisan_id}/products', 'App\\Controllers\\ProductController@indexByArtisan');
+    $register('POST', '/products', 'App\\Controllers\\ProductController@store', [$artisanRole]);
+    $register('PUT', '/products/{id}', 'App\\Controllers\\ProductController@update', [$artisanRole]);
+    $register('DELETE', '/products/{id}', 'App\\Controllers\\ProductController@destroy', [$artisanRole]);
 
-    // ── Administration (rôle admin requis) ──────────────────────────────────
-    'GET /admin/users'              => 'App\\Controllers\\AdminController@users',
-    'GET /admin/users/{id}'         => 'App\\Controllers\\AdminController@showUser',
-    'PUT /admin/users/{id}'         => 'App\\Controllers\\AdminController@updateUser',
-    'DELETE /admin/users/{id}'      => 'App\\Controllers\\AdminController@deactivateUser',
+    $register('GET', '/cart', 'App\\Controllers\\CartController@index');
+    $register('POST', '/cart', 'App\\Controllers\\CartController@add');
+    $register('PUT', '/cart/{id_produit}', 'App\\Controllers\\CartController@updateLine');
+    $register('DELETE', '/cart/{id_produit}', 'App\\Controllers\\CartController@remove');
 
-    'GET /admin/artisans'           => 'App\\Controllers\\AdminController@artisans',
-    'GET /admin/artisans/{id}'      => 'App\\Controllers\\AdminController@showArtisan',
-    'PUT /admin/artisans/{id}'      => 'App\\Controllers\\AdminController@updateArtisan',
-    'DELETE /admin/artisans/{id}'   => 'App\\Controllers\\AdminController@deactivateArtisan',
+    $register('GET', '/payment', 'App\\Controllers\\PaymentController@page', [$auth]);
+    $register('POST', '/payment/process', 'App\\Controllers\\PaymentController@process', [$auth]);
 
-    'GET /admin/products'           => 'App\\Controllers\\AdminController@products',
-    'PUT /admin/products/{id}'      => 'App\\Controllers\\AdminController@updateProduct',
-    'DELETE /admin/products/{id}'   => 'App\\Controllers\\AdminController@deactivateProduct',
+    $register('GET', '/orders', 'App\\Controllers\\OrderController@index', [$clientRole]);
+    $register('GET', '/orders/{id}', 'App\\Controllers\\OrderController@show', [$clientRole]);
+    $register('POST', '/orders', 'App\\Controllers\\OrderController@store', [$clientRole]);
 
-    'GET /admin/stats'              => 'App\\Controllers\\AdminController@stats',
+    $register('GET', '/profile', 'App\\Controllers\\ProfileController@show', [$auth]);
+    $register('PUT', '/profile', 'App\\Controllers\\ProfileController@update', [$auth]);
+    $register('DELETE', '/profile', 'App\\Controllers\\ProfileController@deactivate', [$auth]);
 
-    // ── API Referentiels et contenus ───────────────────────────────────────
-    'GET /api/pays'                 => 'App\\Controllers\\PaysController@index',
-    'GET /api/pays/{id}'            => 'App\\Controllers\\PaysController@show',
-    'POST /api/pays'                => 'App\\Controllers\\PaysController@store',
-    'PUT /api/pays/{id}'            => 'App\\Controllers\\PaysController@update',
-    'DELETE /api/pays/{id}'         => 'App\\Controllers\\PaysController@destroy',
+    $register('GET', '/artisan/products', 'App\\Controllers\\ArtisanController@myProducts', [$artisanRole]);
+    $register('GET', '/artisan/stats', 'App\\Controllers\\ArtisanController@stats', [$artisanRole]);
 
-    'GET /api/villes'               => 'App\\Controllers\\VilleController@index',
-    'GET /api/villes/{id}'          => 'App\\Controllers\\VilleController@show',
-    'POST /api/villes'              => 'App\\Controllers\\VilleController@store',
-    'PUT /api/villes/{id}'          => 'App\\Controllers\\VilleController@update',
-    'DELETE /api/villes/{id}'       => 'App\\Controllers\\VilleController@destroy',
+    $register('GET', '/admin/users', 'App\\Controllers\\AdminController@users', [$adminRole]);
+    $register('GET', '/admin/users/{id}', 'App\\Controllers\\AdminController@showUser', [$adminRole]);
+    $register('PUT', '/admin/users/{id}', 'App\\Controllers\\AdminController@updateUser', [$adminRole]);
+    $register('DELETE', '/admin/users/{id}', 'App\\Controllers\\AdminController@deactivateUser', [$adminRole]);
+    $register('GET', '/admin/artisans', 'App\\Controllers\\AdminController@artisans', [$adminRole]);
+    $register('GET', '/admin/artisans/{id}', 'App\\Controllers\\AdminController@showArtisan', [$adminRole]);
+    $register('PUT', '/admin/artisans/{id}', 'App\\Controllers\\AdminController@updateArtisan', [$adminRole]);
+    $register('DELETE', '/admin/artisans/{id}', 'App\\Controllers\\AdminController@deactivateArtisan', [$adminRole]);
+    $register('GET', '/admin/products', 'App\\Controllers\\AdminController@products', [$adminRole]);
+    $register('PUT', '/admin/products/{id}', 'App\\Controllers\\AdminController@updateProduct', [$adminRole]);
+    $register('DELETE', '/admin/products/{id}', 'App\\Controllers\\AdminController@deactivateProduct', [$adminRole]);
+    $register('GET', '/admin/stats', 'App\\Controllers\\AdminController@stats', [$adminRole]);
 
-    'GET /api/avis'                 => 'App\\Controllers\\AvisController@index',
-    'GET /api/avis/{id}'            => 'App\\Controllers\\AvisController@show',
-    'GET /api/produits/{id_produit}/avis' => 'App\\Controllers\\AvisController@indexByProduit',
-    'POST /api/avis'                => 'App\\Controllers\\AvisController@store',
-    'PUT /api/avis/{id}'            => 'App\\Controllers\\AvisController@update',
-    'DELETE /api/avis/{id}'         => 'App\\Controllers\\AvisController@destroy',
+    $register('GET', '/api/pays', 'App\\Controllers\\PaysController@index');
+    $register('GET', '/api/pays/{id}', 'App\\Controllers\\PaysController@show');
+    $register('POST', '/api/pays', 'App\\Controllers\\PaysController@store');
+    $register('PUT', '/api/pays/{id}', 'App\\Controllers\\PaysController@update');
+    $register('DELETE', '/api/pays/{id}', 'App\\Controllers\\PaysController@destroy');
 
-    'GET /api/paiements'            => 'App\\Controllers\\PaiementApiController@index',
-    'GET /api/paiements/{id}'       => 'App\\Controllers\\PaiementApiController@show',
-    'POST /api/paiements'           => 'App\\Controllers\\PaiementApiController@store',
-    'PUT /api/paiements/{id}'       => 'App\\Controllers\\PaiementApiController@update',
-    'DELETE /api/paiements/{id}'    => 'App\\Controllers\\PaiementApiController@destroy',
+    $register('GET', '/api/villes', 'App\\Controllers\\VilleController@index');
+    $register('GET', '/api/villes/{id}', 'App\\Controllers\\VilleController@show');
+    $register('POST', '/api/villes', 'App\\Controllers\\VilleController@store');
+    $register('PUT', '/api/villes/{id}', 'App\\Controllers\\VilleController@update');
+    $register('DELETE', '/api/villes/{id}', 'App\\Controllers\\VilleController@destroy');
 
-    'GET /api/classes'                                => 'App\\Controllers\\ClasseController@index',
-    'GET /api/categories/{id_categorie}/classes'      => 'App\\Controllers\\ClasseController@indexByCategorie',
-    'GET /api/produits/{id_produit}/classes'          => 'App\\Controllers\\ClasseController@indexByProduit',
-    'POST /api/classes'                               => 'App\\Controllers\\ClasseController@store',
-    'DELETE /api/classes/{id_categorie}/{id_produit}' => 'App\\Controllers\\ClasseController@destroy',
+    $register('GET', '/api/avis', 'App\\Controllers\\AvisController@index');
+    $register('GET', '/api/avis/{id}', 'App\\Controllers\\AvisController@show');
+    $register('GET', '/api/produits/{id_produit}/avis', 'App\\Controllers\\AvisController@indexByProduit');
+    $register('POST', '/api/avis', 'App\\Controllers\\AvisController@store', [$auth]);
+    $register('PUT', '/api/avis/{id}', 'App\\Controllers\\AvisController@update', [$auth]);
+    $register('DELETE', '/api/avis/{id}', 'App\\Controllers\\AvisController@destroy', [$auth]);
 
-    'GET /api/user-addresses'                                 => 'App\\Controllers\\UserAddressController@index',
-    'GET /api/utilisateurs/{id_utilisateur}/adresses'         => 'App\\Controllers\\UserAddressController@indexByUtilisateur',
-    'GET /api/adresses/{id_adresse}/utilisateurs'             => 'App\\Controllers\\UserAddressController@indexByAdresse',
-    'POST /api/user-addresses'                                => 'App\\Controllers\\UserAddressController@store',
-    'DELETE /api/user-addresses/{id_utilisateur}/{id_adresse}' => 'App\\Controllers\\UserAddressController@destroy',
+    $register('GET', '/api/paiements', 'App\\Controllers\\PaiementApiController@index', [$auth]);
+    $register('GET', '/api/paiements/{id}', 'App\\Controllers\\PaiementApiController@show', [$auth]);
+    $register('POST', '/api/paiements', 'App\\Controllers\\PaiementApiController@store', [$auth]);
+    $register('PUT', '/api/paiements/{id}', 'App\\Controllers\\PaiementApiController@update', [$auth]);
+    $register('DELETE', '/api/paiements/{id}', 'App\\Controllers\\PaiementApiController@destroy', [$auth]);
 
-    'GET /api/lignes-commandes'                               => 'App\\Controllers\\LigneCommandeController@index',
-    'GET /api/lignes-commandes/{id}'                          => 'App\\Controllers\\LigneCommandeController@show',
-    'GET /api/commandes/{id_commande}/lignes'                 => 'App\\Controllers\\LigneCommandeController@indexByCommande',
-    'POST /api/lignes-commandes'                              => 'App\\Controllers\\LigneCommandeController@store',
-    'PUT /api/lignes-commandes/{id}'                          => 'App\\Controllers\\LigneCommandeController@update',
-    'DELETE /api/lignes-commandes/{id}'                       => 'App\\Controllers\\LigneCommandeController@destroy',
+    $register('GET', '/api/classes', 'App\\Controllers\\ClasseController@index');
+    $register('GET', '/api/categories/{id_categorie}/classes', 'App\\Controllers\\ClasseController@indexByCategorie');
+    $register('GET', '/api/produits/{id_produit}/classes', 'App\\Controllers\\ClasseController@indexByProduit');
+    $register('POST', '/api/classes', 'App\\Controllers\\ClasseController@store', [$adminRole]);
+    $register('DELETE', '/api/classes/{id_categorie}/{id_produit}', 'App\\Controllers\\ClasseController@destroy', [$adminRole]);
 
-    'GET /api/statistiques-artisans'                          => 'App\\Controllers\\StatistiqueArtisanController@index',
-    'GET /api/statistiques-artisans/{id}'                     => 'App\\Controllers\\StatistiqueArtisanController@show',
-    'GET /api/artisans/{id_artisan}/statistiques'             => 'App\\Controllers\\StatistiqueArtisanController@indexByArtisan',
-    'POST /api/statistiques-artisans'                         => 'App\\Controllers\\StatistiqueArtisanController@store',
-    'PUT /api/statistiques-artisans/{id}'                     => 'App\\Controllers\\StatistiqueArtisanController@update',
-    'DELETE /api/statistiques-artisans/{id}'                  => 'App\\Controllers\\StatistiqueArtisanController@destroy',
-];
+    $register('GET', '/api/user-addresses', 'App\\Controllers\\UserAddressController@index', [$auth]);
+    $register('GET', '/api/utilisateurs/{id_utilisateur}/adresses', 'App\\Controllers\\UserAddressController@indexByUtilisateur', [$auth]);
+    $register('GET', '/api/adresses/{id_adresse}/utilisateurs', 'App\\Controllers\\UserAddressController@indexByAdresse', [$auth]);
+    $register('POST', '/api/user-addresses', 'App\\Controllers\\UserAddressController@store', [$auth]);
+    $register('DELETE', '/api/user-addresses/{id_utilisateur}/{id_adresse}', 'App\\Controllers\\UserAddressController@destroy', [$auth]);
+
+    $register('GET', '/api/lignes-commandes', 'App\\Controllers\\LigneCommandeController@index', [$auth]);
+    $register('GET', '/api/lignes-commandes/{id}', 'App\\Controllers\\LigneCommandeController@show', [$auth]);
+    $register('GET', '/api/commandes/{id_commande}/lignes', 'App\\Controllers\\LigneCommandeController@indexByCommande', [$auth]);
+    $register('POST', '/api/lignes-commandes', 'App\\Controllers\\LigneCommandeController@store', [$auth]);
+    $register('PUT', '/api/lignes-commandes/{id}', 'App\\Controllers\\LigneCommandeController@update', [$auth]);
+    $register('DELETE', '/api/lignes-commandes/{id}', 'App\\Controllers\\LigneCommandeController@destroy', [$auth]);
+
+    $register('GET', '/api/statistiques-artisans', 'App\\Controllers\\StatistiqueArtisanController@index');
+    $register('GET', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@show');
+    $register('GET', '/api/artisans/{id_artisan}/statistiques', 'App\\Controllers\\StatistiqueArtisanController@indexByArtisan');
+    $register('POST', '/api/statistiques-artisans', 'App\\Controllers\\StatistiqueArtisanController@store', [$adminRole]);
+    $register('PUT', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@update', [$adminRole]);
+    $register('DELETE', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@destroy', [$adminRole]);
+};
