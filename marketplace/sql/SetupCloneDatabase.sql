@@ -267,8 +267,8 @@ END //
 DELIMITER ;
 
 
---SET GLOBAL event_scheduler = ON;
---"Avant le script"
+-- SET GLOBAL event_scheduler = ON;
+-- Avant le script
 --
 --
 CREATE EVENT evt_stats_artisan_quotidien
