@@ -122,3 +122,70 @@ La seule correction prioritaire restante pour un seed 100% sans warning est de c
 ### Commandes utiles pour reprendre
 - php app/seed.php
 - git status --short
+
+## 2026-05-27 (stabilisation Slim + documentation + SQL production)
+
+### Actions entreprises
+1. Passage en flux Slim complet
+- `public/index.php` simplifie pour utiliser `app/bootstrap.php` puis `run()`.
+- `app/bootstrap.php` ajoute (creation app Slim, middlewares, base path, enregistrement des routes).
+- `app/config/routes.php` converti en enregistrement de routes Slim (fichier separe conserve).
+
+2. Middlewares et structure technique
+- Ajout des composants suivants:
+  - `app/middleware/SessionMiddleware.php`
+  - `app/middleware/RequestDataMiddleware.php`
+  - `app/middleware/AuthMiddleware.php`
+  - `app/middleware/RoleMiddleware.php`
+- Ajout des utilitaires:
+  - `app/core/BasePathResolver.php`
+  - `app/core/ControllerActionInvoker.php`
+  - `app/core/JsonResponder.php`
+
+3. Compatibilite local / production
+- Tests valides en local sans prefixe et en simulation prefixe `/project02`.
+- Ajout d un point d entree racine et des regles de reecriture:
+  - `index.php`
+  - `.htaccess`
+  - `public/.htaccess`
+
+4. Preparation de l integration frontend Angular
+- Ajout du dossier d accueil: `frontend/`.
+- Ajout de la documentation:
+  - `frontend/README.md`
+  - `ARCHITECTURE.md`
+  - `docs/backend-migration-plan.md`
+- Mise a jour des liens de documentation dans le README racine de `projet02` et dans `report.md`.
+
+5. Nettoyage
+- Suppression du dossier de test obsolete: `../SlimFramework`.
+
+6. SQL clone / production
+- Correction de `sql/SeedDataClone.sql` pour execution dans la base selectionnee.
+- Creation du script tout-en-un: `sql/SetupCloneDatabase.sql` (creation DB + schema + seed).
+- Correction de commentaires SQL incompatibles phpMyAdmin (`--SET ...` -> `-- SET ...`).
+- Creation d une version production: `sql/SetupCloneDatabase.production.sql` (bloc EVENT desactive pour compatibilite hebergement).
+
+### Incident et resolution
+- Incident: vidage involontaire du fichier `sql/Script SQL.sql` pendant la regeneration SQL.
+- Resolution: restauration depuis HEAD Git, puis reprise des correctifs SQL.
+
+### Etat actuel
+- API fonctionnelle sous Slim avec middleware actif.
+- Documentation d architecture et de separation backend/frontend en place.
+- Script SQL production dedie disponible pour import phpMyAdmin.
+
+### Ce qu il faut faire pour la suite
+1. Importer `sql/SetupCloneDatabase.production.sql` sur le serveur de production et verifier:
+- `GET /api/pays`
+- `GET /api/statistiques-artisans`
+- `GET /orders` (retour 401 attendu sans session)
+
+2. Figer la strategie d authentification frontend/backend avant integration Angular:
+- session cookie (meme origine) ou token (origines separees)
+
+3. Mettre en place CORS (ou proxy Angular en dev) selon la strategie retenue.
+
+4. Ajouter un jeu minimal de tests de non-regression sur les routes critiques API.
+
+5. Quand Angular sera integre dans `frontend/`, reevaluer la migration eventuelle vers une structure `backend/` + `frontend/` (sans urgence immediate).
