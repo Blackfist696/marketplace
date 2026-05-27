@@ -12,11 +12,14 @@ require_once __DIR__ . '/Model.php';
 class Utilisateur extends Model
 {
     protected static ?string $validatorClass = UtilisateurValidator::class;
-    protected static string $table = 'utilisateurs';
+    protected static string $table = 'utilisateur';
     protected static string $primaryKey = 'id_utilisateur';
     protected static array $fields = [
         'email',
         'mot_de_passe',
+        'nom',
+        'prenom',
+        'telephone',
         'id_role',
         'date_inscription',
         'actif',

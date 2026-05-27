@@ -2,15 +2,13 @@
 namespace App\Controllers;
 
 require_once __DIR__ . '/Controller.php';
-require_once __DIR__ . '/../models/PanierModel.php';
-require_once __DIR__ . '/../models/LignePanierModel.php';
+require_once __DIR__ . '/../models/ProduitModel.php';
 
-use App\Models\Panier;
-use App\Models\LignePanier;
+use App\Models\Produit;
 
 /**
  * Controller pour la gestion du panier.
- * Fonctionne pour les visiteurs anonymes (via session_id) et les clients authentifies.
+ * Fonctionne avec un panier en session pour visiteurs et clients authentifies.
  */
 class CartController extends Controller
 {
@@ -19,9 +17,27 @@ class CartController extends Controller
      */
     public function index(): void
     {
-        $cart = $this->getOrCreateCart();
-        $lines = LignePanier::getBy('id_panier', $cart['id_panier']);
-        $this->respond(200, 'Panier', ['cart' => $cart, 'lines' => $lines]);
+        $this->startSession();
+        $lines = $_SESSION['cart'] ?? [];
+
+        $detailed = [];
+        foreach ($lines as $productId => $quantite) {
+            $product = Produit::getById((int) $productId);
+            if ($product === null) {
+                continue;
+            }
+
+            $detailed[] = [
+                'id_produit' => (int) $productId,
+                'quantite' => (int) $quantite,
+                'produit' => $product,
+            ];
+        }
+
+        $this->respond(200, 'Panier session', [
+            'nb_lignes' => count($detailed),
+            'lines' => $detailed,
+        ]);
     }
 
     /**
@@ -36,27 +52,34 @@ class CartController extends Controller
             return;
         }
 
-        $cart = $this->getOrCreateCart();
-        $existing = LignePanier::getBy('id_panier', $cart['id_panier']);
-
-        foreach ($existing as $line) {
-            if ((int)$line['id_produit'] === (int)$data['id_produit']) {
-                $newQty = (int)$line['quantite'] + (int)$data['quantite'];
-                LignePanier::updateRecord((int)$line['id_ligne'], ['quantite' => $newQty]);
-                $this->respond(200, 'Quantite mise a jour', ['id_ligne' => $line['id_ligne']]);
-                return;
-            }
+        $product = Produit::getById((int) $data['id_produit']);
+        if ($product === null || !(bool) ($product['actif'] ?? false)) {
+            $this->respond(404, 'Produit introuvable ou inactif');
+            return;
         }
 
-        $data['id_panier'] = $cart['id_panier'];
-        $id = LignePanier::createRecord($data);
-        $this->respond(201, 'Article ajoute au panier', ['id_ligne' => $id]);
+        $qtyToAdd = (int) $data['quantite'];
+        if ($qtyToAdd < 1) {
+            $this->respond(400, 'Quantite invalide');
+            return;
+        }
+
+        $this->startSession();
+        if (!isset($_SESSION['cart'])) {
+            $_SESSION['cart'] = [];
+        }
+
+        $productId = (int) $data['id_produit'];
+        $existingQty = (int) ($_SESSION['cart'][$productId] ?? 0);
+        $_SESSION['cart'][$productId] = $existingQty + $qtyToAdd;
+
+        $this->respond(201, 'Article ajoute au panier', ['id_produit' => $productId, 'quantite' => $_SESSION['cart'][$productId]]);
     }
 
     /**
      * Met a jour la quantite d'une ligne de panier.
      */
-    public function updateLine(int $id): void
+    public function updateLine(int $idProduit): void
     {
         $data = $_POST;
 
@@ -65,12 +88,13 @@ class CartController extends Controller
             return;
         }
 
-        $success = LignePanier::updateRecord($id, ['quantite' => (int)$data['quantite']]);
-
-        if (!$success) {
-            $this->respond(400, 'Echec de la mise a jour');
+        $this->startSession();
+        if (empty($_SESSION['cart'][$idProduit])) {
+            $this->respond(404, 'Ligne de panier introuvable');
             return;
         }
+
+        $_SESSION['cart'][$idProduit] = (int) $data['quantite'];
 
         $this->respond(200, 'Ligne mise a jour');
     }
@@ -78,49 +102,25 @@ class CartController extends Controller
     /**
      * Supprime une ligne de panier.
      */
-    public function remove(int $id): void
+    public function remove(int $idProduit): void
     {
-        $success = LignePanier::deleteRecord($id);
-
-        if (!$success) {
-            $this->respond(400, 'Echec de la suppression');
+        $this->startSession();
+        if (isset($_SESSION['cart'][$idProduit])) {
+            unset($_SESSION['cart'][$idProduit]);
+            $this->respond(200, 'Article supprime du panier');
             return;
         }
 
-        $this->respond(200, 'Article supprime du panier');
+        $this->respond(404, 'Article non present dans le panier');
     }
 
     /**
-     * Recupere ou cree le panier associe a la session ou a l'utilisateur connecte.
+     * Demarre la session PHP si necessaire.
      */
-    private function getOrCreateCart(): array
+    private function startSession(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-
-        $userId    = $_SESSION['user_id'] ?? null;
-        $sessionId = session_id();
-
-        if ($userId !== null) {
-            $carts = Panier::getBy('id_utilisateur', $userId);
-            if (!empty($carts)) {
-                return $carts[0];
-            }
-        } else {
-            $carts = Panier::getBy('session_id', $sessionId);
-            if (!empty($carts)) {
-                return $carts[0];
-            }
-        }
-
-        $newId = Panier::createRecord([
-            'id_utilisateur'   => $userId,
-            'session_id'        => $userId === null ? $sessionId : null,
-            'date_creation'     => date('Y-m-d H:i:s'),
-            'date_modification' => date('Y-m-d H:i:s'),
-        ]);
-
-        return Panier::find($newId) ?? ['id_panier' => $newId];
     }
 }

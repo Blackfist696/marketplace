@@ -1,454 +1,286 @@
--- ============================================================
---  MARKETPLACE DE PRODUITS ARTISANAUX
---  Base de données : marketplace_artisanal
---  SGBD : MariaDB 10.11+ / MySQL 8.0+
---  Encodage : utf8mb4
---  Auteurs : Ramy - Pascal
---  Projet d'intégration 2025-2026
--- ============================================================
+CREATE TABLE role(
+   Id_role INT AUTO_INCREMENT,
+   nom VARCHAR(50),
+   description VARCHAR(50),
+   PRIMARY KEY(Id_role)
+);
 
--- Création de la base de données
-CREATE DATABASE IF NOT EXISTS marketplace_artisanal
-  CHARACTER SET utf8mb4 
-  COLLATE utf8mb4_unicode_ci;
+CREATE TABLE utilisateur(
+   Id_utilisateur INT AUTO_INCREMENT,
+   email VARCHAR(150) NOT NULL,
+   mot_de_passe VARCHAR(255),
+   nom VARCHAR(100),
+   prenom VARCHAR(100),
+   telephone VARCHAR(20),
+   date_inscription DATETIME,
+   actif BOOLEAN,
+   Id_role INT NOT NULL,
+   PRIMARY KEY(Id_utilisateur),
+   UNIQUE(email),
+   FOREIGN KEY(Id_role) REFERENCES role(Id_role)
+);
 
-USE marketplace_artisanal;
+CREATE TABLE pays(
+   Id_pays INT AUTO_INCREMENT,
+   nom_pays VARCHAR(100),
+   code_iso VARCHAR(2) NOT NULL,
+   PRIMARY KEY(Id_pays),
+   UNIQUE(code_iso)
+);
 
--- ============================================================
--- TABLES
--- ============================================================
+CREATE TABLE ville(
+   Id_ville INT AUTO_INCREMENT,
+   nom_ville VARCHAR(100),
+   code_postal VARCHAR(10),
+   Id_pays INT NOT NULL,
+   PRIMARY KEY(Id_ville),
+   FOREIGN KEY(Id_pays) REFERENCES pays(Id_pays)
+);
 
--- ────────────────────────────────────────────────────────────
--- Table : roles
--- Description : Rôles et permissions des utilisateurs
--- ────────────────────────────────────────────────────────────
-CREATE TABLE roles (
-  id_role     INT AUTO_INCREMENT PRIMARY KEY,
-  nom         VARCHAR(50) NOT NULL UNIQUE,
-  description TEXT,
-  
-  INDEX idx_nom (nom)
-) ENGINE=InnoDB;
+CREATE TABLE adresse(
+   Id_adresse INT AUTO_INCREMENT,
+   rue VARCHAR(255),
+   complement VARCHAR(100),
+   type_adresse VARCHAR(20),
+   principale BOOLEAN,
+   Id_ville INT NOT NULL,
+   PRIMARY KEY(Id_adresse),
+   FOREIGN KEY(Id_ville) REFERENCES ville(Id_ville)
+);
 
+CREATE TABLE artisan(
+   Id_artisan INT AUTO_INCREMENT,
+   nom_boutique VARCHAR(150),
+   description VARCHAR(1000),
+   numero_tva VARCHAR(20),
+   iban VARCHAR(34),
+   commission DECIMAL(5,2),
+   valide BOOLEAN,
+   date_validation DATETIME,
+   logo VARCHAR(255),
+   Id_utilisateur INT NOT NULL,
+   PRIMARY KEY(Id_artisan),
+   FOREIGN KEY(Id_utilisateur) REFERENCES utilisateur(Id_utilisateur)
+);
 
--- ────────────────────────────────────────────────────────────
--- Table : utilisateurs
--- Description : Comptes de connexion
--- ────────────────────────────────────────────────────────────
-CREATE TABLE utilisateurs (
-  id_utilisateur   INT AUTO_INCREMENT PRIMARY KEY,
-  email            VARCHAR(150) NOT NULL UNIQUE,
-  mot_de_passe     VARCHAR(255) NOT NULL,
-  id_role          INT NOT NULL,
-  date_inscription DATETIME DEFAULT CURRENT_TIMESTAMP,
-  actif            BOOLEAN DEFAULT TRUE,
-  
-  CONSTRAINT fk_util_role
-    FOREIGN KEY (id_role) REFERENCES roles(id_role)
-    ON DELETE RESTRICT 
-    ON UPDATE CASCADE,
-    
-  INDEX idx_email (email),
-  INDEX idx_role (id_role)
-) ENGINE=InnoDB;
+CREATE TABLE categorie(
+   Id_categorie INT AUTO_INCREMENT,
+   nom VARCHAR(100),
+   description VARCHAR(1000),
+   image VARCHAR(255),
+   ordre INT,
+   actif BOOLEAN,
+   Id_categorie_1 INT,
+   PRIMARY KEY(Id_categorie),
+   FOREIGN KEY(Id_categorie_1) REFERENCES categorie(Id_categorie)
+);
 
+CREATE TABLE produit(
+   Id_produit INT AUTO_INCREMENT,
+   nom VARCHAR(200),
+   description VARCHAR(1000),
+   prix_ht DECIMAL(10,2) NOT NULL CHECK(prix_ht >= 0),
+   taux_tva DECIMAL(5,2),
+   stock INT NOT NULL CHECK(stock >= 0),
+   poids DECIMAL(8,2),
+   image_principale VARCHAR(255),
+   actif BOOLEAN,
+   mis_en_avant BOOLEAN,
+   nb_vues INT,
+   date_creation DATETIME,
+   Id_artisan INT NOT NULL,
+   PRIMARY KEY(Id_produit),
+   FOREIGN KEY(Id_artisan) REFERENCES artisan(Id_artisan)
+);
 
--- ────────────────────────────────────────────────────────────
--- Table : personnes
--- Description : Informations personnelles des utilisateurs
--- ────────────────────────────────────────────────────────────
-CREATE TABLE personnes (
-  id_personne    INT AUTO_INCREMENT PRIMARY KEY,
-  id_utilisateur INT NOT NULL UNIQUE,
-  nom            VARCHAR(100) NOT NULL,
-  prenom         VARCHAR(100) NOT NULL,
-  telephone      VARCHAR(20),
-  
-  CONSTRAINT fk_pers_util
-    FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur)
-    ON DELETE CASCADE,
-    
-  INDEX idx_utilisateur (id_utilisateur)
-) ENGINE=InnoDB;
+CREATE TABLE image_produit(
+   Id_image_produit INT AUTO_INCREMENT,
+   chemin VARCHAR(255),
+   alt VARCHAR(200),
+   ordre INT,
+   Id_produit INT NOT NULL,
+   PRIMARY KEY(Id_image_produit),
+   FOREIGN KEY(Id_produit) REFERENCES produit(Id_produit)
+);
 
+CREATE TABLE commande(
+   Id_commande INT AUTO_INCREMENT,
+   reference VARCHAR(50) NOT NULL,
+   statut VARCHAR(20) CHECK(statut IN ('en_attente','payee','expediee','livree','annulee')),
+   total_ht DECIMAL(10,2),
+   total_tva DECIMAL(10,2),
+   frais_livraison DECIMAL(10,2),
+   total_ttc DECIMAL(10,2),
+   date_commande DATETIME,
+   date_paiement DATETIME,
+   Id_adresse INT NOT NULL,
+   Id_utilisateur INT NOT NULL,
+   PRIMARY KEY(Id_commande),
+   UNIQUE(reference),
+   FOREIGN KEY(Id_adresse) REFERENCES adresse(Id_adresse),
+   FOREIGN KEY(Id_utilisateur) REFERENCES utilisateur(Id_utilisateur)
+);
 
--- ────────────────────────────────────────────────────────────
--- Table : adresses
--- Description : Adresses de livraison et facturation
--- ────────────────────────────────────────────────────────────
-CREATE TABLE adresses (
-  id_adresse   INT AUTO_INCREMENT PRIMARY KEY,
-  id_personne  INT NOT NULL,
-  type_adresse ENUM('livraison', 'facturation') NOT NULL,
-  rue          VARCHAR(255) NOT NULL,
-  numero       VARCHAR(10) NOT NULL,
-  code_postal  VARCHAR(10) NOT NULL,
-  ville        VARCHAR(100) NOT NULL,
-  pays         VARCHAR(100) NOT NULL DEFAULT 'Belgique',
-  principale   BOOLEAN DEFAULT FALSE,
-  
-  CONSTRAINT fk_adr_pers
-    FOREIGN KEY (id_personne) REFERENCES personnes(id_personne)
-    ON DELETE CASCADE,
-    
-  INDEX idx_personne (id_personne),
-  INDEX idx_type (type_adresse)
-) ENGINE=InnoDB;
+CREATE TABLE ligne_commande(
+   Id_ligne_commande INT AUTO_INCREMENT,
+   quantite INT NOT NULL CHECK(quantite > 0),
+   prix_unitaire_ht DECIMAL(10,2),
+   taux_tva DECIMAL(5,2),
+   Id_produit INT NOT NULL,
+   Id_commande INT NOT NULL,
+   PRIMARY KEY(Id_ligne_commande),
+   FOREIGN KEY(Id_produit) REFERENCES produit(Id_produit),
+   FOREIGN KEY(Id_commande) REFERENCES commande(Id_commande)
+);
 
+CREATE TABLE paiement(
+   Id_paiement INT AUTO_INCREMENT,
+   methode VARCHAR(20) NOT NULL CHECK (methode IN ('carte','virement','paypal')),
+   reference_externe VARCHAR(255),
+   montant DECIMAL(10,2),
+   statut VARCHAR(20) CHECK(statut IN ('en_attente','valide','rembourse','echoue')),
+   date_paiement DATETIME,
+   Id_commande INT NOT NULL,
+   PRIMARY KEY(Id_paiement),
+   FOREIGN KEY(Id_commande) REFERENCES commande(Id_commande)
+);
 
--- ────────────────────────────────────────────────────────────
--- Table : templates_css
--- Description : Thèmes visuels pour les boutiques artisans
--- ────────────────────────────────────────────────────────────
-CREATE TABLE templates_css (
-  id_template INT AUTO_INCREMENT PRIMARY KEY,
-  nom         VARCHAR(100) NOT NULL,
-  description TEXT,
-  fichier_css VARCHAR(255) NOT NULL,
-  apercu      VARCHAR(255)
-) ENGINE=InnoDB;
+CREATE TABLE avis(
+   Id_avis INT AUTO_INCREMENT,
+   note INT NOT NULL CHECK(note BETWEEN 1 AND 5),
+   commentaire VARCHAR(5000),
+   date_avis DATETIME,
+   valide BOOLEAN,
+   Id_utilisateur INT NOT NULL,
+   Id_produit INT NOT NULL,
+   PRIMARY KEY(Id_avis),
+   FOREIGN KEY(Id_utilisateur) REFERENCES utilisateur(Id_utilisateur),
+   FOREIGN KEY(Id_produit) REFERENCES produit(Id_produit)
+);
 
+CREATE TABLE statistique_artisan(
+   Id_statistique INT AUTO_INCREMENT,
+   id_utilisateur VARCHAR(50),
+   date_consultation DATETIME NOT NULL,
+   ip_adress VARCHAR(50) NOT NULL,
+   id_produit VARCHAR(50) NOT NULL,
+   Id_artisan INT NOT NULL,
+   PRIMARY KEY(Id_statistique),
+   UNIQUE(Id_artisan),
+   FOREIGN KEY(Id_artisan) REFERENCES artisan(Id_artisan)
+);
 
--- ────────────────────────────────────────────────────────────
--- Table : artisans
--- Description : Profils et boutiques des artisans vendeurs
--- ────────────────────────────────────────────────────────────
-CREATE TABLE artisans (
-  id_artisan          INT AUTO_INCREMENT PRIMARY KEY,
-  id_utilisateur      INT NOT NULL UNIQUE,
-  id_template         INT,
-  nom_boutique        VARCHAR(150) NOT NULL,
-  description         TEXT,
-  logo                VARCHAR(255),
-  banniere            VARCHAR(255),
-  siret               VARCHAR(14) UNIQUE,
-  iban                VARCHAR(34),
-  couleur_primaire    VARCHAR(7) DEFAULT '#D4A855',
-  couleur_secondaire  VARCHAR(7),
-  police_principale   VARCHAR(100),
-  commission          DECIMAL(5,2) DEFAULT 5.00,
-  valide              BOOLEAN DEFAULT FALSE,
-  date_validation     DATETIME,
-  
-  CONSTRAINT fk_art_util
-    FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur)
-    ON DELETE CASCADE,
-  CONSTRAINT fk_art_tmpl
-    FOREIGN KEY (id_template) REFERENCES templates_css(id_template)
-    ON DELETE SET NULL,
-    
-  INDEX idx_utilisateur (id_utilisateur),
-  INDEX idx_valide (valide),
-  INDEX idx_siret (siret)
-) ENGINE=InnoDB;
+CREATE TABLE r_utilisateur_adresse(
+   Id_utilisateur INT,
+   Id_adresse INT,
+   PRIMARY KEY(Id_utilisateur, Id_adresse),
+   FOREIGN KEY(Id_utilisateur) REFERENCES utilisateur(Id_utilisateur),
+   FOREIGN KEY(Id_adresse) REFERENCES adresse(Id_adresse)
+);
 
+CREATE TABLE classe(
+   Id_categorie INT,
+   Id_produit INT,
+   PRIMARY KEY(Id_categorie, Id_produit),
+   FOREIGN KEY(Id_categorie) REFERENCES categorie(Id_categorie),
+   FOREIGN KEY(Id_produit) REFERENCES produit(Id_produit)
+);
 
--- ────────────────────────────────────────────────────────────
--- Table : categories
--- Description : Catégories hiérarchiques de produits
--- ────────────────────────────────────────────────────────────
-CREATE TABLE categories (
-  id_categorie INT AUTO_INCREMENT PRIMARY KEY,
-  parent_id    INT NULL,
-  nom          VARCHAR(100) NOT NULL,
-  description  TEXT,
-  image        VARCHAR(255),
-  ordre        INT DEFAULT 0,
-  actif        BOOLEAN DEFAULT TRUE,
-  
-  CONSTRAINT fk_cat_parent
-    FOREIGN KEY (parent_id) REFERENCES categories(id_categorie)
-    ON DELETE SET NULL,
-    
-  INDEX idx_parent (parent_id),
-  INDEX idx_actif (actif)
-) ENGINE=InnoDB;
-
-
--- ────────────────────────────────────────────────────────────
--- Table : produits
--- Description : Fiches produits artisanaux
--- ────────────────────────────────────────────────────────────
-CREATE TABLE produits (
-  id_produit       INT AUTO_INCREMENT PRIMARY KEY,
-  id_artisan       INT NOT NULL,
-  id_categorie     INT NOT NULL,
-  nom              VARCHAR(200) NOT NULL,
-  description      TEXT,
-  prix_ht          DECIMAL(10,2) NOT NULL,
-  taux_tva         DECIMAL(5,2) DEFAULT 6.00,
-  stock            INT DEFAULT 0,
-  poids            DECIMAL(8,2),
-  image_principale VARCHAR(255),
-  actif            BOOLEAN DEFAULT TRUE,
-  mis_en_avant     BOOLEAN DEFAULT FALSE,
-  nb_vues          INT DEFAULT 0,
-  date_creation    DATETIME DEFAULT CURRENT_TIMESTAMP,
-  
-  CONSTRAINT fk_prod_art
-    FOREIGN KEY (id_artisan) REFERENCES artisans(id_artisan)
-    ON DELETE RESTRICT,
-  CONSTRAINT fk_prod_cat
-    FOREIGN KEY (id_categorie) REFERENCES categories(id_categorie)
-    ON DELETE RESTRICT,
-    
-  INDEX idx_artisan (id_artisan),
-  INDEX idx_categorie (id_categorie),
-  INDEX idx_actif (actif),
-  INDEX idx_mis_en_avant (mis_en_avant),
-  INDEX idx_date_creation (date_creation)
-) ENGINE=InnoDB;
+DELIMITER //
+CREATE TRIGGER tr_artisan_date_validation
+BEFORE UPDATE ON artisan
+FOR EACH ROW
+BEGIN
+   IF NEW.valide = TRUE AND OLD.valide = FALSE THEN
+      SET NEW.date_validation = NOW();
+   END IF;
+END //
+DELIMITER ;
 
 
--- ────────────────────────────────────────────────────────────
--- Table : images_produits
--- Description : Galerie photos des produits
--- ────────────────────────────────────────────────────────────
-CREATE TABLE images_produits (
-  id_image   INT AUTO_INCREMENT PRIMARY KEY,
-  id_produit INT NOT NULL,
-  chemin     VARCHAR(255) NOT NULL,
-  alt        VARCHAR(200),
-  ordre      INT DEFAULT 0,
-  
-  CONSTRAINT fk_img_prod
-    FOREIGN KEY (id_produit) REFERENCES produits(id_produit)
-    ON DELETE CASCADE,
-    
-  INDEX idx_produit (id_produit)
-) ENGINE=InnoDB;
+DELIMITER //
+CREATE TRIGGER tr_decrement_stock
+AFTER INSERT ON ligne_commande
+FOR EACH ROW
+BEGIN
+   UPDATE produit 
+   SET stock = stock - NEW.quantite
+   WHERE Id_produit = NEW.Id_produit;
+END //
+DELIMITER ;
 
 
--- ────────────────────────────────────────────────────────────
--- Table : paniers
--- Description : Paniers d'achat (connectés et sessions)
--- ────────────────────────────────────────────────────────────
-CREATE TABLE paniers (
-  id_panier         INT AUTO_INCREMENT PRIMARY KEY,
-  id_utilisateur    INT NULL,
-  session_id        VARCHAR(255),
-  date_creation     DATETIME DEFAULT CURRENT_TIMESTAMP,
-  date_modification DATETIME ON UPDATE CURRENT_TIMESTAMP,
-  
-  CONSTRAINT fk_pan_util
-    FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur)
-    ON DELETE CASCADE,
-    
-  INDEX idx_utilisateur (id_utilisateur),
-  INDEX idx_session (session_id)
-) ENGINE=InnoDB;
+DELIMITER //
+CREATE TRIGGER tr_restore_stock
+AFTER UPDATE ON commande
+FOR EACH ROW
+BEGIN
+   IF NEW.statut = 'annulee' AND OLD.statut != 'annulee' THEN
+      UPDATE produit p
+      JOIN ligne_commande lc ON p.Id_produit = lc.Id_produit
+      SET p.stock = p.stock + lc.quantite
+      WHERE lc.Id_commande = NEW.Id_commande;
+   END IF;
+END //
+DELIMITER ;
 
 
--- ────────────────────────────────────────────────────────────
--- Table : lignes_panier
--- Description : Articles dans les paniers
--- ────────────────────────────────────────────────────────────
-CREATE TABLE lignes_panier (
-  id_ligne      INT AUTO_INCREMENT PRIMARY KEY,
-  id_panier     INT NOT NULL,
-  id_produit    INT NOT NULL,
-  quantite      INT NOT NULL DEFAULT 1,
-  prix_unitaire DECIMAL(10,2) NOT NULL,
-  
-  CONSTRAINT fk_lpan_pan
-    FOREIGN KEY (id_panier) REFERENCES paniers(id_panier)
-    ON DELETE CASCADE,
-  CONSTRAINT fk_lpan_prod
-    FOREIGN KEY (id_produit) REFERENCES produits(id_produit)
-    ON DELETE CASCADE,
-    
-  INDEX idx_panier (id_panier),
-  INDEX idx_produit (id_produit)
-) ENGINE=InnoDB;
+DELIMITER //
+CREATE TRIGGER tr_check_stock
+BEFORE INSERT ON ligne_commande
+FOR EACH ROW
+BEGIN
+   DECLARE stock_dispo INT;
+   SELECT stock INTO stock_dispo 
+   FROM produit WHERE Id_produit = NEW.Id_produit;
+   
+   IF stock_dispo < NEW.quantite THEN
+      SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Stock insuffisant pour ce produit';
+   END IF;
+END //
+DELIMITER ;
 
 
--- ────────────────────────────────────────────────────────────
--- Table : commandes
--- Description : Commandes passées par les clients
--- ────────────────────────────────────────────────────────────
-CREATE TABLE commandes (
-  id_commande            INT AUTO_INCREMENT PRIMARY KEY,
-  reference              VARCHAR(50) NOT NULL UNIQUE,
-  id_utilisateur         INT NOT NULL,
-  id_adresse_livraison   INT NOT NULL,
-  id_adresse_facturation INT NOT NULL,
-  statut                 ENUM('en_attente', 'payee', 'en_preparation', 
-                              'expediee', 'livree', 'annulee') 
-                         DEFAULT 'en_attente',
-  total_ht               DECIMAL(10,2) NOT NULL,
-  total_tva              DECIMAL(10,2) NOT NULL,
-  frais_livraison        DECIMAL(10,2) DEFAULT 0.00,
-  total_ttc              DECIMAL(10,2) NOT NULL,
-  date_commande          DATETIME DEFAULT CURRENT_TIMESTAMP,
-  date_paiement          DATETIME,
-  
-  CONSTRAINT fk_cmd_util
-    FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur)
-    ON DELETE RESTRICT,
-  CONSTRAINT fk_cmd_adr_liv
-    FOREIGN KEY (id_adresse_livraison) REFERENCES adresses(id_adresse)
-    ON DELETE RESTRICT,
-  CONSTRAINT fk_cmd_adr_fac
-    FOREIGN KEY (id_adresse_facturation) REFERENCES adresses(id_adresse)
-    ON DELETE RESTRICT,
-    
-  INDEX idx_reference (reference),
-  INDEX idx_utilisateur (id_utilisateur),
-  INDEX idx_statut (statut),
-  INDEX idx_date_commande (date_commande)
-) ENGINE=InnoDB;
+DELIMITER //
+CREATE TRIGGER tr_check_adresse_utilisateur
+BEFORE INSERT ON commande
+FOR EACH ROW
+BEGIN
+   DECLARE owner INT;
+   SELECT Id_utilisateur INTO owner 
+   FROM adresse WHERE Id_adresse = NEW.Id_adresse;
+   
+   IF owner != NEW.Id_utilisateur THEN
+      SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Cette adresse n appartient pas a cet utilisateur';
+   END IF;
+END //
+DELIMITER ;
 
 
--- ────────────────────────────────────────────────────────────
--- Table : lignes_commande
--- Description : Détail des produits commandés
--- ────────────────────────────────────────────────────────────
-CREATE TABLE lignes_commande (
-  id_ligne         INT AUTO_INCREMENT PRIMARY KEY,
-  id_commande      INT NOT NULL,
-  id_produit       INT NOT NULL,
-  id_artisan       INT NOT NULL,
-  quantite         INT NOT NULL,
-  prix_unitaire_ht DECIMAL(10,2) NOT NULL,
-  taux_tva         DECIMAL(5,2) NOT NULL,
-  
-  CONSTRAINT fk_lcmd_cmd
-    FOREIGN KEY (id_commande) REFERENCES commandes(id_commande)
-    ON DELETE CASCADE,
-  CONSTRAINT fk_lcmd_prod
-    FOREIGN KEY (id_produit) REFERENCES produits(id_produit)
-    ON DELETE RESTRICT,
-  CONSTRAINT fk_lcmd_art
-    FOREIGN KEY (id_artisan) REFERENCES artisans(id_artisan)
-    ON DELETE RESTRICT,
-    
-  INDEX idx_commande (id_commande),
-  INDEX idx_produit (id_produit),
-  INDEX idx_artisan (id_artisan)
-) ENGINE=InnoDB;
-
-
--- ────────────────────────────────────────────────────────────
--- Table : paiements
--- Description : Paiements et transactions
--- ────────────────────────────────────────────────────────────
-CREATE TABLE paiements (
-  id_paiement       INT AUTO_INCREMENT PRIMARY KEY,
-  id_commande       INT NOT NULL UNIQUE,
-  methode           ENUM('carte', 'paypal', 'virement') NOT NULL,
-  reference_externe VARCHAR(255),
-  montant           DECIMAL(10,2) NOT NULL,
-  statut            ENUM('en_attente', 'valide', 'refuse', 'rembourse') 
-                    DEFAULT 'en_attente',
-  date_paiement     DATETIME,
-  
-  CONSTRAINT fk_pay_cmd
-    FOREIGN KEY (id_commande) REFERENCES commandes(id_commande)
-    ON DELETE CASCADE,
-    
-  INDEX idx_commande (id_commande),
-  INDEX idx_statut (statut)
-) ENGINE=InnoDB;
-
-
--- ────────────────────────────────────────────────────────────
--- Table : avis
--- Description : Avis et notes clients sur les produits
--- ────────────────────────────────────────────────────────────
-CREATE TABLE avis (
-  id_avis        INT AUTO_INCREMENT PRIMARY KEY,
-  id_produit     INT NOT NULL,
-  id_utilisateur INT NOT NULL,
-  note           TINYINT NOT NULL CHECK (note BETWEEN 1 AND 5),
-  commentaire    TEXT,
-  date_avis      DATETIME DEFAULT CURRENT_TIMESTAMP,
-  valide         BOOLEAN DEFAULT FALSE,
-  
-  CONSTRAINT fk_avis_prod
-    FOREIGN KEY (id_produit) REFERENCES produits(id_produit)
-    ON DELETE CASCADE,
-  CONSTRAINT fk_avis_util
-    FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur)
-    ON DELETE CASCADE,
-    
-  INDEX idx_produit (id_produit),
-  INDEX idx_utilisateur (id_utilisateur),
-  INDEX idx_valide (valide)
-) ENGINE=InnoDB;
-
-
--- ────────────────────────────────────────────────────────────
--- Table : statistiques_artisans
--- Description : Statistiques quotidiennes par artisan
--- ────────────────────────────────────────────────────────────
-CREATE TABLE statistiques_artisans (
-  id_stat       INT AUTO_INCREMENT PRIMARY KEY,
-  id_artisan    INT NOT NULL,
-  date          DATE NOT NULL,
-  nb_visites    INT DEFAULT 0,
-  nb_commandes  INT DEFAULT 0,
-  ca_ht         DECIMAL(10,2) DEFAULT 0.00,
-  panier_moyen  DECIMAL(10,2) DEFAULT 0.00,
-  
-  CONSTRAINT fk_stat_art
-    FOREIGN KEY (id_artisan) REFERENCES artisans(id_artisan)
-    ON DELETE CASCADE,
-  
-  UNIQUE KEY uk_stat_artisan_date (id_artisan, date),
-  INDEX idx_date (date)
-) ENGINE=InnoDB;
-
-
--- ============================================================
--- DONNÉES INITIALES
--- ============================================================
-
--- ────────────────────────────────────────────────────────────
--- Rôles
--- ────────────────────────────────────────────────────────────
-INSERT INTO roles (nom, description) VALUES
-  ('anonyme',        'Accès public au catalogue sans connexion'),
-  ('client',         'Achat de produits et suivi de commandes'),
-  ('artisan',        'Gestion autonome de sa boutique en ligne'),
-  ('administrateur', 'Gestion complète de la plateforme');
-
-
--- ────────────────────────────────────────────────────────────
--- Templates CSS
--- ────────────────────────────────────────────────────────────
-INSERT INTO templates_css (nom, description, fichier_css, apercu) VALUES
-  ('Nature',    'Tons chauds dorés, inspiration apicole et naturelle',  
-   'nature.css',    'apercu_nature.png'),
-  ('Elegance',  'Lignes épurées, tons crème et noir pour un style sobre',      
-   'elegance.css',  'apercu_elegance.png'),
-  ('Moderne',   'Design contemporain avec couleurs vives et dynamiques',     
-   'moderne.css',   'apercu_moderne.png'),
-  ('Rustique',  'Aspect artisanal traditionnel et chaleureux',          
-   'rustique.css',  'apercu_rustique.png');
-
-
--- ────────────────────────────────────────────────────────────
--- Catégories de produits
--- ────────────────────────────────────────────────────────────
-INSERT INTO categories (nom, description, ordre, actif) VALUES
-  ('Miels',        'Miels monofloral, toutes fleurs et miels de terroir',           1, TRUE),
-  ('Savons',       'Savons artisanaux saponifiés à froid, 100% naturels',           2, TRUE),
-  ('Confiseries',  'Bonbons, nougats, caramels et douceurs à base de miel',        3, TRUE),
-  ('Cosmétiques',  'Crèmes, baumes, soins du visage et du corps aux ingrédients naturels', 4, TRUE),
-  ('Bougies',      'Bougies en cire d\'abeille pure, fabriquées artisanalement',    5, TRUE);
-
-
--- ============================================================
--- FIN DU SCRIPT
--- ============================================================
-
--- Vérification de la création des tables
-SELECT 
-  TABLE_NAME AS 'Table', 
-  TABLE_ROWS AS 'Lignes',
-  ROUND((DATA_LENGTH + INDEX_LENGTH) / 1024, 2) AS 'Taille (Ko)'
-FROM information_schema.TABLES 
-WHERE TABLE_SCHEMA = 'marketplace_artisanal'
-ORDER BY TABLE_NAME;
-
+--SET GLOBAL event_scheduler = ON;
+--"Avant le script"
+--
+--
+CREATE EVENT evt_stats_artisan_quotidien
+ON SCHEDULE EVERY 1 DAY
+STARTS (CURRENT_TIMESTAMP + INTERVAL 1 DAY)
+DO
+   UPDATE statistique_artisan sa
+   JOIN (
+      SELECT p.Id_artisan,
+             COUNT(DISTINCT lc.Id_commande) AS nb_cmd,
+             SUM(lc.quantite * lc.prix_unitaire_ht) AS ca,
+             AVG(lc.quantite * lc.prix_unitaire_ht) AS panier
+      FROM ligne_commande lc
+      JOIN produit p   ON lc.Id_produit  = p.Id_produit
+      JOIN commande c  ON lc.Id_commande = c.Id_commande
+      WHERE c.statut = 'payee'
+      GROUP BY p.Id_artisan
+   ) stats ON sa.Id_artisan = stats.Id_artisan
+   SET sa.nb_commandes  = stats.nb_cmd,
+       sa.ca_ht         = stats.ca,
+       sa.panier_moyen  = stats.panier,
+       sa.date_actuelle = CURDATE();
 

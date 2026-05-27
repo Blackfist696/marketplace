@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Validators\AvisValidator;
+
+require_once __DIR__ . '/Model.php';
+require_once __DIR__ . '/validators/AvisValidator.php';
+
+/**
+ * Modele representant la table avis.
+ */
+class Avis extends Model
+{
+    protected static ?string $validatorClass = AvisValidator::class;
+    protected static string $table = 'avis';
+    protected static string $primaryKey = 'id_avis';
+    protected static array $fields = [
+        'note',
+        'commentaire',
+        'date_avis',
+        'valide',
+        'id_utilisateur',
+        'id_produit',
+    ];
+
+    public static function getAll(): array
+    {
+        return parent::all();
+    }
+
+    public static function getById(int $id): ?array
+    {
+        return parent::find($id);
+    }
+
+    public static function getBy(string $column, $value): array
+    {
+        return parent::where($column, $value);
+    }
+
+    public static function createRecord(array $data): int
+    {
+        return parent::create($data);
+    }
+
+    public static function updateRecord(int $id, array $data): bool
+    {
+        return parent::update($id, $data);
+    }
+
+    public static function deleteRecord(int $id): bool
+    {
+        return parent::delete($id);
+    }
+
+    public function saveRecord(): int
+    {
+        return parent::save();
+    }
+}

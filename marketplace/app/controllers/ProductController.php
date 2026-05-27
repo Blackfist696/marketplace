@@ -3,8 +3,10 @@ namespace App\Controllers;
 
 require_once __DIR__ . '/Controller.php';
 require_once __DIR__ . '/../models/ProduitModel.php';
+require_once __DIR__ . '/../models/ArtisanModel.php';
 
 use App\Models\Produit;
+use App\Models\Artisan;
 
 /**
  * Controller pour les operations CRUD sur les produits.
@@ -161,7 +163,12 @@ class ProductController extends Controller
         $roleId  = $_SESSION['user_role'] ?? null;
         $isAdmin = ($roleId == 1);
 
-        if (!$isAdmin && (int)$_SESSION['user_id'] !== $artisanId) {
+        if ($isAdmin) {
+            return true;
+        }
+
+        $artisan = Artisan::getById($artisanId);
+        if ($artisan === null || (int) ($artisan['id_utilisateur'] ?? 0) !== (int) $_SESSION['user_id']) {
             $this->respond(403, 'Acces interdit');
             return false;
         }

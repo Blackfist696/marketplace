@@ -24,6 +24,23 @@ abstract class Model
     protected array $attributes = [];
 
     /**
+     * Normalise les noms de colonnes en minuscules pour un acces coherent
+     * depuis les controleurs, independamment de la casse SQL.
+     *
+     * @param array $row Ligne brute issue de PDO.
+     * @return array Ligne avec cles normalisees.
+     */
+    protected static function normalizeRow(array $row): array
+    {
+        $normalized = [];
+        foreach ($row as $key => $value) {
+            $normalized[strtolower((string) $key)] = $value;
+        }
+
+        return $normalized;
+    }
+
+    /**
      * Retourne la classe de validateur associée au modèle.
      *
      * @return string|null Nom de la classe de validateur ou null si aucun validateur.
@@ -185,7 +202,8 @@ abstract class Model
     public static function all(): array
     {
         $sql = sprintf('SELECT * FROM %s', static::$table);
-        return static::getPDO()->query($sql)->fetchAll();
+        $rows = static::getPDO()->query($sql)->fetchAll();
+        return array_map(static fn(array $row) => static::normalizeRow($row), $rows);
     }
 
     /**
@@ -201,7 +219,7 @@ abstract class Model
         $stmt->execute(['id' => $id]);
 
         $result = $stmt->fetch();
-        return $result === false ? null : $result;
+        return $result === false ? null : static::normalizeRow($result);
     }
 
     /**
@@ -223,7 +241,8 @@ abstract class Model
         $stmt = static::getPDO()->prepare($sql);
         $stmt->execute(['value' => $value]);
 
-        return $stmt->fetchAll();
+        $rows = $stmt->fetchAll();
+        return array_map(static fn(array $row) => static::normalizeRow($row), $rows);
     }
 
     /**

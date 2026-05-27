@@ -3,8 +3,10 @@ namespace App\Controllers;
 
 require_once __DIR__ . '/Controller.php';
 require_once __DIR__ . '/../models/CommandeModel.php';
+require_once __DIR__ . '/../models/PaiementModel.php';
 
 use App\Models\Commande;
+use App\Models\Paiement;
 
 /**
  * Controller pour le paiement fictif (page Bancontact simulee, regle 3).
@@ -39,7 +41,7 @@ class PaymentController extends Controller
             return;
         }
 
-        if ($order['statut'] !== 'en_attente_paiement') {
+        if ($order['statut'] !== 'en_attente') {
             $this->respond(400, 'Cette commande ne peut plus etre payee');
             return;
         }
@@ -82,8 +84,28 @@ class PaymentController extends Controller
             return;
         }
 
-        if ($order['statut'] !== 'en_attente_paiement') {
+        if ($order['statut'] !== 'en_attente') {
             $this->respond(400, 'Cette commande a deja ete traitee');
+            return;
+        }
+
+        $existingPayments = Paiement::getBy('id_commande', $orderId);
+        $payment = $existingPayments[0] ?? null;
+
+        if ($payment === null) {
+            $paymentId = Paiement::createRecord([
+                'methode' => 'carte',
+                'reference_externe' => null,
+                'montant' => $order['total_ttc'] ?? 0,
+                'statut' => 'en_attente',
+                'date_paiement' => null,
+                'id_commande' => $orderId,
+            ]);
+            $payment = Paiement::getById($paymentId);
+        }
+
+        if ($payment === null) {
+            $this->respond(500, 'Impossible d initialiser le paiement');
             return;
         }
 
@@ -92,9 +114,17 @@ class PaymentController extends Controller
                 'statut'        => 'payee',
                 'date_paiement' => date('Y-m-d H:i:s'),
             ]);
+            Paiement::updateRecord((int) $payment['id_paiement'], [
+                'statut' => 'valide',
+                'date_paiement' => date('Y-m-d H:i:s'),
+            ]);
             $this->respond(200, 'Paiement accepte', ['id_commande' => $orderId]);
         } else {
             Commande::updateRecord($orderId, ['statut' => 'annulee']);
+            Paiement::updateRecord((int) $payment['id_paiement'], [
+                'statut' => 'echoue',
+                'date_paiement' => date('Y-m-d H:i:s'),
+            ]);
             $this->respond(200, 'Paiement refuse', ['id_commande' => $orderId]);
         }
     }

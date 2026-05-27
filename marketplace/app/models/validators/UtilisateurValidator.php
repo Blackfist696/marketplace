@@ -17,7 +17,7 @@ class UtilisateurValidator extends AbstractValidator
     {
         $this->result = new ValidationResult();
 
-        $this->validateRequired($data, ['email', 'mot_de_passe', 'id_role']);
+            $this->validateRequired($data, ['email', 'mot_de_passe', 'id_role']);
         $this->validateEmail('email', $data);
 
         if (isset($data['mot_de_passe']) && mb_strlen((string) $data['mot_de_passe']) < 6) {
@@ -27,6 +27,18 @@ class UtilisateurValidator extends AbstractValidator
         if (isset($data['id_role']) && !is_numeric($data['id_role'])) {
             $this->result->addError('id_role', 'Le rôle doit être un identifiant numérique.');
         }
+
+        if (isset($data['nom']) && trim((string) $data['nom']) !== '' && mb_strlen((string) $data['nom']) < 2) {
+            $this->result->addError('nom', 'Le nom doit contenir au moins 2 caractères.');
+        }
+
+        if (isset($data['prenom']) && trim((string) $data['prenom']) !== '' && mb_strlen((string) $data['prenom']) < 2) {
+            $this->result->addError('prenom', 'Le prénom doit contenir au moins 2 caractères.');
+        }
+
+            if (isset($data['telephone']) && trim((string) $data['telephone']) !== '' && !preg_match('/^[0-9\s+\-]{6,20}$/', $data['telephone'])) {
+                $this->result->addError('telephone', 'Le numéro de téléphone est invalide.');
+            }
 
         return $this->result;
     }

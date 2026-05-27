@@ -12,11 +12,10 @@ require_once __DIR__ . '/Model.php';
 class Produit extends Model
 {
     protected static ?string $validatorClass = ProduitValidator::class;
-    protected static string $table = 'produits';
+    protected static string $table = 'produit';
     protected static string $primaryKey = 'id_produit';
     protected static array $fields = [
         'id_artisan',
-        'id_categorie',
         'nom',
         'description',
         'prix_ht',

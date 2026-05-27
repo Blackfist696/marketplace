@@ -9,8 +9,8 @@ require_once __DIR__ . '/Model.php';
  */
 class ImageProduit extends Model
 {
-    protected static string $table = 'images_produits';
-    protected static string $primaryKey = 'id_image';
+    protected static string $table = 'image_produit';
+    protected static string $primaryKey = 'id_image_produit';
     protected static array $fields = [
         'id_produit',
         'chemin',

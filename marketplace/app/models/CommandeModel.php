@@ -12,13 +12,12 @@ require_once __DIR__ . '/Model.php';
 class Commande extends Model
 {
     protected static ?string $validatorClass = CommandeValidator::class;
-    protected static string $table = 'commandes';
+    protected static string $table = 'commande';
     protected static string $primaryKey = 'id_commande';
     protected static array $fields = [
         'reference',
         'id_utilisateur',
-        'id_adresse_livraison',
-        'id_adresse_facturation',
+        'id_adresse',
         'statut',
         'total_ht',
         'total_tva',

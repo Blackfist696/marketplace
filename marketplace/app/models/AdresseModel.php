@@ -11,19 +11,36 @@ require_once __DIR__ . '/Model.php';
  */
 class Adresse extends Model
 {
-    protected static string $table = 'adresses';
+    protected static string $table = 'adresse';
     protected static ?string $validatorClass = AdresseValidator::class;
     protected static string $primaryKey = 'id_adresse';
     protected static array $fields = [
-        'id_personne',
-        'type_adresse',
         'rue',
-        'numero',
-        'code_postal',
-        'ville',
-        'pays',
+        'complement',
+        'type_adresse',
         'principale',
+        'id_ville',
     ];
+
+    /**
+     * Retourne les adresses d'un utilisateur via la table d'association.
+     *
+     * @param int $userId Identifiant utilisateur.
+     * @return array
+     */
+    public static function getByUtilisateurId(int $userId): array
+    {
+        $sql = 'SELECT a.*
+                FROM adresse a
+                INNER JOIN r_utilisateur_adresse rua ON rua.Id_adresse = a.Id_adresse
+                WHERE rua.Id_utilisateur = :user_id';
+
+        $stmt = static::getPDO()->prepare($sql);
+        $stmt->execute(['user_id' => $userId]);
+
+        $rows = $stmt->fetchAll();
+        return array_map(static fn(array $row) => static::normalizeRow($row), $rows);
+    }
 
     /**
      * Retourne tous les enregistrements disponibles.

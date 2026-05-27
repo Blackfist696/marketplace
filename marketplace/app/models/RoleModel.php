@@ -9,7 +9,7 @@ require_once __DIR__ . '/Model.php';
  */
 class Role extends Model
 {
-    protected static string $table = 'roles';
+    protected static string $table = 'role';
     protected static string $primaryKey = 'id_role';
     protected static array $fields = [
         'nom',

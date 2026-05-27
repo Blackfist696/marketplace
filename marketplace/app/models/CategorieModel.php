@@ -9,15 +9,15 @@ require_once __DIR__ . '/Model.php';
  */
 class Categorie extends Model
 {
-    protected static string $table = 'categories';
+    protected static string $table = 'categorie';
     protected static string $primaryKey = 'id_categorie';
     protected static array $fields = [
-        'parent_id',
         'nom',
         'description',
         'image',
         'ordre',
         'actif',
+        'id_categorie_1',
     ];
 
     /**

@@ -17,9 +17,8 @@ class ProduitValidator extends AbstractValidator
     {
         $this->result = new ValidationResult();
 
-        $this->validateRequired($data, ['id_artisan', 'id_categorie', 'nom', 'prix_ht']);
+        $this->validateRequired($data, ['id_artisan', 'nom', 'prix_ht']);
         $this->validateNumeric('id_artisan', $data);
-        $this->validateNumeric('id_categorie', $data);
         $this->validateNumeric('prix_ht', $data);
         $this->validatePositive('prix_ht', $data);
 

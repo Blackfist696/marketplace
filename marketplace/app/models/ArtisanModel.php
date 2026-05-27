@@ -9,23 +9,18 @@ require_once __DIR__ . '/Model.php';
  */
 class Artisan extends Model
 {
-    protected static string $table = 'artisans';
+    protected static string $table = 'artisan';
     protected static string $primaryKey = 'id_artisan';
     protected static array $fields = [
         'id_utilisateur',
-        'id_template',
         'nom_boutique',
         'description',
-        'logo',
-        'banniere',
-        'siret',
+        'numero_tva',
         'iban',
-        'couleur_primaire',
-        'couleur_secondaire',
-        'police_principale',
         'commission',
         'valide',
         'date_validation',
+        'logo',
     ];
 
     /**
