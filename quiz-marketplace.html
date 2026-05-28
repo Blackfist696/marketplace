@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz — Marketplace Artisanale · Neame Ramy · Angular + PHP/Slim 4</title>
+<style>
+  :root{
+    --green:#28a745;--green-bg:#d4edda;--green-fg:#155724;
+    --red:#dc3545;--red-bg:#f8d7da;--red-fg:#721c24;
+    --blue:#1565c0;--blue-dark:#0d47a1;
+    --yellow-bg:#fff3cd;--yellow-bd:#ffc107;
+    --bg:#fafafa;--card:#fff;--border:#ddd;--muted:#666;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,"Segoe UI","Liberation Sans",Arial,sans-serif;font-size:14.5px;line-height:1.55;color:#222;background:var(--bg);margin:0;padding:0 0 80px;}
+  header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#0d47a1,#1565c0);color:#fff;padding:14px 24px;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  header h1{margin:0;font-size:18px;font-weight:600;}
+  header .sub{font-size:12px;opacity:.85;margin-top:2px;}
+  .score-bar{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap;}
+  .score-box{background:rgba(255,255,255,.15);padding:6px 14px;border-radius:6px;font-size:13px;}
+  .score-box strong{font-size:16px;font-weight:700;}
+  .progress-track{flex:1;min-width:200px;height:8px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;background:#5cd87a;width:0%;transition:width .3s;}
+  #reset-btn{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:13px;}
+  #reset-btn:hover{background:rgba(255,255,255,.3);}
+  main{max-width:920px;margin:0 auto;padding:20px;}
+  .intro{background:#e8f1fb;border-left:4px solid var(--blue);padding:10px 14px;border-radius:6px;margin:14px 0;font-size:13.5px;}
+  h2{font-size:18px;background:linear-gradient(90deg,#0d47a1,transparent);color:#fff;padding:9px 16px;border-radius:6px;margin:34px 0 14px;}
+  .q{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .q-h{font-weight:500;margin-bottom:8px;}
+  .q-n{display:inline-block;background:var(--blue);color:#fff;min-width:30px;padding:0 8px;height:24px;line-height:24px;text-align:center;border-radius:4px;font-size:12px;font-weight:700;margin-right:8px;}
+  .opts{margin-top:6px;}
+  .opt-btn{display:block;width:100%;text-align:left;padding:9px 14px;margin:5px 0;background:#f7f9fc;border:1.5px solid #d9e1ec;border-radius:6px;cursor:pointer;font-size:14px;color:#333;font-family:inherit;transition:all .15s;}
+  .opt-btn:hover:not(:disabled){background:#eaf2fb;border-color:var(--blue);}
+  .opt-btn:disabled{cursor:default;}
+  .opt-btn.ok{background:var(--green-bg)!important;border-color:var(--green)!important;color:var(--green-fg)!important;font-weight:600;}
+  .opt-btn.ok::after{content:" ✓";color:var(--green);font-weight:700;float:right;}
+  .opt-btn.ko{background:var(--red-bg)!important;border-color:var(--red)!important;color:var(--red-fg)!important;}
+  .opt-btn.ko::after{content:" ✗";color:var(--red);font-weight:700;float:right;}
+  .expl{display:none;margin-top:12px;padding:10px 14px;background:var(--yellow-bg);border-left:4px solid var(--yellow-bd);border-radius:4px;font-size:13px;color:#555;}
+  .expl.show{display:block;}
+  .expl strong{color:#222;}
+  .final-result{background:linear-gradient(135deg,#5cd87a,#28a745);color:#fff;padding:24px;border-radius:10px;text-align:center;margin:30px 0;display:none;}
+  .final-result.show{display:block;}
+  .final-result h3{margin:0 0 8px;font-size:24px;color:#fff;}
+  .final-result .big{font-size:42px;font-weight:700;line-height:1;}
+  .final-result .msg{font-size:14px;opacity:.95;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Quiz — Marketplace Artisanale &nbsp;·&nbsp; <em style="font-style:normal;opacity:.9">Neame Ramy</em></h1>
+  <div class="sub">Angular 21 + PHP/Slim 4 &nbsp;·&nbsp; Architecture · Services · Routes · CORS · Sécurité · 1 bonne réponse sur 4 · correction immédiate + justification</div>
+  <div class="score-bar">
+    <div class="score-box">Score : <strong id="score">0 / 0</strong></div>
+    <div class="score-box"><span id="pct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="prog"></div></div>
+    <button id="reset-btn">↻ Recommencer</button>
+  </div>
+</header>
+
+<main>
+<div class="intro">Clique sur la réponse que tu crois correcte : elle devient <b style="color:#155724">verte</b> si juste, <b style="color:#721c24">rouge</b> si fausse (la bonne s'affiche en vert), avec une justification. Basé sur le projet <b>Marketplace Artisanale</b> réalisé par <b>Neame Ramy</b> — Angular 21 (frontend) + PHP/Slim 4 (backend) + MariaDB.</div>
+
+<h2>A. Architecture générale</h2>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">1</span> Sur quel port tourne le serveur PHP/Slim 4 du projet marketplace ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Port 4200 — utilisé par Angular (ng serve)</button>
+<button class="opt-btn" data-i="1">Port 3307 — utilisé par MariaDB (WampServer)</button>
+<button class="opt-btn" data-i="2">Port 8000 — serveur PHP intégré (php -S localhost:8000)</button>
+<button class="opt-btn" data-i="3">Port 80 — utilisé par Apache (non démarré ici)</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Le serveur est lancé avec <code>php -S localhost:8000 -t public</code>. Le fichier <code>public/index.php</code> reçoit toutes les requêtes sur ce port. Pourquoi pas 80 ? Apache (WampServer) ne pouvait pas démarrer, donc on utilise le serveur intégré PHP directement.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">2</span> Sur quel port tourne MariaDB dans ce projet ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">3307 — MariaDB WampServer, évite le problème d'auth GSSAPI</button>
+<button class="opt-btn" data-i="1">3306 — MySQL classique, posait un conflit d'authentification</button>
+<button class="opt-btn" data-i="2">8080 — port alternatif courant pour les proxies HTTP</button>
+<button class="opt-btn" data-i="3">5432 — port standard de PostgreSQL (autre SGBD)</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>app/config/databaseConfig.php</code> : <code>'port' => 3307</code>. Pourquoi pas 3306 ? MySQL 5.7 (port 3306) utilise l'auth <em>GSSAPI</em> pour root, ce qui bloquait la connexion PDO. MariaDB 10.6.5 sur 3307 accepte la connexion sans problème.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">3</span> Qu'est-ce qu'une SPA (Single Page Application) comme Angular ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">L'app recharge la page entière depuis le serveur à chaque navigation</button>
+<button class="opt-btn" data-i="1">L'app charge une seule fois ; la navigation ne recharge pas le serveur</button>
+<button class="opt-btn" data-i="2">L'app génère le HTML côté serveur PHP à chaque requête reçue</button>
+<button class="opt-btn" data-i="3">L'app est constituée d'une unique vue statique sans routage</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Dans <code>app.routes.ts</code>, chaque route utilise <code>loadComponent: () => import(...)</code> — le routeur Angular change la vue sans recharger la page. Seules les requêtes API (ex. <code>GET /api/produits</code>) partent vers PHP. Le serveur ne génère jamais de HTML, il renvoie uniquement du JSON.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">4</span> Quel fichier PHP est le point d'entrée unique de toutes les requêtes HTTP ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">bootstrap.php — configure Slim et enregistre les middlewares</button>
+<button class="opt-btn" data-i="1">routes.php — définit les endpoints et les contrôleurs associés</button>
+<button class="opt-btn" data-i="2">autoload.php — charge automatiquement les classes PHP</button>
+<button class="opt-btn" data-i="3">public/index.php — reçoit toutes les requêtes (front controller)</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> <code>public/index.php</code> fait <code>require bootstrap.php</code> puis <code>$app->run()</code>. Slim intercepte l'URL, cherche une route dans <code>routes.php</code> et appelle le bon contrôleur. Pourquoi un seul point d'entrée ? Pour centraliser la gestion des erreurs, des middlewares et du routage.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">5</span> Quel fichier Angular contient l'URL du backend (http://localhost:8000) ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">app.config.ts — configure les providers globaux Angular</button>
+<button class="opt-btn" data-i="1">app.routes.ts — définit les routes et les guards</button>
+<button class="opt-btn" data-i="2">src/environments/environment.ts — stocke apiUrl et les variables d'env</button>
+<button class="opt-btn" data-i="3">angular.json — gère les options de build et les polyfills</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Dans <code>src/environments/environment.ts</code> : <code>export const environment = { apiUrl: 'http://localhost:8000' }</code>. Tous les services importent cet objet : <code>private readonly base = environment.apiUrl</code> (ex. <code>auth.service.ts</code> ligne 10). Pourquoi ? Changer l'URL de prod ne touche qu'un seul fichier.</div>
+</div>
+
+<h2>B. Angular — composants, services et routing</h2>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">6</span> D'où partent toutes les requêtes HTTP dans l'application Angular ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Des services (auth.service.ts, cart.service.ts, etc.)</button>
+<button class="opt-btn" data-i="1">Des composants, directement via fetch() ou HttpClient</button>
+<button class="opt-btn" data-i="2">Du routeur, via les résolveurs de données (Resolvers)</button>
+<button class="opt-btn" data-i="3">Du composant racine app.ts, au démarrage de l'appli</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Ex. dans <code>auth.service.ts</code> ligne 24 : <code>this.http.post(`${this.base}/login`, body, { withCredentials: true })</code>. Le composant <code>login.component.ts</code> appelle simplement <code>this.auth.login(email, mdp).subscribe(...)</code> — il ne touche pas à HttpClient. Pourquoi ? Séparation des responsabilités : le composant gère l'UI, le service gère le réseau.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">7</span> À quoi sert le fichier app.config.ts ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Définir les routes et les lazy-loaded components de l'appli</button>
+<button class="opt-btn" data-i="1">Configurer les providers globaux : routeur, HttpClient, Zone.js</button>
+<button class="opt-btn" data-i="2">Déclarer les composants standalone et leurs imports directs</button>
+<button class="opt-btn" data-i="3">Stocker les URLs d'API et les variables d'environnement</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Dans <code>app.config.ts</code> : <code>providers: [ provideZoneChangeDetection(...), provideRouter(routes), provideHttpClient(withFetch()) ]</code>. C'est l'équivalent de l'ancien <code>NgModule</code> mais en mode standalone (Angular 17+). Sans <code>provideHttpClient()</code>, aucun service ne peut injecter <code>HttpClient</code>.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">8</span> Qu'est-ce qu'un Signal Angular (signal()) ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Un événement DOM natif déclenché par l'utilisateur (clic, input…)</button>
+<button class="opt-btn" data-i="1">Un Observable RxJS retourné par les appels HttpClient</button>
+<button class="opt-btn" data-i="2">Une constante de configuration définie dans environment.ts</button>
+<button class="opt-btn" data-i="3">Une valeur réactive qui met à jour les templates qui l'utilisent</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Dans <code>auth.service.ts</code> lignes 12-16 : <code>currentUser = signal&lt;Utilisateur | null&gt;(null)</code> puis <code>isLoggedIn = computed(() => this.currentUser() !== null)</code>. Quand <code>currentUser.set(data)</code> est appelé après le login, tous les templates qui lisent <code>isLoggedIn()</code> se mettent à jour instantanément — sans <code>EventEmitter</code> ni <code>Subject</code>.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">9</span> Quelle est la différence entre signal() et computed() ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">signal() est synchrone, computed() traite les Observables async</button>
+<button class="opt-btn" data-i="1">computed() remplace les Observables RxJS dans les services</button>
+<button class="opt-btn" data-i="2">computed() est un signal dérivé, recalculé depuis d'autres signals</button>
+<button class="opt-btn" data-i="3">Les deux sont identiques, computed() est juste un alias de signal()</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Dans <code>artisan-shop.component.ts</code> lignes 110-113 : <code>filteredProduits = computed(() => { const f = this.activeFilter(); return f ? this.produits().filter(p => p.categorie === f) : this.produits(); })</code>. Pourquoi <code>computed()</code> et pas un getter classique ? Parce qu'il est réactif : il se recalcule automatiquement quand <code>activeFilter</code> ou <code>produits</code> changent, sans appel explicite.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">10</span> À quoi sert un guard Angular (authGuard, roleGuard) ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Vérifier des conditions avant la route et rediriger si non autorisé</button>
+<button class="opt-btn" data-i="1">Chiffrer les données échangées entre composants Angular</button>
+<button class="opt-btn" data-i="2">Valider les champs d'un formulaire réactif avant soumission</button>
+<button class="opt-btn" data-i="3">Intercepter et transformer les requêtes HTTP sortantes</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>auth.guard.ts</code> : <code>if (auth.isLoggedIn()) return true; return router.createUrlTree(['/login'])</code>. Dans <code>app.routes.ts</code> ligne 19 : <code>{ path: 'commande', canActivate: [authGuard] }</code>. Pourquoi ? Empêcher un visiteur non connecté d'accéder à la page de commande côté client (la protection côté serveur existe aussi dans AuthMiddleware).</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">11</span> Qu'est-ce que le lazy loading dans app.routes.ts ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Les images se chargent uniquement quand elles entrent dans le viewport</button>
+<button class="opt-btn" data-i="1">Les composants ne sont téléchargés que lors de la navigation vers leur route</button>
+<button class="opt-btn" data-i="2">Les réponses API sont mises en cache pour éviter les doublons</button>
+<button class="opt-btn" data-i="3">Le rendu de la page est retardé jusqu'à la réponse du serveur</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Dans <code>app.routes.ts</code> ligne 30 : <code>loadComponent: () => import('./pages/artisan/dashboard/artisan-dashboard.component').then(m => m.ArtisanDashboardComponent)</code>. Pourquoi ? Un client ne chargera jamais le code admin. Sans lazy loading, tout le JavaScript (admin + artisan + client) serait téléchargé dès la 1ère visite, ralentissant inutilement la page.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">12</span> Pourquoi utilise-t-on FormData au lieu de JSON pour les requêtes POST vers le backend ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Angular interdit l'envoi de JSON avec HttpClient.post()</button>
+<button class="opt-btn" data-i="1">FormData est transmis plus rapidement que du JSON brut</button>
+<button class="opt-btn" data-i="2">Le navigateur bloque les corps JSON dans les requêtes cross-origin</button>
+<button class="opt-btn" data-i="3">PHP lit $_POST uniquement avec FormData, pas avec du JSON brut</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Dans <code>auth.service.ts</code> lignes 21-24 : <code>const body = new FormData(); body.append('email', email); body.append('mot_de_passe', mot_de_passe); this.http.post('.../login', body, { withCredentials: true })</code>. Côté PHP, <code>AuthController</code> lit <code>$_POST['email']</code>. Si on envoyait du JSON brut (<code>Content-Type: application/json</code>), <code>$_POST</code> serait vide — il faudrait <code>json_decode(file_get_contents('php://input'))</code>.</div>
+</div>
+
+<h2>C. PHP/Slim 4 — middleware et routing</h2>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">13</span> Dans Slim 4, dans quel ordre les middlewares s'exécutent-ils ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Dans l'ordre d'ajout (FIFO) — le premier ajouté s'exécute en premier</button>
+<button class="opt-btn" data-i="1">Par ordre alphabétique du nom de classe du middleware</button>
+<button class="opt-btn" data-i="2">Dans l'ordre inverse d'ajout (LIFO) — le dernier ajouté s'exécute en premier</button>
+<button class="opt-btn" data-i="3">En parallèle, tous exécutés simultanément sur chaque requête</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Dans <code>bootstrap.php</code> lignes 22-24 : <code>$app->add(new CorsMiddleware()); $app->add(new RequestDataMiddleware()); $app->add(new SessionMiddleware())</code>. SessionMiddleware est ajouté en dernier → il s'exécute en premier à la réception (LIFO). Pourquoi LIFO ? Slim empile les middlewares comme des couches d'oignon : chaque couche enveloppe la suivante.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">14</span> Quel middleware PHP est responsable du lancement de session_start() ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">SessionMiddleware.php — appelle session_start() avant chaque requête</button>
+<button class="opt-btn" data-i="1">AuthMiddleware.php — vérifie $_SESSION['user_id'] à chaque appel</button>
+<button class="opt-btn" data-i="2">CorsMiddleware.php — ajoute les headers CORS sur chaque réponse</button>
+<button class="opt-btn" data-i="3">RoleMiddleware.php — contrôle le rôle dans $_SESSION à chaque appel</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>app/middleware/SessionMiddleware.php</code>, la méthode <code>process()</code> appelle <code>session_start()</code> avant de transmettre la requête : <code>$handler->handle($request)</code>. Pourquoi un middleware dédié ? Pour centraliser le démarrage de session — sans lui, <code>$_SESSION</code> n'existe pas et <code>AuthMiddleware</code> ne peut pas vérifier <code>$_SESSION['user_id']</code>.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">15</span> À quoi sert CorsMiddleware.php dans ce projet ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Chiffrer les échanges entre Angular et PHP (TLS applicatif)</button>
+<button class="opt-btn" data-i="1">Autoriser localhost:4200 à appeler localhost:8000 et gérer les OPTIONS</button>
+<button class="opt-btn" data-i="2">Limiter le débit de requêtes autorisées par IP par seconde</button>
+<button class="opt-btn" data-i="3">Vérifier que $_SESSION['user_id'] existe avant chaque requête</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Dans <code>CorsMiddleware.php</code> : <code>private const ALLOWED_ORIGINS = ['http://localhost:4200', 'http://127.0.0.1:4200']</code>. La méthode <code>addCorsHeaders()</code> ajoute <code>Access-Control-Allow-Origin</code>, <code>Access-Control-Allow-Credentials: true</code> et les méthodes autorisées. Pourquoi ? Le navigateur bloque par sécurité toute requête vers une origine différente (port différent = origine différente).</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">16</span> Qu'est-ce qu'une requête preflight OPTIONS en CORS ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Une requête du serveur PHP pour vérifier l'origine du client</button>
+<button class="opt-btn" data-i="1">Le premier GET émis lors du chargement initial de l'app Angular</button>
+<button class="opt-btn" data-i="2">Une synchronisation automatique entre deux instances du backend</button>
+<button class="opt-btn" data-i="3">Une vérification préalable du navigateur avant tout appel cross-origin</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Dans <code>CorsMiddleware.php</code> lignes 22-24 : <code>if ($request->getMethod() === 'OPTIONS') { return $this->addCorsHeaders($response, $allowedOrigin)->withStatus(204); }</code>. Pourquoi ? Avant un POST cross-origin, le navigateur envoie d'abord un OPTIONS pour demander l'autorisation. Si le serveur ne répond pas correctement, la vraie requête est annulée avant même d'être envoyée.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">17</span> Dans le projet, qu'est-ce que le pattern Singleton utilisé dans Database.php ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Une connexion PDO créée pour chaque appel de méthode SQL</button>
+<button class="opt-btn" data-i="1">Un pattern interdisant tout accès concurrent à la base de données</button>
+<button class="opt-btn" data-i="2">Un pattern garantissant une seule instance PDO réutilisée par requête</button>
+<button class="opt-btn" data-i="3">Une connexion PDO séparée instanciée par chaque classe Model</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Dans <code>app/models/Database.php</code> : <code>if (self::$pdo === null) { ... self::$pdo = new PDO($dsn, $user, $password, [...]) }</code> puis <code>return self::$pdo</code>. Pourquoi ? Ouvrir une connexion PDO coûte du temps. Avec le singleton, <code>ProduitModel</code>, <code>CommandeModel</code> et <code>UtilisateurModel</code> partagent tous la même connexion sans la recréer.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">18</span> Que fait AuthMiddleware.php quand $_SESSION['user_id'] est absent ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Retourne immédiatement un 401 Unauthorized en JSON</button>
+<button class="opt-btn" data-i="1">Redirige vers /login via un header Location côté PHP</button>
+<button class="opt-btn" data-i="2">Initialise une session vide et laisse passer la requête</button>
+<button class="opt-btn" data-i="3">Transmet la requête au contrôleur avec $user défini à null</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>app/middleware/AuthMiddleware.php</code> lignes 15-19 : <code>if (empty($_SESSION['user_id'])) { return JsonResponder::write($response, 401, ['message' => 'Authentification requise']) }</code>. Pourquoi JSON et pas une redirection ? Le backend est une API pure — il ne sait pas que le client est un navigateur. C'est Angular qui gère la redirection vers <code>/login</code> en interceptant le 401.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">19</span> Quelle est la différence entre AuthMiddleware et RoleMiddleware ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">AuthMiddleware vérifie le rôle (403), RoleMiddleware la connexion (401)</button>
+<button class="opt-btn" data-i="1">AuthMiddleware → connexion requise (401) ; RoleMiddleware → rôle autorisé (403)</button>
+<button class="opt-btn" data-i="2">Ce sont deux noms pour un même middleware combiné dans bootstrap.php</button>
+<button class="opt-btn" data-i="3">AuthMiddleware est côté Angular, RoleMiddleware est côté PHP uniquement</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> <code>AuthMiddleware</code> vérifie <code>empty($_SESSION['user_id'])</code> → 401 si absent. <code>RoleMiddleware</code> vérifie <code>$_SESSION['id_role'] === $requiredRole</code> → 403 si mauvais rôle. Exemple : un artisan qui appelle <code>/api/admin/artisans</code> reçoit 401 s'il n'est pas connecté, ou 403 s'il est connecté mais pas admin.</div>
+</div>
+
+<h2>D. Sécurité et gestion des rôles</h2>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">20</span> Quels sont les trois rôles définis dans l'application ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">superadmin (id=0), admin (id=1), utilisateur (id=2)</button>
+<button class="opt-btn" data-i="1">moderateur (id=1), vendeur (id=2), acheteur (id=3)</button>
+<button class="opt-btn" data-i="2">admin (id=1), artisan (id=2), client (id=3)</button>
+<button class="opt-btn" data-i="3">root (id=0), artisan (id=1), client (id=2)</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Dans <code>auth.service.ts</code> lignes 14-16 : <code>isAdmin = computed(() => this.currentUser()?.id_role === 1); isArtisan = computed(() => this.currentUser()?.id_role === 2); isClient = computed(() => this.currentUser()?.id_role === 3)</code>. Ces signals computed pilotent les menus de navigation et les sections conditionnelles du header en temps réel.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">21</span> Pourquoi y a-t-il une double protection (guard Angular + middleware PHP) ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Les deux font exactement la même chose — c'est une redondance inutile</button>
+<button class="opt-btn" data-i="1">Le guard protège les données PHP, le middleware protège l'UI Angular</button>
+<button class="opt-btn" data-i="2">Le guard Angular est obligatoire, le middleware côté serveur est optionnel</button>
+<button class="opt-btn" data-i="3">Le guard bloque la navigation UI ; le middleware bloque l'accès aux données API</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Le guard Angular (<code>role.guard.ts</code>) empêche l'affichage de la page admin dans le navigateur. Mais un utilisateur malin pourrait appeler directement <code>GET /api/admin/artisans</code> avec Postman ou curl. Le <code>RoleMiddleware</code> PHP refuse alors avec un 403. Conclusion : le guard = confort UI, le middleware = vraie sécurité.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">22</span> Pourquoi utilise-t-on withCredentials: true dans toutes les requêtes Angular ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Pour transmettre le cookie de session PHP avec chaque requête cross-origin</button>
+<button class="opt-btn" data-i="1">Pour chiffrer le corps des requêtes POST envoyées au backend</button>
+<button class="opt-btn" data-i="2">Pour autoriser l'appel à n'importe quelle origine sans restriction CORS</button>
+<button class="opt-btn" data-i="3">Pour activer l'authentification HTTP Basic dans les headers Authorization</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>auth.service.ts</code> ligne 48 : <code>this.http.get(`${this.base}/profile`, { withCredentials: true })</code>. Idem dans <code>cart.service.ts</code> ligne 18. Pourquoi ? Par défaut, le navigateur ne joint pas les cookies aux requêtes cross-origin. Avec <code>withCredentials: true</code>, le cookie <code>PHPSESSID</code> est envoyé → PHP reconnaît la session → <code>$_SESSION['user_id']</code> est disponible.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">23</span> Quel guard Angular protège les routes /artisan/* ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">authGuard seul — vérifie uniquement qu'un utilisateur est connecté</button>
+<button class="opt-btn" data-i="1">roleGuard(2) — vérifie que l'utilisateur a le rôle artisan (id=2)</button>
+<button class="opt-btn" data-i="2">roleGuard(1) — vérifie que l'utilisateur a le rôle admin (id=1)</button>
+<button class="opt-btn" data-i="3">Aucun guard — les pages artisan sont accessibles sans restriction</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Dans <code>app.routes.ts</code> ligne 27 : <code>canActivate: [roleGuard(2)]</code>. Dans <code>role.guard.ts</code> : <code>export const roleGuard = (role: number): CanActivateFn => () => { ... if (user.id_role === role || user.id_role === 1) return true; return router.createUrlTree(['/']) }</code>. Remarque : l'admin (id=1) peut tout faire — il passe même <code>roleGuard(2)</code>.</div>
+</div>
+
+<h2>E. Flux de données et cycle de vie</h2>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">24</span> Dans quel hook de cycle de vie Angular charge-t-on les données depuis l'API ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Dans le constructeur, lors de l'injection des dépendances</button>
+<button class="opt-btn" data-i="1">Dans ngOnDestroy(), juste avant la destruction du composant</button>
+<button class="opt-btn" data-i="2">Dans ngOnInit(), après l'initialisation du composant</button>
+<button class="opt-btn" data-i="3">Dans ngAfterViewInit(), après le rendu complet du DOM</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Dans <code>artisan-shop.component.ts</code> ligne 122 : <code>ngOnInit() { this.route.params.subscribe(p => { const id = +p['id']; this.artisanSvc.getById(id).subscribe(...) }) }</code>. Pourquoi pas le constructeur ? Le constructeur est exécuté avant que Angular ait lié les paramètres de route et les inputs — <code>ngOnInit()</code> est garanti après cette initialisation.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">25</span> Comment fonctionne le badge "nombre d'articles" dans le header du panier ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Le header envoie un GET /api/cart toutes les 5 secondes</button>
+<button class="opt-btn" data-i="1">Le badge est mis à jour via un CustomEvent diffusé globalement</button>
+<button class="opt-btn" data-i="2">Le header maintient son propre compteur local indépendant</button>
+<button class="opt-btn" data-i="3">cart.service.ts expose un Signal items ; items().length est lu dans le template</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Dans <code>cart.service.ts</code> lignes 11-12 : <code>lines = signal&lt;CartLine[]&gt;([]); count = computed(() => this.lines().reduce((s, l) => s + l.quantite, 0))</code>. Le header lit <code>cartService.count()</code> dans son template. Quand <code>cart.add()</code> recharge les lignes avec <code>this.lines.set(...)</code>, <code>count</code> se recalcule et le badge se met à jour sans code supplémentaire.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">26</span> Quel fichier TypeScript définit les interfaces Produit, Commande, Artisan… ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">src/app/core/models/models.ts — interfaces alignées sur les champs PHP/SQL</button>
+<button class="opt-btn" data-i="1">src/app/app.config.ts — configuration des providers Angular</button>
+<button class="opt-btn" data-i="2">src/environments/environment.ts — variables d'environnement (apiUrl)</button>
+<button class="opt-btn" data-i="3">src/app/app.routes.ts — table de routage et déclaration des guards</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>src/app/core/models/models.ts</code> : <code>export interface Produit { id_produit: number; nom: string; prix_ht: number; id_artisan: number; ... }</code>. Pourquoi ces noms avec underscore ? Pour correspondre exactement aux colonnes MySQL. Si un champ PHP change de nom, TypeScript signale immédiatement une erreur partout où il est utilisé.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">27</span> Quelles sont les valeurs possibles du statut d'une commande ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">pending, processing, shipped, delivered, cancelled (anglais)</button>
+<button class="opt-btn" data-i="1">en_attente, en_preparation, expediee, livree, annulee (BDD)</button>
+<button class="opt-btn" data-i="2">nouveau, validé, envoyé, reçu, remboursé (labels UI)</button>
+<button class="opt-btn" data-i="3">draft, confirmed, transit, done, refund (anglais abrégé)</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Dans <code>models.ts</code> : <code>export type StatutCommande = 'en_attente' | 'en_preparation' | 'expediee' | 'livree' | 'annulee'</code>. Ces valeurs correspondent aux ENUM dans la table <code>commande</code> de MariaDB. Côté UI, <code>STATUT_LABELS</code> les traduit en texte lisible (ex. <code>en_attente → "En attente"</code>).</div>
+</div>
+
+<h2>F. Configuration et outils</h2>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">28</span> Pourquoi a-t-on dû ajouter "zone.js" dans angular.json ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Zone.js ajoute le support des modules ES2022 au bundle Angular</button>
+<button class="opt-btn" data-i="1">Zone.js est requis pour que Tailwind CSS fonctionne avec Angular</button>
+<button class="opt-btn" data-i="2">Zone.js intercepte les requêtes HTTP pour les tracer automatiquement</button>
+<button class="opt-btn" data-i="3">Zone.js gère la détection de changements — sans lui : page blanche + NG0908</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Dans <code>angular.json</code> : <code>"polyfills": ["zone.js"]</code>. Zone.js intercepte toutes les opérations asynchrones (Promises, setTimeout, events) et notifie Angular pour déclencher la détection de changements. Sans lui → la page est blanche avec l'erreur console <code>NG0908: Angular requires Zone.js to be loaded</code>.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">29</span> Quel fichier configure Tailwind CSS pour fonctionner avec Angular ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">tailwind.config.json — configure les classes utilitaires Tailwind</button>
+<button class="opt-btn" data-i="1">angular.json — ajoute Tailwind dans les options de build Angular</button>
+<button class="opt-btn" data-i="2">postcss.config.js — déclare les plugins tailwindcss et autoprefixer</button>
+<button class="opt-btn" data-i="3">src/styles.scss — importe les directives @tailwind base/components</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Dans <code>postcss.config.js</code> : <code>module.exports = { plugins: { tailwindcss: {}, autoprefixer: {} } }</code>. Pourquoi ? Le builder Angular (@angular/build:application) passe le SCSS par PostCSS. Sans ce fichier, les directives <code>@tailwind base</code>, <code>@tailwind components</code> dans <code>styles.scss</code> ne sont pas transformées et Tailwind ne génère aucune classe CSS.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">30</span> À quoi sert BasePathResolver.php dans Slim 4 ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Détecter le chemin de base selon le serveur (php -S vs Apache)</button>
+<button class="opt-btn" data-i="1">Résoudre les chemins de fichiers absolus sur le disque dur</button>
+<button class="opt-btn" data-i="2">Convertir les URLs relatives en URLs absolues dans les réponses JSON</button>
+<button class="opt-btn" data-i="3">Gérer les redirections HTTP 301 et 302 dans les contrôleurs</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>bootstrap.php</code> ligne 15 : <code>$basePath = BasePathResolver::resolve($config)</code>. Avec <code>php -S localhost:8000</code>, <code>SCRIPT_NAME = /index.php</code> → base path vide, les routes sont directement <code>/api/produits</code>. Sous Apache dans <code>/marketplace/public/</code>, le base path serait <code>/marketplace/public</code>. <code>BasePathResolver</code> détecte ça automatiquement.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">31</span> Quelle est la structure MVC du backend PHP ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Model = controllers/, View = views/ HTML, Controller = models/</button>
+<button class="opt-btn" data-i="1">Model = models/ (BDD), Controller = controllers/, View = JSON via JsonResponder</button>
+<button class="opt-btn" data-i="2">MVC n'est pas appliqué ici — uniquement des fonctions procédurales</button>
+<button class="opt-btn" data-i="3">Model = middleware/, View = templates Twig, Controller = routes.php</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Ex : <code>ProductController::getAll()</code> appelle <code>ProduitModel::getAll()</code> (Model) puis <code>JsonResponder::write($response, 200, $data)</code> (View JSON). Il n'y a aucun template HTML — Angular génère toute l'UI. <code>models/</code> ne fait que du PDO pur, aucune logique métier.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">32</span> Quel est le rôle des fichiers dans app/models/validators/ ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Valider le format JSON des réponses renvoyées au client Angular</button>
+<button class="opt-btn" data-i="1">Vérifier que l'utilisateur possède le bon rôle avant chaque action</button>
+<button class="opt-btn" data-i="2">Contrôler la structure des tables lors de la création de la base</button>
+<button class="opt-btn" data-i="3">Valider les données entrantes des formulaires avant insertion en BDD</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Ex : avant d'insérer un produit, <code>ProductController</code> appelle <code>ProduitValidator::validate($data)</code> qui vérifie que <code>nom</code>, <code>prix_ht</code>, <code>stock</code> sont présents et valides. Si non → exception <code>ValidationException</code> → réponse 422 avec les erreurs. Pourquoi séparer ? Le modèle ne fait que du SQL — la validation est une responsabilité distincte (SRP).</div>
+</div>
+
+<div class="final-result" id="final">
+  <h3>Résultat final</h3>
+  <div class="big" id="final-score">— / —</div>
+  <div class="msg" id="final-msg"></div>
+</div>
+
+</main>
+
+<script>
+const state={ok:0,done:0,total:0};
+function updateBadge(){
+  document.getElementById('score').textContent=state.ok+' / '+state.done;
+  const pct=state.done?Math.round(100*state.ok/state.done):0;
+  document.getElementById('pct').textContent=pct+'%';
+  const p=state.total?Math.round(100*state.done/state.total):0;
+  document.getElementById('prog').style.width=p+'%';
+  if(state.done===state.total&&state.total>0){
+    const f=document.getElementById('final');f.classList.add('show');
+    document.getElementById('final-score').textContent=state.ok+' / '+state.total+' ('+pct+'%)';
+    let m;
+    if(pct>=85)m='Excellent ! Tu maîtrises l\'architecture du projet.';
+    else if(pct>=70)m='Bien ! Revois les questions ratées — surtout CORS et les middlewares.';
+    else if(pct>=50)m='À retravailler — relis l\'aide-mémoire et retrace le flux d\'une requête.';
+    else m='Reprends l\'aide-mémoire depuis le début et retrace chaque requête dans le code.';
+    document.getElementById('final-msg').textContent=m;
+    f.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+document.addEventListener('click',(e)=>{
+  if(e.target.classList.contains('opt-btn')){
+    const q=e.target.closest('.q');if(q.dataset.done)return;q.dataset.done='1';
+    const correct=parseInt(q.dataset.correct,10);const chosen=parseInt(e.target.dataset.i,10);
+    q.querySelectorAll('.opt-btn').forEach((o,i)=>{o.disabled=true;if(i===correct)o.classList.add('ok');if(i===chosen&&i!==correct)o.classList.add('ko');});
+    q.querySelector('.expl').classList.add('show');
+    state.done++;if(chosen===correct)state.ok++;updateBadge();return;
+  }
+  if(e.target.id==='reset-btn'){
+    if(!confirm('Tout recommencer ?'))return;
+    document.querySelectorAll('.q').forEach(q=>{delete q.dataset.done;q.querySelectorAll('.opt-btn').forEach(o=>{o.disabled=false;o.classList.remove('ok','ko');});q.querySelector('.expl').classList.remove('show');});
+    state.ok=0;state.done=0;document.getElementById('final').classList.remove('show');updateBadge();window.scrollTo({top:0,behavior:'smooth'});
+  }
+});
+window.addEventListener('DOMContentLoaded',()=>{state.total=document.querySelectorAll('.q').length;updateBadge();});
+</script>
+</body>
+</html>
