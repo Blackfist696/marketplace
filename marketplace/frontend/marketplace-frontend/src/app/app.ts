@@ -14,8 +14,9 @@ export class App implements OnInit {
   constructor(private auth: AuthService, private cart: CartService) {}
 
   ngOnInit() {
-    this.auth.loadProfile().subscribe(() => {
-      if (this.auth.isLoggedIn()) this.cart.load().subscribe();
+    this.auth.loadProfile().subscribe({
+      next: () => { if (this.auth.isLoggedIn()) this.cart.load().subscribe({ error: () => {} }); },
+      error: () => {},
     });
   }
 }
