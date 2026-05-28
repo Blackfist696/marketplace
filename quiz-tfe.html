@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz — TFE Stage NSI IT · Neame Ramy · Spring Boot + Angular NgCube</title>
+<style>
+  :root{
+    --green:#28a745;--green-bg:#d4edda;--green-fg:#155724;
+    --red:#dc3545;--red-bg:#f8d7da;--red-fg:#721c24;
+    --blue:#1565c0;--blue-dark:#0d47a1;
+    --yellow-bg:#fff3cd;--yellow-bd:#ffc107;
+    --bg:#fafafa;--card:#fff;--border:#ddd;--muted:#666;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,"Segoe UI","Liberation Sans",Arial,sans-serif;font-size:14.5px;line-height:1.55;color:#222;background:var(--bg);margin:0;padding:0 0 80px;}
+  header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#0d47a1,#1565c0);color:#fff;padding:14px 24px;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  header h1{margin:0;font-size:18px;font-weight:600;}
+  header .sub{font-size:12px;opacity:.85;margin-top:2px;}
+  .score-bar{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap;}
+  .score-box{background:rgba(255,255,255,.15);padding:6px 14px;border-radius:6px;font-size:13px;}
+  .score-box strong{font-size:16px;font-weight:700;}
+  .progress-track{flex:1;min-width:200px;height:8px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;background:#5cd87a;width:0%;transition:width .3s;}
+  #reset-btn{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:13px;}
+  #reset-btn:hover{background:rgba(255,255,255,.3);}
+  main{max-width:920px;margin:0 auto;padding:20px;}
+  .intro{background:#e8f1fb;border-left:4px solid var(--blue);padding:10px 14px;border-radius:6px;margin:14px 0;font-size:13.5px;}
+  h2{font-size:18px;background:linear-gradient(90deg,#0d47a1,transparent);color:#fff;padding:9px 16px;border-radius:6px;margin:34px 0 14px;}
+  .q{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .q-h{font-weight:500;margin-bottom:8px;}
+  .q-n{display:inline-block;background:var(--blue);color:#fff;min-width:30px;padding:0 8px;height:24px;line-height:24px;text-align:center;border-radius:4px;font-size:12px;font-weight:700;margin-right:8px;}
+  .opts{margin-top:6px;}
+  .opt-btn{display:block;width:100%;text-align:left;padding:9px 14px;margin:5px 0;background:#f7f9fc;border:1.5px solid #d9e1ec;border-radius:6px;cursor:pointer;font-size:14px;color:#333;font-family:inherit;transition:all .15s;}
+  .opt-btn:hover:not(:disabled){background:#eaf2fb;border-color:var(--blue);}
+  .opt-btn:disabled{cursor:default;}
+  .opt-btn.ok{background:var(--green-bg)!important;border-color:var(--green)!important;color:var(--green-fg)!important;font-weight:600;}
+  .opt-btn.ok::after{content:" ✓";color:var(--green);font-weight:700;float:right;}
+  .opt-btn.ko{background:var(--red-bg)!important;border-color:var(--red)!important;color:var(--red-fg)!important;}
+  .opt-btn.ko::after{content:" ✗";color:var(--red);font-weight:700;float:right;}
+  .expl{display:none;margin-top:12px;padding:10px 14px;background:var(--yellow-bg);border-left:4px solid var(--yellow-bd);border-radius:4px;font-size:13px;color:#555;}
+  .expl.show{display:block;}
+  .expl strong{color:#222;}
+  .final-result{background:linear-gradient(135deg,#5cd87a,#28a745);color:#fff;padding:24px;border-radius:10px;text-align:center;margin:30px 0;display:none;}
+  .final-result.show{display:block;}
+  .final-result h3{margin:0 0 8px;font-size:24px;color:#fff;}
+  .final-result .big{font-size:42px;font-weight:700;line-height:1;}
+  .final-result .msg{font-size:14px;opacity:.95;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Quiz — TFE Stage NSI IT &nbsp;·&nbsp; <em style="font-style:normal;opacity:.9">Neame Ramy</em></h1>
+  <div class="sub">Angular 21 + Spring Boot + JCube + Hibernate + Liquibase + MapStruct + PostgreSQL &nbsp;·&nbsp; 30 questions · 1 bonne réponse sur 4 · correction immédiate + justification</div>
+  <div class="score-bar">
+    <div class="score-box">Score : <strong id="score">0 / 0</strong></div>
+    <div class="score-box"><span id="pct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="prog"></div></div>
+    <button id="reset-btn">↻ Recommencer</button>
+  </div>
+</header>
+
+<main>
+<div class="intro">Clique sur la réponse que tu crois correcte : elle devient <b style="color:#155724">verte</b> si juste, <b style="color:#721c24">rouge</b> si fausse (la bonne s'affiche en vert), avec une justification. Basé sur le projet <b>ERA (module SRDA)</b> réalisé par <b>Neame Ramy</b> en stage chez NSI IT — Angular 21 + NgCube (frontend) + Spring Boot + JCube + Hibernate + Liquibase + MapStruct + PostgreSQL (backend).</div>
+
+<h2>A. Architecture JCube &amp; Spring Boot</h2>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">1</span> Qu'impose JCube comme architecture dans le projet ERA ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">2 couches libres — Controller et Repository, sans convention de nommage</button>
+<button class="opt-btn" data-i="1">5 couches strictes — Controller, Service, Repository, Mapper, Entity imposées</button>
+<button class="opt-btn" data-i="2">3 couches MVC — Model, View, Controller avec des noms libres autorisés</button>
+<button class="opt-btn" data-i="3">1 couche unique — un fichier god-class par entité contenant tout le code</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> JCube est le framework interne de NSI IT. Il impose 5 couches : <code>EmployeeController</code> (routes REST), <code>EmployeeService</code> (logique métier), <code>EmployeeRepository</code> (Spring Data JPA), <code>EmployeeMapper</code> (MapStruct), <code>EmployeeEntity</code> (Hibernate). Tout contrôleur étend <code>AbstractCodeController</code>, tout service étend <code>AbstractCodeService</code>. Cette convention garantit qu'un développeur NSI IT comprend n'importe quelle feature en moins d'une heure — contrairement au marketplace Slim où chaque développeur peut structurer librement ses contrôleurs.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">2</span> Combien de fichiers la commande <code>npm run plop</code> génère-t-elle pour chaque nouvelle entité JCube ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">3 fichiers — Entity, Repository et Controller suffisent dans JCube</button>
+<button class="opt-btn" data-i="1">5 fichiers — Entity, DTO, Service, Repository et Controller uniquement</button>
+<button class="opt-btn" data-i="2">11 fichiers — Entity, DTO, Mapper, Service, Repository, Controller + tests + config</button>
+<button class="opt-btn" data-i="3">1 fichier — Plop génère un scaffold unique qui importe tout automatiquement</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> <code>npm run plop</code> demande le nom de l'entité et génère 11 fichiers : <code>EmployeeEntity.java</code>, <code>EmployeeDTO.java</code> (record), <code>EmployeeMapper.java</code> (interface MapStruct), <code>EmployeeService.java</code>, <code>EmployeeRepository.java</code>, <code>EmployeeController.java</code>, <code>EmployeeSearchCriteria.java</code>, plus les fichiers de test et le changeset Liquibase. Dans le marketplace Slim, ces équivalents sont créés manuellement — environ 30 à 60 minutes contre 5 minutes avec Plop. Le risque d'oublier un fichier = quasi nul avec Plop, élevé sans.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">3</span> Que font <code>@RestController</code> et <code>@RequestMapping("/api/employees")</code> combinés ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Déclarent une classe Java dont chaque méthode annotée devient un endpoint REST</button>
+<button class="opt-btn" data-i="1">Génèrent automatiquement une UI Swagger pour tous les endpoints /api/employees</button>
+<button class="opt-btn" data-i="2">Centralisent toutes les routes dans un fichier routes.php équivalent Spring</button>
+<button class="opt-btn" data-i="3">Activent Spring Security sur la classe et bloquent les accès non authentifiés</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>EmployeeController.java</code> : <code>@RestController @RequestMapping("/api/employees")</code> déclare que cette classe gère les requêtes vers <code>/api/employees</code>. Chaque méthode annotée <code>@GetMapping("/{code}")</code> ou <code>@PostMapping("/search")</code> devient un endpoint REST. Spring analyse ces annotations au démarrage et configure le routing automatiquement — contrairement au marketplace où toutes les routes sont déclarées explicitement dans <code>routes.php</code> : <code>$app->get('/api/produits/{id}', [ProductController::class, 'getById'])</code>.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">4</span> Pourquoi le projet ERA utilise <code>POST /search</code> pour les recherches plutôt que <code>GET /search?param=</code> ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Parce que Spring Boot ne supporte pas les paramètres de requête GET avec Pageable</button>
+<button class="opt-btn" data-i="1">Parce que Angular HttpClient ne peut pas envoyer de GET avec withCredentials</button>
+<button class="opt-btn" data-i="2">Parce que GET est bloqué par le pare-feu interne de NSI IT pour la sécurité</button>
+<button class="opt-btn" data-i="3">Pour envoyer un body JSON structuré (critères + pagination) sans limite de taille d'URL</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Dans <code>EmployeeController.java</code> : <code>@PostMapping("/search") public Page&lt;EmployeeDTO&gt; search(@RequestBody SearchCriteria criteria, Pageable pageable)</code>. Les URLs GET ont une limite (~2000 caractères) et exposent les critères dans les logs serveur. Le body JSON POST contient <code>{"firstName": "Ramy", "buCode": "IT", "page": 0, "size": 20, "sort": ["lastName,asc"]}</code> sans contrainte de taille. C'est une convention interne NSI IT adoptée dans tout le projet ERA et gérée automatiquement par <code>LazyListManager</code> côté NgCube.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">5</span> Qu'est-ce que <code>AbstractCodeController</code> dans l'architecture JCube ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Un middleware Spring Security qui vérifie les rôles avant chaque appel de méthode</button>
+<button class="opt-btn" data-i="1">Une classe abstraite JCube que tous les contrôleurs étendent pour hériter du CRUD générique</button>
+<button class="opt-btn" data-i="2">Un générateur de documentation OpenAPI pour les endpoints Spring Boot du projet ERA</button>
+<button class="opt-btn" data-i="3">Un client HTTP Java qui appelle les APIs externes depuis le backend Spring Boot</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Dans ERA : <code>public class EmployeeController extends AbstractCodeController&lt;EmployeeDTO, EmployeeEntity, String&gt;</code>. <code>AbstractCodeController</code> est fourni par JCube et contient déjà les méthodes CRUD génériques (findAll, findById, create, update, delete). Les contrôleurs concrets n'ajoutent que la logique spécifique. L'équivalent dans le marketplace PHP : chaque <code>ProductController.php</code> et <code>OrderController.php</code> réimplémente son propre CRUD depuis zéro — plus de code, plus de risque d'incohérence entre contrôleurs.</div>
+</div>
+
+<h2>B. ORM Hibernate / JPA</h2>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">6</span> Que font <code>@Entity</code> et <code>@Table(name = "employee")</code> sur une classe Java ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Déclarent un DTO envoyé par l'API — l'annotation génère le JSON automatiquement</button>
+<button class="opt-btn" data-i="1">Activent Spring Security et protègent les instances de cette classe par rôle</button>
+<button class="opt-btn" data-i="2">Indiquent à Hibernate que cette classe Java mappe la table SQL "employee"</button>
+<button class="opt-btn" data-i="3">Demandent à Liquibase de créer automatiquement la table depuis la définition de classe</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Dans <code>EmployeeEntity.java</code> : <code>@Entity @Table(name = "employee") public class EmployeeEntity</code>. Hibernate lit ces annotations et sait que chaque instance correspond à une ligne dans la table SQL <code>employee</code>. L'annotation <code>@Id @Column(name = "code") private String code</code> mappe le champ Java à la colonne SQL. Dans le marketplace, ce mapping est absent — <code>ProduitModel.php</code> écrit directement <code>SELECT * FROM produit WHERE id_artisan = ?</code> sans aucune annotation. Hibernate génère ce SQL automatiquement depuis les annotations.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">7</span> Que fait <code>@ManyToOne(fetch = FetchType.LAZY)</code> sur une relation Hibernate ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Ne charge la relation liée que si on y accède dans le code — pas de requête SQL inutile</button>
+<button class="opt-btn" data-i="1">Charge toutes les entités liées immédiatement lors du SELECT de l'entité principale</button>
+<button class="opt-btn" data-i="2">Interdit l'accès à la relation depuis l'extérieur du package pour la sécurité</button>
+<button class="opt-btn" data-i="3">Génère automatiquement une jointure LEFT JOIN dans toutes les requêtes JPQL</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>EmployeeEntity.java</code> : <code>@ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "bu_code") private BusinessUnitEntity businessUnit</code>. Hibernate ne charge <code>businessUnit</code> que si on appelle <code>employee.getBusinessUnit()</code> dans le code. Sans LAZY, EAGER chargerait la <code>BusinessUnit</code> pour chaque employee même si on n'en a pas besoin — problème de performance. Dans le marketplace, une jointure SQL <code>JOIN utilisateur u ON u.id = p.id_artisan</code> charge toujours les données de l'artisan, qu'on en ait besoin ou non dans la réponse.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">8</span> Qu'est-ce que le problème N+1 en ORM et comment Hibernate le résout-il ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Un bug Hibernate qui duplique N entités quand plusieurs relations sont chargées ensemble</button>
+<button class="opt-btn" data-i="1">1 requête pour charger N entités + N requêtes pour les relations — résolu par @EntityGraph</button>
+<button class="opt-btn" data-i="2">Une erreur de pagination retournant N+1 résultats quand l'OFFSET SQL vaut 0</button>
+<button class="opt-btn" data-i="3">Un conflit quand N threads accèdent à la même entité en écriture simultanément</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Sans optimisation : <code>findAll()</code> fait 1 requête pour 50 employees, puis 50 requêtes pour charger la <code>BusinessUnit</code> de chacun = 51 requêtes SQL. Avec <code>@EntityGraph(attributePaths = {"businessUnit"})</code>, Hibernate génère un seul JOIN SQL : <code>SELECT e.*, bu.* FROM employee e LEFT JOIN business_unit bu ON bu.code = e.bu_code</code>. Dans le marketplace PHP, la solution équivalente est d'écrire le JOIN manuellement : <code>SELECT p.*, u.nom FROM produit p JOIN utilisateur u ON u.id = p.id_artisan</code> — mais sans framework ORM pour détecter le problème automatiquement.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">9</span> Que fait l'annotation <code>@Transactional</code> sur une méthode de service Spring Boot ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Démarre manuellement une transaction PDO avec beginTransaction() côté serveur</button>
+<button class="opt-btn" data-i="1">Interdit l'accès concurrent à la méthode par plusieurs threads simultanément</button>
+<button class="opt-btn" data-i="2">Génère automatiquement un log de toutes les requêtes SQL exécutées dans la méthode</button>
+<button class="opt-btn" data-i="3">Enveloppe la méthode dans une transaction SQL — commit si succès, rollback si exception</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Dans <code>CommandeService.java</code> : <code>@Transactional public Commande creerCommande(CommandeDTO dto)</code>. Si la méthode se termine normalement, Spring fait <code>commit()</code>. Si une <code>RuntimeException</code> est levée (ex : stock insuffisant), Spring fait <code>rollback()</code> automatiquement — sans qu'on écrive une seule ligne de gestion de transaction. Dans le marketplace <code>OrderController.php</code>, la même logique nécessite <code>$pdo->beginTransaction()</code>, un bloc <code>try/catch</code>, <code>$pdo->commit()</code> et <code>$pdo->rollBack()</code> explicites — plus de code, plus de risque d'oublier le rollback.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">10</span> Qu'est-ce que le Dirty Checking d'Hibernate ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Hibernate surveille les entités managées et génère un UPDATE automatique au flush si modifiées</button>
+<button class="opt-btn" data-i="1">Un scanner qui détecte les injections SQL dans les paramètres des requêtes JPQL</button>
+<button class="opt-btn" data-i="2">Un outil qui vérifie que les migrations Liquibase ne contiennent pas de SQL invalide</button>
+<button class="opt-btn" data-i="3">Une validation qui empêche de persister une entité avec des champs null annotés @NotNull</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Hibernate prend un "snapshot" de l'entité au moment du chargement (<code>find()</code>). À la fin de la transaction (<code>flush()</code>), il compare l'état actuel au snapshot et génère automatiquement un <code>UPDATE</code> pour les champs modifiés — même sans appel explicite à <code>save()</code>. Dans le marketplace PHP, un UPDATE doit être écrit explicitement : <code>$stmt = $pdo->prepare('UPDATE produit SET prix_ht = ? WHERE id_produit = ?'); $stmt->execute([$prix, $id])</code>. Oublier cet appel = aucune modification persistée, sans erreur.</div>
+</div>
+
+<h2>C. Liquibase &amp; gestion BDD</h2>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">11</span> Quel est le rôle principal de Liquibase dans le projet ERA ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Générer automatiquement les entités Java depuis le schéma PostgreSQL existant</button>
+<button class="opt-btn" data-i="1">Synchroniser les données entre dev, staging et production en temps réel</button>
+<button class="opt-btn" data-i="2">Versionner les modifications de schéma BDD — chaque changeset appliqué une seule fois</button>
+<button class="opt-btn" data-i="3">Tester les performances SQL sur PostgreSQL avec des benchmarks automatisés</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Liquibase maintient une table <code>DATABASECHANGELOG</code> dans PostgreSQL. Chaque changeset (ex : <code>changelog-2024-001-add-employee-table.xml</code>) a un <code>id</code> unique — Liquibase vérifie si cet <code>id</code> est déjà dans <code>DATABASECHANGELOG</code>. Si oui, il est ignoré. Si non, il est exécuté et enregistré. Résultat : impossible d'appliquer le même changeset deux fois, impossible d'oublier une migration. Dans le marketplace, les scripts SQL dans <code>sql/Script SQL.sql</code> sont appliqués manuellement via phpMyAdmin — aucune trace de ce qui a été exécuté où.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">12</span> Dans quel format Plop génère-t-il les changesets Liquibase dans le projet ERA ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">En SQL natif PostgreSQL uniquement pour une compatibilité maximale avec la base</button>
+<button class="opt-btn" data-i="1">En JSON pour s'intégrer avec l'écosystème JavaScript de NgCube et Angular</button>
+<button class="opt-btn" data-i="2">En annotations Java sur les entités Hibernate — Liquibase lit @Column et @Table</button>
+<button class="opt-btn" data-i="3">En XML avec id, author et createTable — indépendant du SGBD et validable XSD</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Liquibase supporte XML, YAML, JSON et SQL. Dans le projet ERA généré par Plop, les changesets sont en XML : <code>&lt;changeSet id="2024-001" author="plop"&gt;&lt;createTable tableName="employee"&gt;&lt;column name="code" type="VARCHAR(10)"&gt;&lt;constraints primaryKey="true"/&gt;&lt;/column&gt;&lt;/createTable&gt;&lt;/changeSet&gt;</code>. L'avantage du XML : lisible, validable par schéma XSD, indépendant du SGBD (le même changeset fonctionne sur PostgreSQL et MySQL). Dans le marketplace, l'équivalent est <code>sql/Script SQL.sql</code> — non versionné, non tracé, spécifique à MariaDB.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">13</span> Que se passe-t-il si on modifie le contenu d'un changeset Liquibase déjà appliqué en production ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Liquibase ré-applique silencieusement le changeset modifié au prochain démarrage du serveur</button>
+<button class="opt-btn" data-i="1">Liquibase lève une erreur au démarrage car le checksum MD5 du changeset ne correspond plus</button>
+<button class="opt-btn" data-i="2">Spring Boot démarre normalement et ignore le changeset modifié sans aucun avertissement</button>
+<button class="opt-btn" data-i="3">PostgreSQL refuse la connexion tant que les changesets ne sont pas tous en état PENDING</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Liquibase calcule un checksum MD5 de chaque changeset et le stocke dans <code>DATABASECHANGELOG</code>. Si le contenu change, le checksum change. Au prochain démarrage, Liquibase compare et lève <code>ValidationFailedException: Validation Failed: 1 change sets check sum</code>. C'est une protection contre la modification accidentelle de l'historique. La règle absolue dans ERA : un changeset appliqué ne se modifie <em>jamais</em> — on crée un nouveau changeset pour corriger, ex : <code>changelog-2024-002-alter-employee-add-phone.xml</code>.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">14</span> Quel avantage a Liquibase sur les scripts SQL manuels pour déployer sur un nouveau serveur ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Liquibase recrée toute la structure de base depuis zéro automatiquement au démarrage Spring</button>
+<button class="opt-btn" data-i="1">Liquibase génère des données de test adaptées à l'environnement cible automatiquement</button>
+<button class="opt-btn" data-i="2">Liquibase chiffre les mots de passe dans PostgreSQL lors de la première migration</button>
+<button class="opt-btn" data-i="3">Liquibase optimise les index PostgreSQL automatiquement lors de l'application des changesets</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Sur un nouveau serveur (ex : staging), <code>mvn spring-boot:run</code> exécute tous les changesets non encore appliqués dans l'ordre. En 30 secondes, la base est au même niveau que la production — sans documentation, sans risque d'oubli. Lors du déploiement sur <code>bacinfo.eci-liege.info</code> pour le marketplace, il a fallu importer manuellement <code>Script SQL.sql</code> via phpMyAdmin, puis <code>SeedDataClone.sql</code>. Avec Liquibase, cette étape manuelle disparaît entièrement.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">15</span> Que fait <code>liquibase rollbackCount 1</code> dans le projet ERA ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Annule les requêtes SQL lentes dépassant 1 seconde d'exécution sur PostgreSQL</button>
+<button class="opt-btn" data-i="1">Remet la base de données au tout premier état avant le changeset initial du projet</button>
+<button class="opt-btn" data-i="2">Annule le dernier changeset appliqué en exécutant l'opération inverse (ex: dropTable)</button>
+<button class="opt-btn" data-i="3">Teste que le dernier changeset peut être rollbacké sans corrompre les données existantes</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> <code>liquibase rollbackCount 1</code> annule le dernier changeset — si c'était un <code>createTable</code>, il exécute un <code>dropTable</code>. Mais le rollback n'est pas automatique pour tous les changements : modifier des données ou supprimer une colonne nécessite de spécifier explicitement <code>&lt;rollback&gt;ALTER TABLE employee ADD COLUMN phone VARCHAR(20)&lt;/rollback&gt;</code>. Dans le marketplace, l'équivalent est d'écrire manuellement <code>ALTER TABLE produit DROP COLUMN nouveau_champ</code> ou de restaurer un dump SQL — opération risquée et non automatisée.</div>
+</div>
+
+<h2>D. MapStruct &amp; DTOs</h2>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">16</span> Pourquoi utilise-t-on un DTO plutôt que de retourner directement l'entité Hibernate en JSON ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Parce que Spring Boot ne sérialise pas les entités Hibernate en JSON sans un wrapper</button>
+<button class="opt-btn" data-i="1">Pour éviter d'exposer les champs internes et éviter les boucles infinies sur les relations lazy</button>
+<button class="opt-btn" data-i="2">Parce que les entités Hibernate sont en lecture seule et ne peuvent pas être transmises</button>
+<button class="opt-btn" data-i="3">Pour améliorer les performances SQL en réduisant le nombre de colonnes chargées</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Retourner directement <code>EmployeeEntity</code> avec <code>@ManyToOne BusinessUnitEntity</code> : Jackson tente de sérialiser la <code>BusinessUnit</code>, qui contient des <code>Employee</code>, qui contient des <code>BusinessUnit</code>... boucle infinie (<code>StackOverflowError</code>). De plus, <code>EmployeeEntity</code> peut exposer des champs internes (clés étrangères brutes, hash de mot de passe). Le <code>EmployeeDTO</code> est une projection propre : <code>public record EmployeeDTO(String code, String firstName, String buLabel) {}</code>. Dans le marketplace, <code>ProduitModel.php</code> retourne directement le tableau SQL — les clés étrangères (<code>id_artisan</code>) sont exposées par défaut dans la réponse JSON.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">17</span> Qu'est-ce qu'un <code>Java Record</code> utilisé comme DTO dans le projet ERA ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Une classe Java avec getters/setters générés par Lombok via @Data et @Builder</button>
+<button class="opt-btn" data-i="1">Une interface Java que MapStruct implémente pour convertir les entités en JSON</button>
+<button class="opt-btn" data-i="2">Un type PostgreSQL spécial mappé par Hibernate pour les colonnes composites</button>
+<button class="opt-btn" data-i="3">Une classe immuable Java 16+ avec constructeur et accesseurs générés automatiquement</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Dans ERA : <code>public record EmployeeDTO(String code, String firstName, String lastName, LocalDate birthDate, String buCode)</code>. Le compilateur génère automatiquement : un constructeur avec tous les paramètres, des accesseurs <code>code()</code>, <code>firstName()</code>..., <code>equals()</code>, <code>hashCode()</code> et <code>toString()</code>. Immuable par conception — impossible de modifier un champ après création. En PHP, l'équivalent depuis PHP 8.2 est <code>readonly class EmployeeDTO { public function __construct(public readonly string $code, public readonly string $firstName) {} }</code> — non utilisé dans le marketplace, qui retourne de simples tableaux PHP.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">18</span> Que fait MapStruct à la compilation du projet Java ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Génère du code Java concret (EmployeeMapperImpl.java) qui implémente la conversion Entity↔DTO</button>
+<button class="opt-btn" data-i="1">Génère des requêtes SQL optimisées depuis les @Entity pour éviter le problème N+1</button>
+<button class="opt-btn" data-i="2">Valide que les DTOs Java correspondent aux changesets Liquibase pour détecter les désynchronisations</button>
+<button class="opt-btn" data-i="3">Sérialise automatiquement les DTOs en JSON avec Jackson sans avoir besoin de @JsonProperty</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> L'interface <code>EmployeeMapper</code> annotée <code>@Mapper(componentModel = "spring")</code> déclare <code>EmployeeDTO toDto(EmployeeEntity e)</code>. À la compilation (<code>mvn compile</code>), MapStruct génère <code>EmployeeMapperImpl.java</code> — une vraie classe Java : <code>return new EmployeeDTO(e.getCode(), e.getFirstName(), e.getBusinessUnit().getLabel())</code>. Aucune réflexion à l'exécution → performances maximales. Dans le marketplace, ce mapping est fait manuellement dans les contrôleurs PHP : <code>return ['id' => $row['id_produit'], 'nom' => $row['nom_produit'], ...]</code> — risque d'oublier un champ si la structure change.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">19</span> Que se passe-t-il si un champ du DTO n'a pas de correspondance dans l'entité avec MapStruct ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">MapStruct lance une RuntimeException au premier appel de la méthode de conversion</button>
+<button class="opt-btn" data-i="1">MapStruct appelle Hibernate pour charger la valeur manquante depuis la base de données</button>
+<button class="opt-btn" data-i="2">MapStruct provoque une erreur de compilation si unmappedTargetPolicy = ERROR est configuré</button>
+<button class="opt-btn" data-i="3">MapStruct ignore silencieusement les champs non mappés et les laisse à null dans le DTO</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Avec <code>@Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)</code>, si <code>EmployeeDTO</code> a un champ <code>buLabel</code> mais que <code>EmployeeEntity</code> n'a pas ce champ directement (il vient de <code>businessUnit.label</code>), MapStruct génère une erreur de compilation. Cela force à déclarer explicitement <code>@Mapping(source = "businessUnit.label", target = "buLabel")</code>. Avantage : les erreurs de mapping sont détectées à la compilation, pas en production. En PHP, un champ mal mappé dans le tableau de retour du contrôleur ne provoque aucune erreur — le frontend Angular reçoit simplement <code>undefined</code>.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">20</span> Quelle est la différence entre <code>toDto()</code> et <code>toEntity()</code> dans un Mapper MapStruct ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">toDto() est généré par Plop, toEntity() doit être écrit manuellement dans le mapper</button>
+<button class="opt-btn" data-i="1">toDto() convertit Entity → DTO pour la réponse API, toEntity() convertit DTO → Entity pour la BDD</button>
+<button class="opt-btn" data-i="2">toDto() exclut les champs sensibles, toEntity() inclut tous les champs sans filtrage</button>
+<button class="opt-btn" data-i="3">toDto() est utilisé côté Angular NgCube, toEntity() est utilisé côté Spring Security</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Dans <code>EmployeeMapper.java</code> : <code>EmployeeDTO toDto(EmployeeEntity e)</code> est utilisé dans <code>EmployeeService.findById()</code> avant de retourner la réponse HTTP. <code>EmployeeEntity toEntity(EmployeeDTO dto)</code> est utilisé dans <code>EmployeeService.create()</code> avant d'appeler <code>repository.save()</code>. Cette séparation garantit que l'API ne reçoit jamais directement une entité brute et que la BDD ne reçoit jamais un DTO non validé. Dans le marketplace, les contrôleurs PHP passent directement les données <code>$_POST</code> au modèle sans couche de conversion dédiée.</div>
+</div>
+
+<h2>E. Sécurité &amp; JWT</h2>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">21</span> Quelle est la différence fondamentale entre JWT (NSI IT) et session PHP (marketplace) ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">JWT stocke les données dans un cookie chiffré, session PHP dans un header Authorization</button>
+<button class="opt-btn" data-i="1">JWT expire après 1 heure par défaut, session PHP n'expire jamais sans configuration</button>
+<button class="opt-btn" data-i="2">JWT fonctionne uniquement avec HTTPS, session PHP peut fonctionner en HTTP non chiffré</button>
+<button class="opt-btn" data-i="3">JWT encode l'état dans le token sans stockage serveur, session PHP stocke l'état côté serveur</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> JWT (NSI IT) : le token <code>eyJhbGci...</code> contient <code>{"userId": 42, "role": "RESPONSABLE", "exp": 1234567890}</code> signé — le serveur vérifie la signature sans chercher en base ou en mémoire. Scalable : n'importe quel serveur du cluster peut valider le token. Session PHP (marketplace) : <code>$_SESSION['user_id'] = 42</code> est stocké dans un fichier sur le serveur, le cookie <code>PHPSESSID</code> pointe vers ce fichier. Sur 3 serveurs en parallèle (load balancer), un utilisateur connecté sur le serveur 1 sera "déconnecté" sur le serveur 2 — problème de session partagée.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">22</span> Que fait <code>@PreAuthorize("hasRole('ROLE_RESPONSABLE')")</code> dans Spring Security ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Redirige automatiquement vers /login si l'utilisateur n'est pas authentifié avant l'appel</button>
+<button class="opt-btn" data-i="1">Vérifie le rôle de l'utilisateur avant d'exécuter la méthode — même depuis un appel interne</button>
+<button class="opt-btn" data-i="2">Génère un filtre CORS qui bloque les requêtes sans header Authorization Bearer valide</button>
+<button class="opt-btn" data-i="3">Chiffre la valeur de retour de la méthode avec la clé publique du rôle RESPONSABLE</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> <code>@PreAuthorize("hasRole('ROLE_RESPONSABLE')")</code> sur <code>deleteEmployee()</code> dans <code>EmployeeService.java</code> est évalué AVANT l'exécution — même si un <code>AdminService</code> interne appelle <code>employeeService.deleteEmployee()</code>. Spring Security utilise AOP pour intercepter l'appel. Dans le marketplace, <code>RoleMiddleware.php</code> ne protège que les routes HTTP — si <code>AdminController.php</code> appelle une méthode de <code>ProductController.php</code> directement en PHP, aucune vérification de rôle n'est appliquée. La protection <code>@PreAuthorize</code> est plus profonde et plus sûre.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">23</span> Comment Angular envoie-t-il le token JWT au backend Spring Boot dans le projet ERA ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Via un intercepteur Angular ajoutant le header <code>Authorization: Bearer &lt;token&gt;</code> à chaque requête</button>
+<button class="opt-btn" data-i="1">En stockant le token dans un cookie HttpOnly envoyé avec withCredentials: true automatiquement</button>
+<button class="opt-btn" data-i="2">En encodant le token dans le body FormData de chaque POST pour contourner CORS</button>
+<button class="opt-btn" data-i="3">En l'ajoutant comme paramètre ?token= dans l'URL de chaque requête GET et POST</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans le projet ERA, un <code>AuthInterceptor</code> Angular intercepte toutes les requêtes <code>HttpClient</code> et ajoute <code>headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }</code>. Le backend Spring Security lit ce header et valide la signature JWT avec la clé secrète définie dans <code>application.properties</code>. Contrairement au marketplace où Angular utilise <code>withCredentials: true</code> pour envoyer le cookie <code>PHPSESSID</code> automatiquement — mécanisme navigateur qui pose des problèmes CORS avec <code>Access-Control-Allow-Credentials: true</code>.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">24</span> Quelles informations peut-on encoder dans le payload d'un token JWT ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Uniquement l'identifiant utilisateur — les autres informations posent des risques de sécurité</button>
+<button class="opt-btn" data-i="1">Uniquement les informations présentes dans la table utilisateur de PostgreSQL</button>
+<button class="opt-btn" data-i="2">N'importe quels claims — userId, rôles, email, unité, date d'expiration (exp)</button>
+<button class="opt-btn" data-i="3">Uniquement un hash du mot de passe pour validation sans accès à la base de données</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Un JWT a 3 parties : header (algorithme HMAC/RSA), payload (claims), signature. Dans ERA : <code>{"sub": "EMP001", "roles": ["ROLE_RESPONSABLE"], "bu": "IT", "exp": 1234567890, "iat": 1234560000}</code>. Ces claims permettent au serveur de répondre sans requête BDD : userId, rôle, unité sont disponibles directement. Attention : le payload JWT n'est pas chiffré (juste base64) — <em>ne jamais</em> y mettre de mot de passe ou données sensibles. Dans le marketplace, <code>$_SESSION['user_id']</code> ne contient que l'ID — chaque requête nécessite un <code>SELECT * FROM utilisateur WHERE id_utilisateur = ?</code>.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">25</span> Que vérifie Spring Security lors de la réception d'un token JWT sur chaque requête ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Que le token existe dans une table jwt_tokens en base de données PostgreSQL (blacklist)</button>
+<button class="opt-btn" data-i="1">Que l'utilisateur est actuellement connecté sur le frontend Angular NgCube en temps réel</button>
+<button class="opt-btn" data-i="2">Que le token a été émis depuis une IP dans la liste blanche de application.properties</button>
+<button class="opt-btn" data-i="3">La signature HMAC/RSA du token, la date d'expiration (exp), et les rôles pour @PreAuthorize</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Spring Security JWT filter : 1) extrait le token du header <code>Authorization: Bearer ...</code>, 2) vérifie la signature avec la clé secrète (<code>jwt.secret</code> dans <code>application.properties</code>) — si le token a été falsifié, la signature ne correspond plus → 401, 3) vérifie que <code>exp</code> > timestamp actuel — token expiré → 401, 4) extrait les claims <code>roles</code> et construit le <code>SecurityContext</code> pour les <code>@PreAuthorize</code>. Aucune requête BDD nécessaire — c'est l'avantage stateless JWT. Dans le marketplace : <code>if (empty($_SESSION['user_id']))</code> dans <code>AuthMiddleware.php</code> — vérifie juste que le fichier de session PHP existe côté serveur.</div>
+</div>
+
+<h2>F. Angular NgCube &amp; communication</h2>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">26</span> Qu'est-ce que NgCube dans le projet ERA et quel est son lien avec JCube ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">La bibliothèque Angular interne NSI IT, complémentaire à JCube, avec composants et managers réutilisables</button>
+<button class="opt-btn" data-i="1">Un framework CSS Angular alternatif à Tailwind CSS pour le design de l'interface ERA</button>
+<button class="opt-btn" data-i="2">Un outil de tests end-to-end Angular qui simule les interactions utilisateur sur ERA</button>
+<button class="opt-btn" data-i="3">Un générateur de documentation TypeScript équivalent à Swagger pour les services Angular</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> NgCube est la bibliothèque Angular interne de NSI IT, complémentaire à JCube côté backend. Elle fournit des composants réutilisables (tableaux, formulaires, filtres paginés) et des managers comme <code>LazyListManager</code> qui gère automatiquement la pagination, le tri et la recherche via <code>POST /search</code>. Dans le marketplace Angular, ces fonctionnalités sont implémentées manuellement — ex : <code>filteredProduits = computed(() => { const f = this.activeFilter(); return f ? this.produits().filter(p => p.categorie === f) : this.produits(); })</code> dans <code>artisan-shop.component.ts</code>.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">27</span> Que fait <code>LazyListManager</code> de NgCube dans le projet ERA ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Met en cache les données Angular dans localStorage pour éviter les requêtes répétées au backend</button>
+<button class="opt-btn" data-i="1">Gère automatiquement pagination, tri et recherche en envoyant POST /search au backend JCube</button>
+<button class="opt-btn" data-i="2">Génère les colonnes du tableau HTML automatiquement depuis les champs du DTO Java</button>
+<button class="opt-btn" data-i="3">Applique le lazy loading Angular aux modules ERA pour réduire le chargement initial</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> <code>LazyListManager</code> encapsule le cycle pagination/tri/filtre : quand l'utilisateur change de page ou trie une colonne, <code>manager.load()</code> envoie automatiquement <code>POST /api/employees/search</code> avec <code>{"page": 1, "size": 20, "sort": "lastName,asc", ...criteria}</code>. Le Signal <code>manager.content()</code> reçoit la réponse <code>Page&lt;EmployeeDTO&gt;</code> de Spring. Dans le marketplace, ce mécanisme est absent — <code>ProductService.getAll()</code> charge tous les produits sans pagination, et le filtrage se fait côté client dans <code>artisan-shop.component.ts</code> avec un Signal <code>computed()</code>.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">28</span> Pourquoi les interfaces TypeScript d'ERA utilisent le camelCase et le marketplace le snake_case ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Angular NgCube impose le camelCase pour la compatibilité avec ses composants de tableau</button>
+<button class="opt-btn" data-i="1">TypeScript interdit le snake_case dans les interfaces — règle du compilateur tsc strict</button>
+<button class="opt-btn" data-i="2">Jackson sérialise les champs Java camelCase en JSON camelCase, PHP retourne les colonnes SQL</button>
+<button class="opt-btn" data-i="3">Le snake_case est réservé aux types primitifs TypeScript, camelCase aux objets complexes</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Jackson (Spring Boot) sérialise <code>EmployeeDTO.firstName</code> → <code>"firstName"</code> en JSON par défaut. L'interface TypeScript reflète ce JSON : <code>interface EmployeeDTO { code: string; firstName: string; buLabel: string; }</code>. Dans le marketplace, PHP retourne les colonnes SQL telles quelles — <code>id_produit</code>, <code>nom_produit</code>, <code>prix_ht</code> — et les interfaces TypeScript dans <code>models.ts</code> reflètent ces noms snake_case : <code>interface Produit { id_produit: number; nom_produit: string; prix_ht: number; }</code>. Les deux sont valides mais les conventions divergent selon le langage backend.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">29</span> Quelle est la différence entre <code>withCredentials: true</code> (marketplace) et un intercepteur JWT (ERA) dans Angular ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">withCredentials fonctionne avec HTTPS seulement, l'intercepteur JWT fonctionne avec HTTP et HTTPS</button>
+<button class="opt-btn" data-i="1">withCredentials est nécessaire avec FormData uniquement, l'intercepteur JWT avec @RequestBody JSON</button>
+<button class="opt-btn" data-i="2">withCredentials est une option Angular 21 nouvelle, l'intercepteur JWT est une approche dépréciée</button>
+<button class="opt-btn" data-i="3">withCredentials envoie le cookie PHPSESSID automatiquement, l'intercepteur ajoute Authorization: Bearer</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> Marketplace (<code>auth.service.ts</code>) : <code>this.http.post('/auth/login', formData, { withCredentials: true })</code> — le navigateur envoie automatiquement le cookie <code>PHPSESSID</code> sur chaque requête vers le même domaine. Côté PHP, <code>CorsMiddleware.php</code> doit répondre <code>Access-Control-Allow-Credentials: true</code> et <code>Access-Control-Allow-Origin</code> ne peut pas être <code>*</code>. ERA : un <code>HttpInterceptor</code> lit le token depuis <code>localStorage.getItem('token')</code> et ajoute <code>headers.set('Authorization', 'Bearer ' + token)</code> — plus explicite, indépendant du mécanisme cookie du navigateur, sans contrainte CORS spéciale.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">30</span> Comment Angular détecte-t-il qu'un token JWT est expiré ou invalide dans le projet ERA ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Spring Security retourne HTTP 401 et un ErrorInterceptor Angular efface le token et redirige vers /login</button>
+<button class="opt-btn" data-i="1">Angular vérifie toutes les 5 secondes via un interval si le token est encore valide côté serveur</button>
+<button class="opt-btn" data-i="2">NgCube expose un Signal isAuthenticated() qui écoute les événements WebSocket du backend</button>
+<button class="opt-btn" data-i="3">PostgreSQL notifie Spring Boot via LISTEN/NOTIFY quand un token expire en base de données</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans ERA, quand le token expire, la prochaine requête HTTP reçoit une réponse <code>401 Unauthorized</code> de Spring Security. Un <code>ErrorInterceptor</code> Angular intercepte les réponses avec <code>status === 401</code>, efface le token du localStorage et redirige vers <code>/login</code>. Optionnellement, l'intercepteur peut aussi lire le claim <code>exp</code> du JWT localement (base64 decode du payload) pour rediriger proactivement avant que la requête parte. Dans le marketplace, <code>authGuard</code> dans <code>auth.guard.ts</code> vérifie <code>auth.isLoggedIn()</code> (Signal) avant la navigation — si le cookie expire, la prochaine requête reçoit un 401 de <code>AuthMiddleware.php</code>.</div>
+</div>
+
+<div class="final-result" id="final">
+  <h3>Résultat final</h3>
+  <div class="big" id="final-score">— / —</div>
+  <div class="msg" id="final-msg"></div>
+</div>
+
+</main>
+
+<script>
+const state={ok:0,done:0,total:0};
+function updateBadge(){
+  document.getElementById('score').textContent=state.ok+' / '+state.done;
+  const pct=state.done?Math.round(100*state.ok/state.done):0;
+  document.getElementById('pct').textContent=pct+'%';
+  const p=state.total?Math.round(100*state.done/state.total):0;
+  document.getElementById('prog').style.width=p+'%';
+  if(state.done===state.total&&state.total>0){
+    const f=document.getElementById('final');f.classList.add('show');
+    document.getElementById('final-score').textContent=state.ok+' / '+state.total+' ('+pct+'%)';
+    let m;
+    if(pct>=85)m='Excellent ! Tu maîtrises la stack NSI IT — Spring Boot, JCube, Hibernate, Liquibase, MapStruct.';
+    else if(pct>=70)m='Bien ! Revois les questions ratées — surtout MapStruct, Liquibase et JWT.';
+    else if(pct>=50)m='À retravailler — relis le document de comparaison de stacks et retrace le flux d\'une requête ERA.';
+    else m='Reprends le comparatif stacks depuis le début et identifie chaque couche JCube dans le code.';
+    document.getElementById('final-msg').textContent=m;
+    f.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+document.addEventListener('click',(e)=>{
+  if(e.target.classList.contains('opt-btn')){
+    const q=e.target.closest('.q');if(q.dataset.done)return;q.dataset.done='1';
+    const correct=parseInt(q.dataset.correct,10);const chosen=parseInt(e.target.dataset.i,10);
+    q.querySelectorAll('.opt-btn').forEach((o,i)=>{o.disabled=true;if(i===correct)o.classList.add('ok');if(i===chosen&&i!==correct)o.classList.add('ko');});
+    q.querySelector('.expl').classList.add('show');
+    state.done++;if(chosen===correct)state.ok++;updateBadge();return;
+  }
+  if(e.target.id==='reset-btn'){
+    if(!confirm('Tout recommencer ?'))return;
+    document.querySelectorAll('.q').forEach(q=>{delete q.dataset.done;q.querySelectorAll('.opt-btn').forEach(o=>{o.disabled=false;o.classList.remove('ok','ko');});q.querySelector('.expl').classList.remove('show');});
+    state.ok=0;state.done=0;document.getElementById('final').classList.remove('show');updateBadge();window.scrollTo({top:0,behavior:'smooth'});
+  }
+});
+window.addEventListener('DOMContentLoaded',()=>{state.total=document.querySelectorAll('.q').length;updateBadge();});
+</script>
+</body>
+</html>
