@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aide-Mémoire — Marketplace Artisanale</title>
+<style>
+  :root {
+    --blue: #1a56db;
+    --blue-dark: #1e429f;
+    --blue-light: #ebf5ff;
+    --green: #057a55;
+    --green-light: #f3faf7;
+    --orange: #c27803;
+    --orange-light: #fffbeb;
+    --purple: #7e3af2;
+    --purple-light: #f5f3ff;
+    --gray: #374151;
+    --gray-light: #f9fafb;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: var(--gray); background: #f1f5f9; }
+  header { background: linear-gradient(135deg, var(--blue-dark), var(--blue)); color: white; padding: 28px 40px; }
+  header h1 { font-size: 24px; font-weight: 700; }
+  header p { opacity: .85; margin-top: 6px; font-size: 13px; }
+  .container { max-width: 1100px; margin: 30px auto; padding: 0 20px 60px; }
+  .toc { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px 28px; margin-bottom: 32px; }
+  .toc h2 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--blue-dark); }
+  .toc ol { padding-left: 20px; line-height: 2; }
+  .toc a { color: var(--blue); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  section { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 28px; margin-bottom: 28px; }
+  section h2 { font-size: 18px; font-weight: 700; color: var(--blue-dark); border-bottom: 2px solid var(--blue-light); padding-bottom: 10px; margin-bottom: 20px; }
+  section h3 { font-size: 14px; font-weight: 700; color: var(--gray); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: .5px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-right: 6px; vertical-align: middle; }
+  .badge-ng { background: #fde8e8; color: #c81e1e; }
+  .badge-php { background: #e0e7ff; color: #3730a3; }
+  .badge-db { background: #fef3c7; color: #92400e; }
+  .badge-both { background: #d1fae5; color: #065f46; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  th { background: var(--blue-dark); color: white; padding: 10px 14px; text-align: left; font-weight: 600; }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--gray-light); }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px; font-family: 'Consolas', monospace; font-size: 12px; color: #be185d; }
+  .path { font-family: 'Consolas', monospace; font-size: 11px; color: #6b7280; display: block; margin-top: 3px; }
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-step { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border-left: 3px solid var(--blue); background: var(--blue-light); border-radius: 0 6px 6px 0; margin-bottom: 4px; position: relative; }
+  .flow-step::after { content: '▼'; position: absolute; bottom: -16px; left: 22px; color: var(--blue); font-size: 12px; }
+  .flow-step:last-child::after { display: none; }
+  .flow-step .num { background: var(--blue-dark); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .flow-step .content strong { display: block; font-size: 13px; }
+  .flow-step .content span { font-size: 12px; color: #4b5563; }
+  .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card { background: var(--gray-light); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
+  .card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .card ul { padding-left: 16px; line-height: 1.9; font-size: 13px; }
+  .highlight { background: var(--orange-light); border-left: 4px solid var(--orange); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+  .tip { background: var(--green-light); border-left: 4px solid var(--green); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+  .purple-box { background: var(--purple-light); border-left: 4px solid var(--purple); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 13px; margin: 10px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Aide-Mémoire — Marketplace Artisanale &nbsp;·&nbsp; <span style="opacity:.9;font-weight:400">Neame Ramy</span></h1>
+  <p>Frontend Angular 21 (ma partie) + Backend PHP/Slim 4 · Questions de prof · Chemins de code · Juin 2026</p>
+</header>
+<div class="container">
+
+  <div class="toc">
+    <h2>Sommaire</h2>
+    <ol>
+      <li><a href="#archi">Architecture générale</a></li>
+      <li><a href="#fichiers-ng">Fichiers Angular — rôle de chacun</a></li>
+      <li><a href="#fichiers-php">Fichiers PHP/Slim — rôle de chacun</a></li>
+      <li><a href="#flux">Flux complet : d'un clic à un résultat</a></li>
+      <li><a href="#requetes">D'où partent les requêtes HTTP ?</a></li>
+      <li><a href="#angular-apports">En quoi Angular a aidé le développement ?</a></li>
+      <li><a href="#slim-apports">En quoi Slim a aidé le développement ?</a></li>
+      <li><a href="#roles">Gestion des rôles et sécurité</a></li>
+      <li><a href="#glossaire">Glossaire technique rapide</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. ARCHITECTURE -->
+  <section id="archi">
+    <h2>1. Architecture générale</h2>
+    <div class="kv">
+      <div class="card">
+        <h4>Frontend <span class="badge badge-ng">Angular 21</span></h4>
+        <ul>
+          <li>Port <strong>4200</strong> (ng serve)</li>
+          <li>Standalone components</li>
+          <li>Signals + Computed</li>
+          <li>Tailwind CSS v3</li>
+          <li>HttpClient → REST API</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Backend <span class="badge badge-php">PHP/Slim 4</span></h4>
+        <ul>
+          <li>Port <strong>8000</strong> (php -S)</li>
+          <li>Architecture MVC</li>
+          <li>Sessions PHP natives</li>
+          <li>Réponses JSON</li>
+          <li>PDO → MariaDB</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Base de données <span class="badge badge-db">MariaDB 10.6</span></h4>
+        <ul>
+          <li>Port <strong>3307</strong> (WampServer)</li>
+          <li>BDD : <code>marketplace_artisanal</code></li>
+          <li>Tables : utilisateur, produit, commande…</li>
+          <li>Connexion via PDO (singleton)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Communication <span class="badge badge-both">CORS + Session</span></h4>
+        <ul>
+          <li><code>withCredentials: true</code> sur chaque requête</li>
+          <li>Cookie de session PHP transmis</li>
+          <li>CorsMiddleware autorise <code>localhost:4200</code></li>
+          <li>Preflight OPTIONS géré côté Slim</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight" style="margin-top:16px;">
+      <strong>Principe SPA :</strong> Angular charge <em>une seule fois</em> dans le navigateur. La navigation entre pages ne recharge pas le serveur — seules les requêtes API (GET/POST…) partent vers le backend PHP.
+    </div>
+  </section>
+
+  <!-- 2. FICHIERS ANGULAR -->
+  <section id="fichiers-ng">
+    <h2>2. Fichiers Angular — rôle de chacun</h2>
+    <table>
+      <thead><tr><th>Fichier</th><th>Rôle</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>main.ts</code><span class="path">src/main.ts</span></td>
+          <td>Point d'entrée de l'application. Lance <code>bootstrapApplication(AppComponent, appConfig)</code>.</td>
+        </tr>
+        <tr>
+          <td><code>app.config.ts</code><span class="path">src/app/app.config.ts</span></td>
+          <td>Configure les <em>providers</em> globaux : routeur, HttpClient, Zone.js. Équivalent de l'ancien <code>AppModule</code>.</td>
+        </tr>
+        <tr>
+          <td><code>app.ts</code><span class="path">src/app/app.ts</span></td>
+          <td>Composant racine. Charge le profil utilisateur au démarrage, puis le panier si connecté. Contient le <code>&lt;router-outlet&gt;</code>.</td>
+        </tr>
+        <tr>
+          <td><code>app.routes.ts</code><span class="path">src/app/app.routes.ts</span></td>
+          <td>Table de routage complète. Définit qui peut accéder à quelle page (guards). Utilise le <em>lazy loading</em> : les modules ne sont chargés que quand l'utilisateur y navigue.</td>
+        </tr>
+        <tr>
+          <td><code>environment.ts</code><span class="path">src/environments/environment.ts</span></td>
+          <td>Variables d'environnement (dev). Contient <code>apiUrl: 'http://localhost:8000'</code> — l'adresse du backend PHP.</td>
+        </tr>
+        <tr>
+          <td><code>auth.service.ts</code><span class="path">src/app/core/services/auth.service.ts</span></td>
+          <td>Gère connexion, déconnexion, profil. Expose des <em>Signals</em> (<code>isLoggedIn</code>, <code>isAdmin</code>, <code>isArtisan</code>, <code>isClient</code>) réactifs dans toute l'appli.</td>
+        </tr>
+        <tr>
+          <td><code>cart.service.ts</code><span class="path">src/app/core/services/cart.service.ts</span></td>
+          <td>Panier : chargement, ajout, modification, suppression. Synchronisé avec le backend à chaque opération.</td>
+        </tr>
+        <tr>
+          <td><code>product.service.ts</code><span class="path">src/app/core/services/product.service.ts</span></td>
+          <td>CRUD produits. Utilisé par le catalogue, le détail produit et les pages artisan/admin.</td>
+        </tr>
+        <tr>
+          <td><code>order.service.ts</code><span class="path">src/app/core/services/order.service.ts</span></td>
+          <td>Création de commande, historique, mise à jour du statut.</td>
+        </tr>
+        <tr>
+          <td><code>admin.service.ts / artisan.service.ts</code><span class="path">src/app/core/services/</span></td>
+          <td>Endpoints spécifiques aux rôles admin et artisan (statistiques, gestion utilisateurs…).</td>
+        </tr>
+        <tr>
+          <td><code>auth.guard.ts</code><span class="path">src/app/core/guards/auth.guard.ts</span></td>
+          <td>Guard fonctionnel : vérifie <code>isLoggedIn()</code>. Redirige vers <code>/login</code> si non connecté.</td>
+        </tr>
+        <tr>
+          <td><code>role.guard.ts</code><span class="path">src/app/core/guards/role.guard.ts</span></td>
+          <td>Guard factory : <code>roleGuard(2)</code> = artisan seulement, <code>roleGuard(1)</code> = admin. Vérifie le rôle dans le Signal <code>currentUser</code>.</td>
+        </tr>
+        <tr>
+          <td><code>models.ts</code><span class="path">src/app/core/models/models.ts</span></td>
+          <td>Interfaces TypeScript (<code>Produit</code>, <code>Commande</code>, <code>Artisan</code>…) reflétant exactement les champs de la BDD PHP. Assure la cohérence front/back.</td>
+        </tr>
+        <tr>
+          <td><code>main-layout.component.ts</code><span class="path">src/app/layouts/main-layout/</span></td>
+          <td>En-tête sticky avec nav, badge panier, liens selon le rôle. Enveloppe les pages publiques.</td>
+        </tr>
+        <tr>
+          <td><code>catalogue.component.ts</code><span class="path">src/app/pages/catalogue/</span></td>
+          <td>Liste tous les produits. Filtrage par catégorie. Chargement au <code>ngOnInit</code>.</td>
+        </tr>
+        <tr>
+          <td><code>product-detail.component.ts</code><span class="path">src/app/pages/product-detail/</span></td>
+          <td>Détail d'un produit (récupéré par <code>:id</code> dans l'URL). Bouton "Ajouter au panier".</td>
+        </tr>
+        <tr>
+          <td><code>checkout.component.ts</code><span class="path">src/app/pages/checkout/</span></td>
+          <td>Tunnel de commande en 3 étapes : choix adresse → confirmation → résumé.</td>
+        </tr>
+        <tr>
+          <td><code>artisan-shop.component.ts</code><span class="path">src/app/pages/artisan-shop/</span></td>
+          <td>Vitrine publique d'un artisan. Filtre par catégorie via <code>computed()</code> (réactif).</td>
+        </tr>
+        <tr>
+          <td><code>artisan/products/</code> etc.<span class="path">src/app/pages/artisan/</span></td>
+          <td>Espace privé artisan : tableau de bord, gestion des produits, commandes reçues, statistiques.</td>
+        </tr>
+        <tr>
+          <td><code>admin/</code> components<span class="path">src/app/pages/admin/</span></td>
+          <td>Espace admin : gestion des artisans, produits, commandes, vue globale.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 3. FICHIERS PHP -->
+  <section id="fichiers-php">
+    <h2>3. Fichiers PHP/Slim — rôle de chacun</h2>
+    <table>
+      <thead><tr><th>Fichier</th><th>Rôle</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>public/index.php</code><span class="path">public/index.php</span></td>
+          <td>Point d'entrée unique. Tous les appels HTTP arrivent ici (front controller). Charge <code>bootstrap.php</code>.</td>
+        </tr>
+        <tr>
+          <td><code>app/bootstrap.php</code><span class="path">app/bootstrap.php</span></td>
+          <td>Configure Slim : crée l'app, enregistre les middlewares dans l'ordre (Session → CORS → Routing), lance <code>routes.php</code>, puis <code>$app->run()</code>.</td>
+        </tr>
+        <tr>
+          <td><code>app/config/routes.php</code><span class="path">app/config/routes.php</span></td>
+          <td>Table de routage PHP. Mappe chaque URL (ex: <code>GET /api/produits</code>) vers un contrôleur et une méthode. Contient aussi la route OPTIONS pour les preflights CORS.</td>
+        </tr>
+        <tr>
+          <td><code>app/config/databaseConfig.php</code><span class="path">app/config/databaseConfig.php</span></td>
+          <td>Configuration de la base de données (host, port 3307, nom de BDD). Fichier local, non versionné dans certains projets.</td>
+        </tr>
+        <tr>
+          <td><code>app/models/Database.php</code><span class="path">app/models/Database.php</span></td>
+          <td>Singleton PDO. Crée la connexion à MariaDB une seule fois et la réutilise. Lit la config depuis <code>databaseConfig.php</code> ou les variables d'environnement.</td>
+        </tr>
+        <tr>
+          <td><code>app/models/Model.php</code><span class="path">app/models/Model.php</span></td>
+          <td>Classe de base abstraite. Fournit <code>getConnection()</code>, <code>findAll()</code>, <code>findById()</code>, <code>create()</code>, etc. à tous les modèles.</td>
+        </tr>
+        <tr>
+          <td><code>app/models/ProduitModel.php</code><span class="path">app/models/ProduitModel.php</span></td>
+          <td>Accès à la table <code>produit</code>. Exemples : <code>getAll()</code>, <code>getById($id)</code>, <code>getByArtisan($id)</code>.</td>
+        </tr>
+        <tr>
+          <td><code>app/models/UtilisateurModel.php</code><span class="path">app/models/UtilisateurModel.php</span></td>
+          <td>Accès à la table <code>utilisateur</code>. Gère login (<code>findByEmail</code>), création de compte, mise à jour profil.</td>
+        </tr>
+        <tr>
+          <td><code>app/models/CommandeModel.php</code><span class="path">app/models/CommandeModel.php</span></td>
+          <td>Accès à la table <code>commande</code>. Créer une commande, changer le statut, lister par utilisateur/artisan.</td>
+        </tr>
+        <tr>
+          <td><code>app/controllers/Controller.php</code><span class="path">app/controllers/Controller.php</span></td>
+          <td>Contrôleur de base. Fournit <code>json()</code> (via JsonResponder) pour renvoyer du JSON proprement.</td>
+        </tr>
+        <tr>
+          <td><code>app/controllers/AuthController.php</code><span class="path">app/controllers/AuthController.php</span></td>
+          <td>Endpoints <code>/api/auth/login</code>, <code>/api/auth/logout</code>, <code>/api/auth/me</code>, <code>/api/auth/register</code>. Crée/détruit la session PHP.</td>
+        </tr>
+        <tr>
+          <td><code>app/controllers/ProductController.php</code><span class="path">app/controllers/ProductController.php</span></td>
+          <td>CRUD des produits. Lecture publique, écriture réservée aux artisans/admins via middleware de rôle.</td>
+        </tr>
+        <tr>
+          <td><code>app/controllers/OrderController.php</code><span class="path">app/controllers/OrderController.php</span></td>
+          <td>Création commande, historique, changement de statut (<code>en_attente → en_preparation → expediee → livree</code>).</td>
+        </tr>
+        <tr>
+          <td><code>app/controllers/CartController.php</code><span class="path">app/controllers/CartController.php</span></td>
+          <td>Panier stocké côté serveur (session). Ajout, suppression, modification de quantité.</td>
+        </tr>
+        <tr>
+          <td><code>app/middleware/CorsMiddleware.php</code><span class="path">app/middleware/CorsMiddleware.php</span></td>
+          <td>Ajoute les headers CORS à chaque réponse. Autorise <code>http://localhost:4200</code> avec credentials. Répond directement aux requêtes OPTIONS (preflight).</td>
+        </tr>
+        <tr>
+          <td><code>app/middleware/SessionMiddleware.php</code><span class="path">app/middleware/SessionMiddleware.php</span></td>
+          <td>Lance <code>session_start()</code> avant chaque requête pour rendre <code>$_SESSION</code> disponible.</td>
+        </tr>
+        <tr>
+          <td><code>app/middleware/AuthMiddleware.php</code><span class="path">app/middleware/AuthMiddleware.php</span></td>
+          <td>Vérifie que <code>$_SESSION['user_id']</code> existe. Renvoie <code>401</code> sinon. Appliqué sur les routes protégées.</td>
+        </tr>
+        <tr>
+          <td><code>app/middleware/RoleMiddleware.php</code><span class="path">app/middleware/RoleMiddleware.php</span></td>
+          <td>Vérifie le rôle dans la session (<code>id_role = 1</code> pour admin, <code>2</code> pour artisan). Renvoie <code>403</code> si accès refusé.</td>
+        </tr>
+        <tr>
+          <td><code>app/core/BasePathResolver.php</code><span class="path">app/core/BasePathResolver.php</span></td>
+          <td>Détecte automatiquement le chemin de base selon le serveur (Apache avec sous-dossier vs PHP built-in). Évite de coder le chemin en dur.</td>
+        </tr>
+        <tr>
+          <td><code>app/core/JsonResponder.php</code><span class="path">app/core/JsonResponder.php</span></td>
+          <td>Helper qui encode les données en JSON et définit le Content-Type de la réponse.</td>
+        </tr>
+        <tr>
+          <td><code>app/autoload.php</code><span class="path">app/autoload.php</span></td>
+          <td>Autoloader PSR-4 maison (ou Composer). Charge automatiquement les classes depuis leur namespace.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. FLUX COMPLET -->
+  <section id="flux">
+    <h2>4. Flux complet : d'un clic à un résultat</h2>
+    <h3>Exemple : l'utilisateur clique "Ajouter au panier" sur un produit</h3>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="num">1</div>
+        <div class="content">
+          <strong>Clic dans le navigateur</strong>
+          <span>Le bouton Angular appelle <code>(click)="addToCart(produit)"</code> dans <code>product-detail.component.ts</code></span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">2</div>
+        <div class="content">
+          <strong>Service Angular</strong>
+          <span><code>cart.service.ts</code> → méthode <code>addItem(produit, quantite)</code> → construit un <code>FormData</code> avec <code>id_produit</code> et <code>quantite</code></span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">3</div>
+        <div class="content">
+          <strong>Requête HTTP</strong>
+          <span><code>HttpClient.post('http://localhost:8000/api/cart', formData, { withCredentials: true })</code> — le cookie de session est envoyé automatiquement</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">4</div>
+        <div class="content">
+          <strong>CORS Middleware (PHP)</strong>
+          <span><code>CorsMiddleware.php</code> reçoit la requête en premier. Si c'est un OPTIONS preflight → réponse immédiate 204. Sinon → ajoute les headers CORS et passe la main.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">5</div>
+        <div class="content">
+          <strong>Session Middleware (PHP)</strong>
+          <span><code>SessionMiddleware.php</code> → <code>session_start()</code> → <code>$_SESSION</code> est disponible avec l'ID utilisateur</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">6</div>
+        <div class="content">
+          <strong>Auth Middleware (PHP)</strong>
+          <span><code>AuthMiddleware.php</code> → vérifie <code>$_SESSION['user_id']</code>. Si absent → retourne <code>401 Unauthorized</code>. Sinon → passe la main.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">7</div>
+        <div class="content">
+          <strong>Routeur Slim</strong>
+          <span><code>routes.php</code> → mappe <code>POST /api/cart</code> vers <code>CartController::add</code></span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">8</div>
+        <div class="content">
+          <strong>Contrôleur PHP</strong>
+          <span><code>CartController.php</code> → lit <code>$_POST['id_produit']</code>, appelle <code>CartModel::add()</code></span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">9</div>
+        <div class="content">
+          <strong>Modèle PHP → PDO → MariaDB</strong>
+          <span><code>CartModel</code> exécute <code>INSERT INTO ligne_panier ...</code> via PDO sur <code>marketplace_artisanal</code> (port 3307)</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">10</div>
+        <div class="content">
+          <strong>Réponse JSON</strong>
+          <span><code>JsonResponder::json($response, ['success' => true, 'cart' => [...]])</code> → retourne le panier mis à jour</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">11</div>
+        <div class="content">
+          <strong>Mise à jour Angular</strong>
+          <span><code>cart.service.ts</code> recharge le panier → le Signal <code>items</code> est mis à jour → le badge dans le header se rafraîchit automatiquement (réactivité Signal)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip" style="margin-top:20px;">
+      <strong>Même logique pour login :</strong> <code>login.component.ts</code> → <code>auth.service.ts</code> → <code>POST /api/auth/login</code> → <code>AuthController::login</code> → <code>UtilisateurModel::findByEmail</code> → <code>password_verify()</code> → <code>$_SESSION['user_id'] = $user['id']</code> → JSON retourné → Signal <code>currentUser</code> mis à jour → navigation automatique vers <code>/</code>.
+    </div>
+  </section>
+
+  <!-- 5. D'OÙ PARTENT LES REQUÊTES -->
+  <section id="requetes">
+    <h2>5. D'où partent les requêtes HTTP ?</h2>
+    <div class="purple-box">
+      <strong>Toutes les requêtes partent des services Angular</strong> (<code>src/app/core/services/</code>). Les composants ne font <em>jamais</em> de HTTP directement — ils appellent une méthode de service.
+    </div>
+    <table>
+      <thead><tr><th>Service</th><th>Requêtes émises</th><th>Endpoint PHP</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>auth.service.ts</code></td>
+          <td>POST login, POST register, GET me, POST logout</td>
+          <td><code>/api/auth/*</code></td>
+        </tr>
+        <tr>
+          <td><code>product.service.ts</code></td>
+          <td>GET produits, GET produit/:id, POST, PUT, DELETE</td>
+          <td><code>/api/produits/*</code></td>
+        </tr>
+        <tr>
+          <td><code>cart.service.ts</code></td>
+          <td>GET panier, POST ajout, PUT quantité, DELETE item</td>
+          <td><code>/api/cart/*</code></td>
+        </tr>
+        <tr>
+          <td><code>order.service.ts</code></td>
+          <td>POST commande, GET historique, PATCH statut</td>
+          <td><code>/api/commandes/*</code></td>
+        </tr>
+        <tr>
+          <td><code>artisan.service.ts</code></td>
+          <td>GET artisans, GET artisan/:id, GET produits artisan</td>
+          <td><code>/api/artisans/*</code></td>
+        </tr>
+        <tr>
+          <td><code>admin.service.ts</code></td>
+          <td>GET stats globales, GET tous utilisateurs, PATCH rôle</td>
+          <td><code>/api/admin/*</code></td>
+        </tr>
+        <tr>
+          <td><code>address.service.ts</code></td>
+          <td>GET adresses user, POST nouvelle adresse</td>
+          <td><code>/api/adresses/*</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Comment Angular envoie les données</h3>
+    <ul style="padding-left:20px; line-height:2; font-size:13px;">
+      <li><strong>FormData</strong> pour tous les POST/PUT → PHP lit <code>$_POST</code></li>
+      <li><code>withCredentials: true</code> → le cookie de session PHP est inclus automatiquement</li>
+      <li>L'URL de base (<code>http://localhost:8000</code>) vient de <code>environment.ts</code></li>
+    </ul>
+  </section>
+
+  <!-- 6. APPORTS ANGULAR -->
+  <section id="angular-apports">
+    <h2>6. En quoi Angular a aidé le développement ?</h2>
+    <div class="kv">
+      <div class="card">
+        <h4>Architecture claire</h4>
+        <ul>
+          <li>Séparation stricte : composants / services / guards / modèles</li>
+          <li>Chaque fichier a une responsabilité unique</li>
+          <li>Facile à maintenir et à déboguer</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Réactivité avec les Signals</h4>
+        <ul>
+          <li><code>signal()</code> et <code>computed()</code> = état global réactif</li>
+          <li>Le badge du panier se met à jour tout seul</li>
+          <li>Le menu change selon le rôle sans code supplémentaire</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Routage et guards</h4>
+        <ul>
+          <li>Navigation SPA sans rechargement de page</li>
+          <li><code>authGuard</code> et <code>roleGuard</code> protègent les routes côté client</li>
+          <li>Lazy loading : le code admin n'est chargé que si on est admin</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>TypeScript + Interfaces</h4>
+        <ul>
+          <li><code>models.ts</code> : contrats de données partagés</li>
+          <li>Le compilateur signale les erreurs de champs avant l'exécution</li>
+          <li>Autocomplétion dans l'IDE pour les champs PHP</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Composants réutilisables</h4>
+        <ul>
+          <li><code>product-card</code>, <code>kpi-card</code>, <code>toast-container</code></li>
+          <li>Écrits une fois, utilisés partout</li>
+          <li>Tailwind CSS pour le style rapide et cohérent</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>HttpClient</h4>
+        <ul>
+          <li>Gestion propre des Observables (RxJS)</li>
+          <li><code>withCredentials</code> centralisé dans les services</li>
+          <li>Typage fort des réponses API</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. APPORTS SLIM -->
+  <section id="slim-apports">
+    <h2>7. En quoi Slim a aidé le développement ?</h2>
+    <div class="kv">
+      <div class="card">
+        <h4>Routage expressif</h4>
+        <ul>
+          <li><code>$app->get('/api/produits', [...])</code> : une ligne = une route</li>
+          <li>Paramètres nommés : <code>/api/produits/{id}</code></li>
+          <li>Regroupement logique des routes par domaine</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Middleware en couches (PSR-15)</h4>
+        <ul>
+          <li>Session → CORS → Auth → RoleCheck → Controller</li>
+          <li>Chaque middleware est testable indépendamment</li>
+          <li>Ordre d'exécution garanti (pile LIFO)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Réponses PSR-7</h4>
+        <ul>
+          <li>Objet <code>Response</code> immuable et standard</li>
+          <li><code>JsonResponder</code> centralise l'encodage JSON</li>
+          <li>Codes HTTP explicites (200, 201, 401, 403, 404…)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Légèreté</h4>
+        <ul>
+          <li>Aucun ORM imposé → PDO pur, requêtes optimisées</li>
+          <li>Pas de magie cachée contrairement à Laravel</li>
+          <li>Facile à comprendre pour un débutant</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Séparation des responsabilités</h4>
+        <ul>
+          <li>Contrôleurs : logique métier uniquement</li>
+          <li>Modèles : accès BDD uniquement</li>
+          <li>Validators : validation des entrées séparée</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Compatibilité</h4>
+        <ul>
+          <li>Fonctionne avec le serveur PHP built-in (pas besoin d'Apache)</li>
+          <li><code>BasePathResolver</code> adapte le chemin automatiquement</li>
+          <li>Déploiement simple sur n'importe quel hébergeur PHP</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. RÔLES -->
+  <section id="roles">
+    <h2>8. Gestion des rôles et sécurité</h2>
+    <table>
+      <thead><tr><th>Rôle</th><th>id_role</th><th>Guard Angular</th><th>Middleware PHP</th><th>Accès</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Admin</td><td>1</td>
+          <td><code>roleGuard(1)</code></td>
+          <td><code>RoleMiddleware(1)</code></td>
+          <td>Tout : artisans, produits, commandes, utilisateurs</td>
+        </tr>
+        <tr>
+          <td>Artisan</td><td>2</td>
+          <td><code>roleGuard(2)</code></td>
+          <td><code>RoleMiddleware(2)</code></td>
+          <td>Ses produits, ses commandes reçues, ses statistiques</td>
+        </tr>
+        <tr>
+          <td>Client</td><td>3</td>
+          <td><code>authGuard</code></td>
+          <td><code>AuthMiddleware</code></td>
+          <td>Panier, commandes passées, profil, adresses</td>
+        </tr>
+        <tr>
+          <td>Visiteur</td><td>—</td>
+          <td>Aucun guard</td>
+          <td>Aucun middleware</td>
+          <td>Catalogue, fiches produits, vitrines artisans</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="highlight" style="margin-top:14px;">
+      <strong>Double protection :</strong> les guards Angular empêchent l'accès aux pages côté client, mais le middleware PHP refuse aussi les requêtes API non autorisées. Un utilisateur qui tenterait d'appeler <code>/api/admin/artisans</code> sans être admin reçoit un <code>403 Forbidden</code> du serveur, même s'il a contourné le guard.
+    </div>
+  </section>
+
+  <!-- 9. GLOSSAIRE -->
+  <section id="glossaire">
+    <h2>9. Glossaire technique rapide</h2>
+    <table>
+      <thead><tr><th>Terme</th><th>Définition courte</th></tr></thead>
+      <tbody>
+        <tr><td><code>Signal</code></td><td>Valeur réactive Angular 17+. Quand elle change, les composants qui l'utilisent se mettent à jour automatiquement.</td></tr>
+        <tr><td><code>computed()</code></td><td>Signal dérivé : calculé automatiquement à partir d'autres signals. Ex : liste filtrée.</td></tr>
+        <tr><td><code>Guard</code></td><td>Fonction Angular qui s'exécute avant de charger une route. Retourne <code>true</code> (accès) ou redirige.</td></tr>
+        <tr><td><code>Middleware</code></td><td>Couche PHP intercalée entre la requête et le contrôleur. S'exécutent dans l'ordre : Session → CORS → Auth → Role.</td></tr>
+        <tr><td><code>PSR-7</code></td><td>Standard PHP pour les objets Request/Response. Slim, comme Laravel, l'implémente.</td></tr>
+        <tr><td><code>PDO</code></td><td>PHP Data Objects : interface générique pour accéder aux bases de données (MySQL, MariaDB, SQLite…).</td></tr>
+        <tr><td><code>SPA</code></td><td>Single Page Application. L'application charge une fois, la navigation ne recharge pas la page.</td></tr>
+        <tr><td><code>Lazy loading</code></td><td>Les modules Angular ne sont téléchargés qu'au moment où l'utilisateur en a besoin.</td></tr>
+        <tr><td><code>CORS</code></td><td>Mécanisme de sécurité navigateur. Le frontend (4200) et le backend (8000) sont sur des origines différentes → le serveur doit explicitement autoriser.</td></tr>
+        <tr><td><code>withCredentials</code></td><td>Option HttpClient qui inclut les cookies (session PHP) dans les requêtes cross-origin.</td></tr>
+        <tr><td><code>FormData</code></td><td>Format de données POST. PHP le lit via <code>$_POST</code>. Utilisé à la place de JSON car PHP ne parse pas le body JSON nativement.</td></tr>
+        <tr><td><code>Singleton</code></td><td>Pattern de conception : une seule instance d'une classe. Ex : <code>Database::getConnection()</code> retourne toujours la même connexion PDO.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+</body>
+</html>
