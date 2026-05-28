@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: hsl(36, 77%, 49%);
+  --primary-foreground: #fff;
+  --accent: hsl(145, 40%, 42%);
+  --accent-foreground: #fff;
+  --secondary: hsl(40, 25%, 94%);
+  --muted-foreground: hsl(30, 8%, 46%);
+  --border: hsl(36, 20%, 88%);
+  --destructive: hsl(0, 72%, 51%);
+  --radius: 0.625rem;
+  --sidebar-bg: hsl(30, 15%, 14%);
+  --sidebar-foreground: hsl(40, 20%, 90%);
+  --sidebar-accent: hsl(30, 12%, 20%);
+  --sidebar-border: hsl(30, 10%, 22%);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: hsl(40, 33%, 98%);
+  color: hsl(30, 10%, 12%);
+  margin: 0;
+}
+
+.font-serif { font-family: 'Playfair Display', serif; }
+
+.badge-pending   { @apply bg-yellow-100 text-yellow-800; }
+.badge-active    { @apply bg-green-100 text-green-800; }
+.badge-rejected  { @apply bg-red-100 text-red-800; }
+.badge-suspended { @apply bg-gray-100 text-gray-700; }
+.badge-preparing { @apply bg-blue-100 text-blue-800; }
+.badge-shipped   { @apply bg-purple-100 text-purple-800; }
+.badge-delivered { @apply bg-green-100 text-green-800; }
+.badge-cancelled { @apply bg-red-100 text-red-800; }
+
+.spinner {
+  width: 2rem; height: 2rem;
+  border: 4px solid hsl(36, 20%, 88%);
+  border-top-color: hsl(36, 77%, 49%);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast-container {
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem;
+}
+.toast {
+  padding: 0.75rem 1rem; border-radius: var(--radius);
+  background: hsl(30, 10%, 12%); color: #fff;
+  font-size: 0.875rem; box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  animation: slideIn .2s ease;
+}
+.toast.success { background: hsl(145, 40%, 42%); }
+.toast.error   { background: hsl(0, 72%, 51%); }
+@keyframes slideIn { from { transform: translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
