@@ -10,6 +10,11 @@ use Slim\App;
 return function (App $app): void {
     $invoker = new ControllerActionInvoker();
 
+    // CORS preflight handler for all routes
+    $app->options('/{routes:.+}', function (Request $request, Response $response): Response {
+        return $response;
+    });
+
     $register = static function (array|string $methods, string $path, string $handler, array $middlewares = []) use ($app, $invoker): void {
         $route = $app->map((array) $methods, $path, function (Request $request, Response $response, array $args) use ($invoker, $handler): Response {
             return $invoker->invoke($request, $response, $handler, $args);

@@ -23,11 +23,12 @@ class Database
             $config = file_exists($configFile) ? require $configFile : [];
 
             $host = $config['host'] ?? getenv('DB_HOST') ?: '127.0.0.1';
+            $port = $config['port'] ?? getenv('DB_PORT') ?: 3306;
             $dbname = $config['name'] ?? getenv('DB_NAME') ?: 'marketplace_artisanal';
             $user = $config['user'] ?? getenv('DB_USER') ?: 'root';
             $password = $config['password'] ?? getenv('DB_PASS') ?: '';
             $charset = $config['charset'] ?? getenv('DB_CHARSET') ?: 'utf8mb4';
-            $dsn = sprintf('mysql:host=%s;dbname=%s;charset=%s', $host, $dbname, $charset);
+            $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $host, $port, $dbname, $charset);
 
             self::$pdo = new PDO(
                 $dsn,

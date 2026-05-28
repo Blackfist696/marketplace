@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\BasePathResolver;
+use App\Middleware\CorsMiddleware;
 use App\Middleware\RequestDataMiddleware;
 use App\Middleware\SessionMiddleware;
 use Slim\Factory\AppFactory;
@@ -18,6 +19,7 @@ if ($basePath !== '') {
 }
 
 $app->addRoutingMiddleware();
+$app->add(new CorsMiddleware());
 $app->add(new RequestDataMiddleware());
 $app->add(new SessionMiddleware());
 $app->addErrorMiddleware((bool) ($config['display_error_details'] ?? false), true, true);
