@@ -1,13 +1,17 @@
 <?php
 namespace App\Controllers;
 
-use App\View\JsonView;
+use App\Core\JsonResponder;
+use Psr\Http\Message\ResponseInterface;
+use Slim\Psr7\Response;
 
 /**
  * Base controller permettant de renvoyer des réponses JSON standardisées.
  */
 abstract class Controller
 {
+    private ?ResponseInterface $response = null;
+
     /**
      * Envoie une réponse JSON uniforme au client.
      *
@@ -26,6 +30,14 @@ abstract class Controller
             $payload['data'] = $data;
         }
 
-        JsonView::render($payload, $status);
+        $this->response = JsonResponder::write(new Response(), $status, $payload);
+    }
+
+    public function consumeResponse(): ?ResponseInterface
+    {
+        $response = $this->response;
+        $this->response = null;
+
+        return $response;
     }
 }

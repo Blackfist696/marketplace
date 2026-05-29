@@ -50,7 +50,7 @@
 
 - `Controller.php`
   - classe parent
-  - réponse JSON via `App\View\JsonView`
+  - réponse JSON via `App\Core\JsonResponder`
 - contrôleurs fonctionnels
   - `HomeController.php`
   - `ProductController.php`
@@ -60,8 +60,8 @@
 
 ### `app/view`
 
-- `JsonView.php`
-  - renvoie les données au frontend en JSON
+- `JsonResponder.php`
+  - construit les réponses PSR-7 JSON pour le frontend
 
 ### `app/autoload.php`
 
@@ -98,7 +98,7 @@
   - `Utilisateur::getBy(email)`
   - `Personne::getBy(nom)`
   - `Produit::getAll()`
-  - `JsonView::render()`
+  - `JsonResponder::write()`
   - `HomeController::index()`
   - `ProductController::show()`
 
@@ -110,6 +110,6 @@
 ## 6. Notes techniques
 
 - `public/index.php` inclut désormais `app/autoload.php`
-- `app/controllers/Controller.php` utilise `App\View\JsonView` pour toutes les réponses
+- `app/controllers/Controller.php` utilise `App\Core\JsonResponder` pour toutes les réponses
 - la base est configurée via `configs/databaseConfig.php`
 - l'architecture du projet est orientée MVC simple avec namespaces

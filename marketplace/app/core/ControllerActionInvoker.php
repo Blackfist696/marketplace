@@ -51,6 +51,13 @@ final class ControllerActionInvoker
             return $result;
         }
 
+        if (method_exists($controller, 'consumeResponse')) {
+            $controllerResponse = $controller->consumeResponse();
+            if ($controllerResponse instanceof ResponseInterface) {
+                return $controllerResponse;
+            }
+        }
+
         return $response->withStatus($status);
     }
 }
