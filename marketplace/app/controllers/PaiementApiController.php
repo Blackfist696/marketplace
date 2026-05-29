@@ -8,8 +8,14 @@ use App\Models\Paiement;
 use App\Security\Auth\AuthContext;
 use App\Security\Authorization\OwnershipGuard;
 
+/**
+ * API CRUD des paiements avec controle d'acces proprietaire/admin.
+ */
 class PaiementApiController extends Controller
 {
+    /**
+     * Liste les paiements visibles par l'utilisateur courant.
+     */
     public function index(): void
     {
         $auth = AuthContext::current();
@@ -29,6 +35,9 @@ class PaiementApiController extends Controller
         $this->respond(200, 'Liste des paiements', $payments);
     }
 
+    /**
+     * Retourne un paiement si l'utilisateur y a acces.
+     */
     public function show(int $id): void
     {
         $auth = AuthContext::current();
@@ -51,6 +60,9 @@ class PaiementApiController extends Controller
         $this->respond(200, 'Paiement', $item);
     }
 
+    /**
+     * Cree un paiement rattache a une commande accessible.
+     */
     public function store(): void
     {
         $auth = AuthContext::current();
@@ -73,6 +85,9 @@ class PaiementApiController extends Controller
         $this->respond(201, 'Paiement cree', ['id_paiement' => $id]);
     }
 
+    /**
+     * Met a jour un paiement existant.
+     */
     public function update(int $id): void
     {
         $auth = AuthContext::current();
@@ -101,6 +116,9 @@ class PaiementApiController extends Controller
         $this->respond($ok ? 200 : 400, $ok ? 'Paiement mis a jour' : 'Echec de mise a jour');
     }
 
+    /**
+     * Supprime un paiement existant.
+     */
     public function destroy(int $id): void
     {
         $auth = AuthContext::current();

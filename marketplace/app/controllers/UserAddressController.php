@@ -6,8 +6,14 @@ require_once __DIR__ . '/../models/RUtilisateurAdresseModel.php';
 
 use App\Models\RUtilisateurAdresse;
 
+/**
+ * API de gestion des liaisons utilisateur-adresse.
+ */
 class UserAddressController extends Controller
 {
+    /**
+     * Liste les liaisons visibles pour l'utilisateur courant.
+     */
     public function index(): void
     {
         $sessionUser = $this->requireSessionUser();
@@ -23,6 +29,9 @@ class UserAddressController extends Controller
         $this->respond(200, 'Mes adresses', RUtilisateurAdresse::getByUtilisateurId($sessionUser['user_id']));
     }
 
+    /**
+     * Retourne les adresses d'un utilisateur donne.
+     */
     public function indexByUtilisateur(int $idUtilisateur): void
     {
         $sessionUser = $this->requireSessionUser();
@@ -38,6 +47,9 @@ class UserAddressController extends Controller
         $this->respond(200, 'Adresses de l utilisateur', RUtilisateurAdresse::getByUtilisateurId($idUtilisateur));
     }
 
+    /**
+     * Retourne les utilisateurs lies a une adresse (admin uniquement).
+     */
     public function indexByAdresse(int $idAdresse): void
     {
         $sessionUser = $this->requireSessionUser();
@@ -53,6 +65,9 @@ class UserAddressController extends Controller
         $this->respond(200, 'Utilisateurs de l adresse', RUtilisateurAdresse::getByAdresseId($idAdresse));
     }
 
+    /**
+     * Cree une liaison utilisateur-adresse.
+     */
     public function store(): void
     {
         $sessionUser = $this->requireSessionUser();
@@ -84,6 +99,9 @@ class UserAddressController extends Controller
         $this->respond(201, 'Liaison creee', ['id' => $id]);
     }
 
+    /**
+     * Supprime une liaison utilisateur-adresse.
+     */
     public function destroy(int $idUtilisateur, int $idAdresse): void
     {
         $sessionUser = $this->requireSessionUser();
@@ -100,6 +118,11 @@ class UserAddressController extends Controller
         $this->respond($ok ? 200 : 400, $ok ? 'Liaison supprimee' : 'Echec de suppression');
     }
 
+    /**
+     * Construit le contexte utilisateur depuis la session active.
+     *
+     * @return array{user_id:int,role_id:int}|false
+     */
     private function requireSessionUser(): array|false
     {
         if (session_status() === PHP_SESSION_NONE) {

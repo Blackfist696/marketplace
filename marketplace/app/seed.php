@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Script de seed principal du backend.
+ *
+ * Remplit les tables de reference et des jeux de donnees metier pour:
+ * - comptes (admin, artisans, clients),
+ * - catalogue produits,
+ * - commandes/paiements/avis,
+ * - statistiques artisan.
+ */
+
 require_once __DIR__ . '/autoload.php';
 
 use App\Models\Role;
@@ -30,6 +40,14 @@ require_once __DIR__ . '/models/PaiementModel.php';
 require_once __DIR__ . '/models/AvisModel.php';
 require_once __DIR__ . '/models/StatistiqueArtisanModel.php';
 
+/**
+ * Retourne la premiere ligne trouvée selon les criteres ou cree l'entree.
+ *
+ * @param class-string $class Classe modele cible.
+ * @param array<string,mixed> $where Criteres de recherche.
+ * @param array<string,mixed> $data Donnees additionnelles pour la creation.
+ * @return array<string,mixed>
+ */
 function firstOrCreate(string $class, array $where, array $data = []): array
 {
     $result = null;
@@ -99,6 +117,11 @@ function firstOrCreate(string $class, array $where, array $data = []): array
     return $payload;
 }
 
+/**
+ * Garantit la presence d'un role donne avec un identifiant stable.
+ *
+ * @return array<string,mixed>
+ */
 function ensureRole(int $idRole, string $nom, string $description): array
 {
     $pdo = Role::getPDO();

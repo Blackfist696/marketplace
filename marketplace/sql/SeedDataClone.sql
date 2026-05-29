@@ -1,6 +1,10 @@
--- Seed data script.
--- Prerequisite: run schema from sql/Script SQL.sql first
--- in the CURRENTLY SELECTED database.
+-- =============================================================
+-- SeedDataClone.sql
+--
+-- Role: jeu de donnees complet pour clonage local.
+-- Prerequis: schema cree via sql/Script SQL.sql.
+-- Effet: purge puis reinsertion de donnees de reference et de test.
+-- =============================================================
 --
 -- Example workflow:
 -- 1) Create/select your target database in MariaDB.

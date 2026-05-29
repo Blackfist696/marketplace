@@ -1,6 +1,11 @@
 <?php
 
-// Database Configuration
+/**
+ * Configuration de connexion MySQL.
+ *
+ * Les variables d'environnement sont privilegiees pour les secrets
+ * en environnement de production.
+ */
 return [
     'host' => getenv('DB_HOST') ?: '127.0.0.1',
     'port' => (int) (getenv('DB_PORT') ?: 3306),

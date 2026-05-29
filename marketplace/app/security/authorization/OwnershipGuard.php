@@ -4,6 +4,9 @@ namespace App\Security\Authorization;
 
 use App\Models\Commande;
 
+/**
+ * Centralise les regles d'autorisation basees sur le proprietaire metier.
+ */
 final class OwnershipGuard
 {
     /**

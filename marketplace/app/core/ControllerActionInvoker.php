@@ -6,8 +6,16 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
+/**
+ * Pont entre les handlers texte des routes (Controller@action)
+ * et l'execution reelle des methodes de controleurs.
+ */
 final class ControllerActionInvoker
 {
+    /**
+     * Execute l'action ciblee et reconcilie la sortie legacy (echo/headers)
+     * avec une reponse PSR-7 renvoyee a Slim.
+     */
     public function invoke(ServerRequestInterface $request, ResponseInterface $response, string $handler, array $args = []): ResponseInterface
     {
         [$controllerClass, $action] = explode('@', $handler, 2);

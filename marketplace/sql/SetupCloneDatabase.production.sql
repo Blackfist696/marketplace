@@ -1,9 +1,10 @@
--- Production-ready clone setup (phpMyAdmin/MariaDB)
--- Notes:
--- 1) Compatible with phpMyAdmin static parser.
--- 2) Event creation disabled for production portability.
--- Full clone setup script (database + schema + seed)
--- WARNING: this script drops and recreates marketplace_artisanal.
+-- =============================================================
+-- SetupCloneDatabase.production.sql
+--
+-- Role: variante de setup complet orientee production/phpMyAdmin.
+-- Notes: compatibilite parseur statique phpMyAdmin, script portable.
+-- Attention: detruit puis recree marketplace_artisanal.
+-- =============================================================
 
 DROP DATABASE IF EXISTS marketplace_artisanal;
 CREATE DATABASE marketplace_artisanal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

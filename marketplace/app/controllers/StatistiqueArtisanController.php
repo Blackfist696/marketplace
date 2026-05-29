@@ -8,8 +8,17 @@ require_once __DIR__ . '/../models/ArtisanModel.php';
 use App\Models\Artisan;
 use App\Models\StatistiqueArtisan;
 
+/**
+ * API des statistiques artisan.
+ *
+ * Administration complete cote admin,
+ * consultation ciblee cote artisan proprietaire.
+ */
 class StatistiqueArtisanController extends Controller
 {
+    /**
+     * Liste toutes les statistiques (admin uniquement).
+     */
     public function index(): void
     {
         if (!$this->requireAdmin()) {
@@ -19,6 +28,9 @@ class StatistiqueArtisanController extends Controller
         $this->respond(200, 'Liste des statistiques artisan', StatistiqueArtisan::getAll());
     }
 
+    /**
+     * Retourne une statistique par identifiant (admin uniquement).
+     */
     public function show(int $id): void
     {
         if (!$this->requireAdmin()) {
@@ -34,6 +46,9 @@ class StatistiqueArtisanController extends Controller
         $this->respond(200, 'Statistique artisan', $item);
     }
 
+    /**
+     * Liste les statistiques d'un artisan donne.
+     */
     public function indexByArtisan(int $idArtisan): void
     {
         $sessionUser = $this->requireSessionUser();
@@ -63,6 +78,9 @@ class StatistiqueArtisanController extends Controller
         $this->respond(200, 'Statistiques de l artisan', StatistiqueArtisan::getBy('id_artisan', $idArtisan));
     }
 
+    /**
+     * Cree une statistique artisan (admin uniquement).
+     */
     public function store(): void
     {
         if (!$this->requireAdmin()) {
@@ -78,6 +96,9 @@ class StatistiqueArtisanController extends Controller
         $this->respond(201, 'Statistique artisan creee', ['id_statistique' => $id]);
     }
 
+    /**
+     * Met a jour une statistique artisan (admin uniquement).
+     */
     public function update(int $id): void
     {
         if (!$this->requireAdmin()) {
@@ -88,6 +109,9 @@ class StatistiqueArtisanController extends Controller
         $this->respond($ok ? 200 : 400, $ok ? 'Statistique artisan mise a jour' : 'Echec de mise a jour');
     }
 
+    /**
+     * Supprime une statistique artisan (admin uniquement).
+     */
     public function destroy(int $id): void
     {
         if (!$this->requireAdmin()) {
@@ -98,6 +122,9 @@ class StatistiqueArtisanController extends Controller
         $this->respond($ok ? 200 : 400, $ok ? 'Statistique artisan supprimee' : 'Echec de suppression');
     }
 
+    /**
+     * Verifie que l'utilisateur courant est administrateur.
+     */
     private function requireAdmin(): bool
     {
         $sessionUser = $this->requireSessionUser();
@@ -113,6 +140,11 @@ class StatistiqueArtisanController extends Controller
         return true;
     }
 
+    /**
+     * Construit le contexte utilisateur depuis la session active.
+     *
+     * @return array{user_id:int,role_id:int}|false
+     */
     private function requireSessionUser(): array|false
     {
         if (session_status() === PHP_SESSION_NONE) {

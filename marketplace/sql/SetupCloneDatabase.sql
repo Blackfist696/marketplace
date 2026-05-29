@@ -1,5 +1,9 @@
--- Full clone setup script (database + schema + seed)
--- WARNING: this script drops and recreates marketplace_artisanal.
+-- =============================================================
+-- SetupCloneDatabase.sql
+--
+-- Role: reinitialiser une base complete (drop/create + schema + seeds).
+-- Attention: detruit puis recree marketplace_artisanal.
+-- =============================================================
 
 DROP DATABASE IF EXISTS marketplace_artisanal;
 CREATE DATABASE marketplace_artisanal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
