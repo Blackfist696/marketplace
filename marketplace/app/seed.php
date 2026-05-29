@@ -132,7 +132,7 @@ try {
     echo "Seeding roles...\n";
 
     $roleAdmin = ensureRole(1, 'administrateur', 'Administrateur de la plateforme');
-    $roleVendeur = ensureRole(2, 'vendeur', 'Vendeur artisan');
+    $roleArtisan = ensureRole(2, 'artisan', 'Artisan de la plateforme');
     $roleClient = ensureRole(3, 'client', 'Client standard');
 
     echo "Seeding pays et villes...\n";
@@ -150,7 +150,7 @@ try {
         'id_pays' => $paysFrance['id_pays'],
     ]);
 
-    echo "Seeding comptes administrateur et vendeur...\n";
+    echo "Seeding comptes administrateur et artisan...\n";
 
     $adminUser = firstOrCreate(Utilisateur::class, ['email' => 'admin@example.com'], [
         'mot_de_passe' => password_hash('admin123', PASSWORD_BCRYPT),
@@ -162,12 +162,12 @@ try {
         'actif' => 1,
     ]);
 
-    $vendeurUser = firstOrCreate(Utilisateur::class, ['email' => 'vendeur@example.com'], [
-        'mot_de_passe' => password_hash('vendeur123', PASSWORD_BCRYPT),
-        'nom' => 'Vendeur',
+    $artisanUser = firstOrCreate(Utilisateur::class, ['email' => 'artisan@example.com'], [
+        'mot_de_passe' => password_hash('artisan123', PASSWORD_BCRYPT),
+        'nom' => 'Artisan',
         'prenom' => 'Demo',
         'telephone' => '0400 20 20 20',
-        'id_role' => $roleVendeur['id_role'],
+        'id_role' => $roleArtisan['id_role'],
         'date_inscription' => date('Y-m-d H:i:s'),
         'actif' => 1,
     ]);
@@ -241,7 +241,7 @@ try {
         'actif' => 1,
     ]);
 
-    $artisan = firstOrCreate(Artisan::class, ['id_utilisateur' => $vendeurUser['id_utilisateur']], [
+    $artisan = firstOrCreate(Artisan::class, ['id_utilisateur' => $artisanUser['id_utilisateur']], [
         'nom_boutique' => 'Atelier du Marché',
         'description' => 'Boutique artisanale de bijoux faits main.',
         'numero_tva' => 'BE0123456789',
@@ -356,7 +356,7 @@ try {
         ]);
     }
 
-    echo "Seed complete. Roles (client, vendeur, administrateur), referentiels, produits, commandes et avis crees.\n";
+    echo "Seed complete. Roles (client, artisan, administrateur), referentiels, produits, commandes et avis crees.\n";
 } catch (Throwable $e) {
     echo 'Error: ' . $e->getMessage() . "\n";
     exit(1);
