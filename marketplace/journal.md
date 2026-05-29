@@ -489,3 +489,54 @@ sur les cles et references existantes.
 ### Rappel
 - Ces mots de passe sont strictement prevus pour le developpement local.
 - En base, les mots de passe sont stockes en hash bcrypt.
+
+## 2026-05-29 (bilan des actions accomplies jusqu a present)
+
+### Backend/API
+- Correction du contrat API produit pour le frontend Angular:
+  - ajout de la categorie dans les reponses produits.
+  - mise a jour du mapping categorie dans le controleur produit.
+- Ajustement du typage frontend produit pour prendre en charge la categorie exposee par l API.
+
+### Seed applicatif
+- Refonte de `app/seed.php` pour alignement metier complet:
+  - suppression du compte artisan generique,
+  - creation/maintien de 8 categories metier,
+  - creation/maintien de 8 artisans specialises,
+  - creation/maintien de 40 produits,
+  - creation/maintien de 80 images produit,
+  - recalcul dynamique des montants commande/paiement (plus de valeurs legacy codees en dur).
+
+### SQL migration/seed
+- Creation de `sql/SeedSpecializedCatalog.sql` pour injection reexecutable du catalogue specialise.
+- Creation de `sql/MigrateLegacyCatalog.sql` pour migration d une base existante legacy vers le nouveau referentiel:
+  - remap des references produits legacy,
+  - nettoyage des categories/comptes legacy orphelins,
+  - dedoublonnage post-fusion,
+  - recalcul des totaux commande,
+  - alignement des paiements.
+- Remplacement/alignment du dataset seed dans:
+  - `sql/SeedDataClone.sql`
+  - `sql/SetupCloneDatabase.sql`
+  - `sql/SetupCloneDatabase.production.sql`
+
+### Validations effectuees
+- Verification base apres migration:
+  - 0 produit legacy,
+  - 0 categorie legacy,
+  - 0 artisan legacy,
+  - 40 produits au total,
+  - repartition: 5 produits par categorie sur 8 categories.
+- Verification commande/paiement seed:
+  - `commande.total_ht = 18.30`
+  - `commande.total_tva = 1.10`
+  - `commande.total_ttc = 24.40`
+  - `paiement.montant = 24.40`
+- Verification front/proxy API:
+  - endpoint `/products` expose bien 8 categories,
+  - distribution constatee: 5 produits par categorie.
+
+### Traçabilite documentaire
+- Ajout de la note de migration legacy dans ce journal.
+- Ajout du tableau des comptes seedes (dev) et mots de passe initiaux dans:
+  - `docs/comptes-seed.md`
