@@ -326,74 +326,265 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO role (Id_role, nom, description) VALUES
 (1, 'administrateur', 'Administrateur de la plateforme'),
-(2, 'vendeur', 'Vendeur artisan'),
+(2, 'artisan', 'Artisan de la plateforme'),
 (3, 'client', 'Client standard');
 
 INSERT INTO utilisateur (Id_utilisateur, email, mot_de_passe, nom, prenom, telephone, date_inscription, actif, Id_role) VALUES
-(1, 'admin@example.com', '$2y$10$LrKCS1k61f7oW2JCEi0a8.4f6q5fhnf2mQ0fLeA6prxDl04hC2WMe', 'Admin', 'Systeme', '0400 10 10 10', NOW(), 1, 1),
-(2, 'vendeur@example.com', '$2y$10$fWBwXh4EAbfPn/Jf2dhrfuzA3z7nS2dQI0Q2PS8Q2rQ0izYQ4wbkW', 'Vendeur', 'Demo', '0400 20 20 20', NOW(), 1, 2),
-(3, 'client1@example.com', '$2y$10$4d3CGf66rJEa.UTBfdlB9uEi53r7Y8WQbn8hA0w8Uz6ScuvtR4qYu', 'Dupont', 'Alice', '0485 11 22 33', NOW(), 1, 3),
-(4, 'client2@example.com', '$2y$10$Y7qWvYO6fvp0x5n0gIxzR.v7Qf16dSzxI/5hNLMiiCWb6v2xqAVpS', 'Martin', 'Benoit', '0496 44 55 66', NOW(), 1, 3),
-(5, 'client3@example.com', '$2y$10$N5az5a3bG5kvWmA0QVziAOS7D8yb3xS8hM8WJf5sy2jJxjI4L/6Ta', 'Lefevre', 'Camille', '0477 77 88 99', NOW(), 1, 3);
+(1, 'admin@example.com', '$2y$10$Ua1/Y3m0LBcj9l5wCvtkd.ZvXoliBrNihnAIIo8r7wO010SEvLDaW', 'Admin', 'Systeme', '0400 10 10 10', '2026-05-27 13:06:17', 1, 1),
+(3, 'client1@example.com', '$2y$10$CNbENvqdb0qCfk1cMFji1eGP7UvSkYu07eByV3opA1mgFOnfVdmSa', 'Dupont', 'Alice', '0485 11 22 33', '2026-05-27 13:06:17', 1, 3),
+(4, 'client2@example.com', '$2y$10$0JXEj.zg4MlY25P48S5AfOe05kfc0evWfGyjV8GRDZ097xWzoyN9e', 'Martin', 'Benoit', '0496 44 55 66', '2026-05-27 13:06:51', 1, 3),
+(5, 'client3@example.com', '$2y$10$axCgGxELcoTuoP90PDuX8O82Q8eqRJodEaWAuLJp.YUJwOrJ7FlZq', 'Lefevre', 'Camille', '0477 77 88 99', '2026-05-27 13:06:51', 1, 3),
+(6, 'client4@example.com', '$2y$10$jsApsgrSexbh5fenBNg6IuEkm/H7ypRA3dgsMO6k7b3Aru3RfV2ZC', 'Moreau', 'David', '0468 00 11 22', '2026-05-27 13:06:51', 1, 3),
+(7, 'client5@example.com', '$2y$10$NRckz0I5TOG5JsHnQ607deP76rtuOdEESoQDfGIhbAigTGF8nQGDu', 'Bernard', 'Elodie', '0459 33 44 55', '2026-05-27 13:06:51', 1, 3),
+(9, 'miels.artisan@example.com', '$2y$10$Ge0I/fSyEXXztG2gGmCNpuZOkgeJUyBi3hpZQlngd60AkoPCTj0BS', 'Lambert', 'Nora', '0470 10 20 30', '2026-05-29 19:42:00', 1, 2),
+(10, 'savons.artisan@example.com', '$2y$10$UGi2cLbypXXBWFZ414RlbOSP.68hqf2Q5nNzDhO4aTmeKzgQ5VbUC', 'Bernier', 'Lea', '0470 11 21 31', '2026-05-29 19:42:00', 1, 2),
+(11, 'confiseries.artisan@example.com', '$2y$10$6CjnS.KbqXj57.AHYErvoO9pYzXcUNuHFCBoMM6n.pkbD/JDKg/TS', 'Renaud', 'Mila', '0470 12 22 32', '2026-05-29 19:42:00', 1, 2),
+(12, 'cosmetiques.artisan@example.com', '$2y$10$jmGAUlKaQssESLY81Huxm.mp39mdbfGX4uVqlKVHUHrpL9i9WSRQS', 'Carpentier', 'Ines', '0470 13 23 33', '2026-05-29 19:42:00', 1, 2),
+(13, 'bougies.artisan@example.com', '$2y$10$m6d9djJ1VDZT.ygihr28nuIbbYBzb6rM7WyorPTTOx6NCuOcquT9e', 'Dumont', 'Hugo', '0470 14 24 34', '2026-05-29 19:42:00', 1, 2),
+(14, 'pollen.artisan@example.com', '$2y$10$7H6zwnRD1MWqWbm6k9PB7e9rQ6K8OHD1XSZKnSWkCwTs5LJJmk4i.', 'Marchal', 'Yanis', '0470 15 25 35', '2026-05-29 19:42:00', 1, 2),
+(15, 'propolis.artisan@example.com', '$2y$10$UZMlXKNCUKwQED9fkhukoO4Ht62vIRSTPVuAiSW8m8qJJerVSu6yK', 'Garnier', 'Sofia', '0470 16 26 36', '2026-05-29 19:42:00', 1, 2),
+(16, 'coffrets.artisan@example.com', '$2y$10$cqF0A/mRWcYucmXX77WNwuaZbygDkPQJSE6eOcBAo1PWewTXDglGS', 'Petit', 'Clara', '0470 17 27 37', '2026-05-29 19:42:00', 1, 2);
 
 INSERT INTO pays (Id_pays, nom_pays, code_iso) VALUES
 (1, 'Belgique', 'BE'),
 (2, 'France', 'FR');
 
 INSERT INTO ville (Id_ville, nom_ville, code_postal, Id_pays) VALUES
-(1, 'Bruxelles', '1000', 1),
-(2, 'Lyon', '69000', 2);
+(1, 'Bruxelles', 1000, 1),
+(2, 'Lyon', 69000, 2);
 
 INSERT INTO adresse (Id_adresse, rue, complement, type_adresse, principale, Id_ville) VALUES
-(1, 'Avenue Admin 1', NULL, 'facturation', 1, 1),
-(2, 'Rue du Vendeur 2', NULL, 'livraison', 1, 1),
-(3, 'Rue du Client 3', NULL, 'livraison', 1, 1),
-(4, 'Rue du Client 4', NULL, 'livraison', 1, 1),
-(5, 'Rue du Client 5', NULL, 'livraison', 1, 2);
+(1, 'Rue du Client 3', NULL, 'livraison', 1, 1),
+(2, 'Rue du Client 4', NULL, 'livraison', 1, 1),
+(3, 'Rue du Client 5', NULL, 'livraison', 1, 1),
+(4, 'Rue du Client 6', NULL, 'livraison', 1, 1),
+(5, 'Rue du Client 7', NULL, 'livraison', 1, 1),
+(6, 'Avenue Admin 1', NULL, 'facturation', 1, 1),
+(7, 'Chemin des Abeilles 1', NULL, 'atelier', 1, 2),
+(8, 'Rue des Herbiers 8', NULL, 'atelier', 1, 1),
+(9, 'Place des Gourmands 3', NULL, 'atelier', 1, 2),
+(10, 'Clos des Fleurs 12', NULL, 'atelier', 1, 1),
+(11, 'Rue des Chandelles 5', NULL, 'atelier', 1, 2),
+(12, 'Sentier des Ruches 14', NULL, 'atelier', 1, 1),
+(13, 'Alee des Tilleuls 7', NULL, 'atelier', 1, 2),
+(14, 'Quai des Artisans 19', NULL, 'atelier', 1, 1);
 
 INSERT INTO r_utilisateur_adresse (Id_utilisateur, Id_adresse) VALUES
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 4),
-(5, 5);
+(1, 6),
+(3, 1),
+(4, 2),
+(5, 3),
+(6, 4),
+(7, 5),
+(9, 7),
+(10, 8),
+(11, 9),
+(12, 10),
+(13, 11),
+(14, 12),
+(15, 13),
+(16, 14);
 
 INSERT INTO artisan (Id_artisan, nom_boutique, description, numero_tva, iban, commission, valide, date_validation, logo, Id_utilisateur) VALUES
-(1, 'Atelier du Marche', 'Boutique artisanale de bijoux faits main.', 'BE0123456789', 'BE68539007547034', 12.50, 1, NOW(), 'atelier-logo.png', 2);
+(3, 'Rucher des Collines', 'Production de miels de terroir et de saison.', 'BE0200000001', 'BE68000111112222', 12.50, 1, '2026-05-29 19:42:00', 'logos/rucher-collines.png', 9),
+(4, 'Savonnerie du Verger', 'Savons doux enrichis en huiles vegetales et beurres naturels.', 'BE0200000002', 'BE68000111112223', 12.50, 1, '2026-05-29 19:42:00', 'logos/savonnerie-verger.png', 10),
+(5, 'Maison des Douceurs', 'Confiseries artisanales preparees en petites series.', 'BE0200000003', 'BE68000111112224', 12.50, 1, '2026-05-29 19:42:00', 'logos/maison-douceurs.png', 11),
+(6, 'Atelier Botanique', 'Cosmetiques solides et soins naturels issus de plantes locales.', 'BE0200000004', 'BE68000111112225', 12.50, 1, '2026-05-29 19:42:00', 'logos/atelier-botanique.png', 12),
+(7, 'Flamme Atelier', 'Bougies coulees a la main avec cire vegetale et meches coton.', 'BE0200000005', 'BE68000111112226', 12.50, 1, '2026-05-29 19:42:00', 'logos/flamme-atelier.png', 13),
+(8, 'Le Grain Dore', 'Produits de la ruche centres sur le pollen de fleurs.', 'BE0200000006', 'BE68000111112227', 12.50, 1, '2026-05-29 19:42:00', 'logos/grain-dore.png', 14),
+(9, 'Essence de Propolis', 'Transformation artisanale de propolis brute et preparee.', 'BE0200000007', 'BE68000111112228', 12.50, 1, '2026-05-29 19:42:00', 'logos/essence-propolis.png', 15),
+(10, 'La Ruche en Coffret', 'Assemblages cadeaux autour des produits de la ruche.', 'BE0200000008', 'BE68000111112229', 12.50, 1, '2026-05-29 19:42:00', 'logos/ruche-coffret.png', 16);
 
 INSERT INTO categorie (Id_categorie, nom, description, image, ordre, actif, Id_categorie_1) VALUES
-(1, 'Bijoux', 'Bijoux et accessoires artisanaux', 'bijoux.jpg', 1, 1, NULL),
-(2, 'Decoration', 'Objets decoratifs artisanaux', 'deco.jpg', 2, 1, NULL);
+(3, 'Miels', 'Selection de miels artisanaux issus de ruchers locaux.', 'categories/miels.jpg', 1, 1, NULL),
+(4, 'Savons', 'Savons saponifies a froid aux ingredients naturels.', 'categories/savons.jpg', 2, 1, NULL),
+(5, 'Confiseries', 'Douceurs artisanales au miel et aux fruits.', 'categories/confiseries.jpg', 3, 1, NULL),
+(6, 'Cosmetiques', 'Soins artisanaux pour le visage et le corps.', 'categories/cosmetiques.jpg', 4, 1, NULL),
+(7, 'Bougies', 'Bougies artisanales en cire naturelle et parfums fins.', 'categories/bougies.jpg', 5, 1, NULL),
+(8, 'Pollen', 'Pollen recolte, seche et conditionne artisanalement.', 'categories/pollen.jpg', 6, 1, NULL),
+(9, 'Propolis', 'Extraits et soins a base de propolis artisanale.', 'categories/propolis.jpg', 7, 1, NULL),
+(10, 'Coffrets', 'Coffrets cadeaux composant plusieurs creations artisanales.', 'categories/coffrets.jpg', 8, 1, NULL);
 
 INSERT INTO produit (Id_produit, nom, description, prix_ht, taux_tva, stock, poids, image_principale, actif, mis_en_avant, nb_vues, date_creation, Id_artisan) VALUES
-(1, 'Collier en perles', 'Collier artisanal en perles naturelles.', 45.00, 6.00, 12, 0.15, 'collier.jpg', 1, 1, 0, NOW(), 1),
-(2, 'Bracelet cuir', 'Bracelet en cuir veritable et fermoir acier.', 35.00, 6.00, 20, 0.08, 'bracelet.jpg', 1, 0, 0, NOW(), 1),
-(3, 'Boucles doreilles dorees', 'Boucles doreilles fines et elegantes.', 28.00, 6.00, 25, 0.04, 'boucles.jpg', 1, 0, 0, NOW(), 1),
-(4, 'Bague en argent', 'Bague artisanale en argent 925.', 55.00, 6.00, 10, 0.06, 'bague.jpg', 1, 0, 0, NOW(), 1),
-(5, 'Pendentif grave', 'Pendentif personnalise en acier inoxydable.', 32.00, 6.00, 18, 0.05, 'pendentif.jpg', 1, 0, 0, NOW(), 1);
+(6, 'Miel de fleurs sauvages', 'Miel doux recolte sur des prairies fleuries.', 8.90, 6.00, 39, 0.25, 'products/miels/fleurs-sauvages.jpg', 1, 1, NULL, '2026-05-29 19:42:00', 3),
+(7, 'Miel d acacia', 'Texture fluide et notes legeres pour les petits dejeuners.', 9.40, 6.00, 31, 0.25, 'products/miels/acacia.jpg', 1, 0, NULL, '2026-05-28 19:42:00', 3),
+(8, 'Miel de foret', 'Miel ambré aux aromes boises et soutenus.', 10.20, 6.00, 28, 0.25, 'products/miels/foret.jpg', 1, 0, NULL, '2026-05-27 19:42:00', 3),
+(9, 'Miel de chataignier', 'Saveur puissante et finale legerement amere.', 10.80, 6.00, 24, 0.25, 'products/miels/chataignier.jpg', 1, 0, NULL, '2026-05-26 19:42:00', 3),
+(10, 'Miel creme du rucher', 'Miel foisonne ideal pour les tartines.', 9.80, 6.00, 30, 0.25, 'products/miels/creme.jpg', 1, 0, NULL, '2026-05-25 19:42:00', 3),
+(11, 'Savon lavande apaisant', 'Savon parfume a la lavande avec mousse cremeuse.', 5.90, 6.00, 60, 0.10, 'products/savons/lavande.jpg', 1, 1, NULL, '2026-05-28 19:42:00', 4),
+(12, 'Savon miel et avoine', 'Nettoie en douceur et apaise les peaux sensibles.', 6.20, 6.00, 48, 0.10, 'products/savons/miel-avoine.jpg', 1, 0, NULL, '2026-05-27 19:42:00', 4),
+(13, 'Savon charbon purifiant', 'Formule minerale dediee aux peaux mixtes.', 6.50, 6.00, 45, 0.10, 'products/savons/charbon.jpg', 1, 0, NULL, '2026-05-26 19:42:00', 4),
+(14, 'Savon agrumes tonique', 'Notes fraiches d orange et de citron.', 5.80, 6.00, 52, 0.10, 'products/savons/agrumes.jpg', 1, 0, NULL, '2026-05-25 19:42:00', 4),
+(15, 'Savon lait d amande', 'Texture onctueuse et parfum legerement gourmand.', 6.40, 6.00, 40, 0.10, 'products/savons/amande.jpg', 1, 0, NULL, '2026-05-24 19:42:00', 4),
+(16, 'Pates de fruits framboise', 'Bonbons moelleux a la framboise et au miel.', 4.90, 6.00, 55, 0.12, 'products/confiseries/pates-fruits.jpg', 1, 1, NULL, '2026-05-27 19:42:00', 5),
+(17, 'Nougat tendre aux amandes', 'Nougat souple aux amandes grillees.', 7.10, 6.00, 35, 0.18, 'products/confiseries/nougat.jpg', 1, 0, NULL, '2026-05-26 19:42:00', 5),
+(18, 'Caramels beurre sale', 'Caramels fondants cuits au chaudron.', 5.40, 6.00, 50, 0.14, 'products/confiseries/caramels.jpg', 1, 0, NULL, '2026-05-25 19:42:00', 5),
+(19, 'Guimauves vanille miel', 'Guimauves legeres parfumees a la vanille.', 4.70, 6.00, 46, 0.11, 'products/confiseries/guimauves.jpg', 1, 0, NULL, '2026-05-24 19:42:00', 5),
+(20, 'Bonbons miel citron', 'Pastilles artisanales aux notes fraiches.', 3.90, 6.00, 70, 0.09, 'products/confiseries/bonbons-miel-citron.jpg', 1, 0, NULL, '2026-05-23 19:42:00', 5),
+(21, 'Baume a levres miel', 'Baume nourrissant enrichi en cire et miel.', 4.20, 6.00, 90, 0.02, 'products/cosmetiques/baume-levres.jpg', 1, 1, NULL, '2026-05-26 19:42:00', 6),
+(22, 'Creme mains propolis', 'Soin reparateur pour les mains seches.', 8.60, 6.00, 44, 0.08, 'products/cosmetiques/creme-mains.jpg', 1, 0, NULL, '2026-05-25 19:42:00', 6),
+(23, 'Huile visage calendula', 'Huile legere pour les peaux sensibles.', 11.40, 6.00, 30, 0.05, 'products/cosmetiques/huile-visage.jpg', 1, 0, NULL, '2026-05-24 19:42:00', 6),
+(24, 'Gommage sucre et miel', 'Exfoliant doux pour le corps.', 9.80, 6.00, 26, 0.16, 'products/cosmetiques/gommage.jpg', 1, 0, NULL, '2026-05-23 19:42:00', 6),
+(25, 'Masque argile blanche', 'Masque purifiant et apaisant pour le visage.', 7.90, 6.00, 34, 0.09, 'products/cosmetiques/masque.jpg', 1, 0, NULL, '2026-05-22 19:42:00', 6),
+(26, 'Bougie miel dore', 'Bougie chaleureuse a la cire d abeille.', 12.50, 6.00, 22, 0.30, 'products/bougies/miel-dore.jpg', 1, 1, NULL, '2026-05-25 19:42:00', 7),
+(27, 'Bougie fleur d oranger', 'Parfum floral et diffusion reguliere.', 13.20, 6.00, 20, 0.30, 'products/bougies/fleur-oranger.jpg', 1, 0, NULL, '2026-05-24 19:42:00', 7),
+(28, 'Bougie pain d epices', 'Notes gourmandes et epicees pour l hiver.', 13.80, 6.00, 18, 0.30, 'products/bougies/pain-epices.jpg', 1, 0, NULL, '2026-05-23 19:42:00', 7),
+(29, 'Bougie verveine', 'Ambiance fraiche et vegetale.', 11.90, 6.00, 25, 0.28, 'products/bougies/verveine.jpg', 1, 0, NULL, '2026-05-22 19:42:00', 7),
+(30, 'Bougie bois ambré', 'Sillage boise pour les interieurs cosy.', 14.10, 6.00, 16, 0.32, 'products/bougies/bois-ambre.jpg', 1, 0, NULL, '2026-05-21 19:42:00', 7),
+(31, 'Pollen multifleurs', 'Pollen sec aux notes florales variees.', 7.50, 6.00, 38, 0.12, 'products/pollen/multifleurs.jpg', 1, 1, NULL, '2026-05-24 19:42:00', 8),
+(32, 'Pollen frais congele', 'Pollen preserve a froid pour garder ses aromes.', 9.10, 6.00, 20, 0.15, 'products/pollen/frais.jpg', 1, 0, NULL, '2026-05-23 19:42:00', 8),
+(33, 'Pollen ciste', 'Origine mediterraneenne et texture croquante.', 8.80, 6.00, 24, 0.12, 'products/pollen/ciste.jpg', 1, 0, NULL, '2026-05-22 19:42:00', 8),
+(34, 'Pollen aubepine', 'Saveur douce et legumes secs en note finale.', 8.40, 6.00, 26, 0.12, 'products/pollen/aubepine.jpg', 1, 0, NULL, '2026-05-21 19:42:00', 8),
+(35, 'Pollen printemps', 'Melange saisonnier recolte au debut de saison.', 7.90, 6.00, 30, 0.12, 'products/pollen/printemps.jpg', 1, 0, NULL, '2026-05-20 19:42:00', 8),
+(36, 'Spray gorge propolis', 'Spray concentre au gout doux et menthe.', 8.30, 6.00, 42, 0.04, 'products/propolis/spray-gorge.jpg', 1, 1, NULL, '2026-05-23 19:42:00', 9),
+(37, 'Teinture mere propolis', 'Extrait liquide prepare en petite serie.', 10.90, 6.00, 28, 0.05, 'products/propolis/teinture-mere.jpg', 1, 0, NULL, '2026-05-22 19:42:00', 9),
+(38, 'Pastilles propolis miel', 'Pastilles fondantes pour une pause reconfortante.', 5.60, 6.00, 54, 0.07, 'products/propolis/pastilles.jpg', 1, 0, NULL, '2026-05-21 19:42:00', 9),
+(39, 'Baume propolis intense', 'Baume polyvalent a appliquer localement.', 7.40, 6.00, 36, 0.03, 'products/propolis/baume.jpg', 1, 0, NULL, '2026-05-20 19:42:00', 9),
+(40, 'Solution propolis brute', 'Preparation artisanale a forte teneur en propolis.', 11.70, 6.00, 20, 0.05, 'products/propolis/solution-brute.jpg', 1, 0, NULL, '2026-05-19 19:42:00', 9),
+(41, 'Coffret douceur du matin', 'Selection petit dejeuner avec miel et tisane.', 24.90, 6.00, 14, 1.20, 'products/coffrets/douceur-matin.jpg', 1, 1, NULL, '2026-05-22 19:42:00', 10),
+(42, 'Coffret bain relaxant', 'Savon, baume et bougie pour une pause detente.', 29.50, 6.00, 12, 1.35, 'products/coffrets/bain-relaxant.jpg', 1, 0, NULL, '2026-05-21 19:42:00', 10),
+(43, 'Coffret gourmand au miel', 'Miels et confiseries artisanales en coffret cadeau.', 27.80, 6.00, 16, 1.40, 'products/coffrets/gourmand.jpg', 1, 0, NULL, '2026-05-20 19:42:00', 10),
+(44, 'Coffret bien etre propolis', 'Routine bien etre avec propolis, pollen et infusion.', 31.20, 6.00, 10, 1.10, 'products/coffrets/bien-etre.jpg', 1, 0, NULL, '2026-05-19 19:42:00', 10),
+(45, 'Coffret maison parfumee', 'Bougie, spray et douceurs pour offrir.', 33.40, 6.00, 8, 1.50, 'products/coffrets/maison-parfumee.jpg', 1, 0, NULL, '2026-05-18 19:42:00', 10);
+
+INSERT INTO image_produit (Id_image_produit, chemin, alt, ordre, Id_produit) VALUES
+(1, 'products/miels/fleurs-sauvages.jpg', 'Miel de fleurs sauvages - vue principale', 1, 6),
+(2, 'products/miels/fleurs-sauvages-detail.jpg', 'Miel de fleurs sauvages - detail', 2, 6),
+(3, 'products/miels/acacia.jpg', 'Miel d acacia - vue principale', 1, 7),
+(4, 'products/miels/acacia-detail.jpg', 'Miel d acacia - detail', 2, 7),
+(5, 'products/miels/foret.jpg', 'Miel de foret - vue principale', 1, 8),
+(6, 'products/miels/foret-detail.jpg', 'Miel de foret - detail', 2, 8),
+(7, 'products/miels/chataignier.jpg', 'Miel de chataignier - vue principale', 1, 9),
+(8, 'products/miels/chataignier-detail.jpg', 'Miel de chataignier - detail', 2, 9),
+(9, 'products/miels/creme.jpg', 'Miel creme du rucher - vue principale', 1, 10),
+(10, 'products/miels/creme-detail.jpg', 'Miel creme du rucher - detail', 2, 10),
+(11, 'products/savons/lavande.jpg', 'Savon lavande apaisant - vue principale', 1, 11),
+(12, 'products/savons/lavande-detail.jpg', 'Savon lavande apaisant - detail', 2, 11),
+(13, 'products/savons/miel-avoine.jpg', 'Savon miel et avoine - vue principale', 1, 12),
+(14, 'products/savons/miel-avoine-detail.jpg', 'Savon miel et avoine - detail', 2, 12),
+(15, 'products/savons/charbon.jpg', 'Savon charbon purifiant - vue principale', 1, 13),
+(16, 'products/savons/charbon-detail.jpg', 'Savon charbon purifiant - detail', 2, 13),
+(17, 'products/savons/agrumes.jpg', 'Savon agrumes tonique - vue principale', 1, 14),
+(18, 'products/savons/agrumes-detail.jpg', 'Savon agrumes tonique - detail', 2, 14),
+(19, 'products/savons/amande.jpg', 'Savon lait d amande - vue principale', 1, 15),
+(20, 'products/savons/amande-detail.jpg', 'Savon lait d amande - detail', 2, 15),
+(21, 'products/confiseries/pates-fruits.jpg', 'Pates de fruits framboise - vue principale', 1, 16),
+(22, 'products/confiseries/pates-fruits-detail.jpg', 'Pates de fruits framboise - detail', 2, 16),
+(23, 'products/confiseries/nougat.jpg', 'Nougat tendre aux amandes - vue principale', 1, 17),
+(24, 'products/confiseries/nougat-detail.jpg', 'Nougat tendre aux amandes - detail', 2, 17),
+(25, 'products/confiseries/caramels.jpg', 'Caramels beurre sale - vue principale', 1, 18),
+(26, 'products/confiseries/caramels-detail.jpg', 'Caramels beurre sale - detail', 2, 18),
+(27, 'products/confiseries/guimauves.jpg', 'Guimauves vanille miel - vue principale', 1, 19),
+(28, 'products/confiseries/guimauves-detail.jpg', 'Guimauves vanille miel - detail', 2, 19),
+(29, 'products/confiseries/bonbons-miel-citron.jpg', 'Bonbons miel citron - vue principale', 1, 20),
+(30, 'products/confiseries/bonbons-miel-citron-detail.jpg', 'Bonbons miel citron - detail', 2, 20),
+(31, 'products/cosmetiques/baume-levres.jpg', 'Baume a levres miel - vue principale', 1, 21),
+(32, 'products/cosmetiques/baume-levres-detail.jpg', 'Baume a levres miel - detail', 2, 21),
+(33, 'products/cosmetiques/creme-mains.jpg', 'Creme mains propolis - vue principale', 1, 22),
+(34, 'products/cosmetiques/creme-mains-detail.jpg', 'Creme mains propolis - detail', 2, 22),
+(35, 'products/cosmetiques/huile-visage.jpg', 'Huile visage calendula - vue principale', 1, 23),
+(36, 'products/cosmetiques/huile-visage-detail.jpg', 'Huile visage calendula - detail', 2, 23),
+(37, 'products/cosmetiques/gommage.jpg', 'Gommage sucre et miel - vue principale', 1, 24),
+(38, 'products/cosmetiques/gommage-detail.jpg', 'Gommage sucre et miel - detail', 2, 24),
+(39, 'products/cosmetiques/masque.jpg', 'Masque argile blanche - vue principale', 1, 25),
+(40, 'products/cosmetiques/masque-detail.jpg', 'Masque argile blanche - detail', 2, 25),
+(41, 'products/bougies/miel-dore.jpg', 'Bougie miel dore - vue principale', 1, 26),
+(42, 'products/bougies/miel-dore-detail.jpg', 'Bougie miel dore - detail', 2, 26),
+(43, 'products/bougies/fleur-oranger.jpg', 'Bougie fleur d oranger - vue principale', 1, 27),
+(44, 'products/bougies/fleur-oranger-detail.jpg', 'Bougie fleur d oranger - detail', 2, 27),
+(45, 'products/bougies/pain-epices.jpg', 'Bougie pain d epices - vue principale', 1, 28),
+(46, 'products/bougies/pain-epices-detail.jpg', 'Bougie pain d epices - detail', 2, 28),
+(47, 'products/bougies/verveine.jpg', 'Bougie verveine - vue principale', 1, 29),
+(48, 'products/bougies/verveine-detail.jpg', 'Bougie verveine - detail', 2, 29),
+(49, 'products/bougies/bois-ambre.jpg', 'Bougie bois ambré - vue principale', 1, 30),
+(50, 'products/bougies/bois-ambre-detail.jpg', 'Bougie bois ambré - detail', 2, 30),
+(51, 'products/pollen/multifleurs.jpg', 'Pollen multifleurs - vue principale', 1, 31),
+(52, 'products/pollen/multifleurs-detail.jpg', 'Pollen multifleurs - detail', 2, 31),
+(53, 'products/pollen/frais.jpg', 'Pollen frais congele - vue principale', 1, 32),
+(54, 'products/pollen/frais-detail.jpg', 'Pollen frais congele - detail', 2, 32),
+(55, 'products/pollen/ciste.jpg', 'Pollen ciste - vue principale', 1, 33),
+(56, 'products/pollen/ciste-detail.jpg', 'Pollen ciste - detail', 2, 33),
+(57, 'products/pollen/aubepine.jpg', 'Pollen aubepine - vue principale', 1, 34),
+(58, 'products/pollen/aubepine-detail.jpg', 'Pollen aubepine - detail', 2, 34),
+(59, 'products/pollen/printemps.jpg', 'Pollen printemps - vue principale', 1, 35),
+(60, 'products/pollen/printemps-detail.jpg', 'Pollen printemps - detail', 2, 35),
+(61, 'products/propolis/spray-gorge.jpg', 'Spray gorge propolis - vue principale', 1, 36),
+(62, 'products/propolis/spray-gorge-detail.jpg', 'Spray gorge propolis - detail', 2, 36),
+(63, 'products/propolis/teinture-mere.jpg', 'Teinture mere propolis - vue principale', 1, 37),
+(64, 'products/propolis/teinture-mere-detail.jpg', 'Teinture mere propolis - detail', 2, 37),
+(65, 'products/propolis/pastilles.jpg', 'Pastilles propolis miel - vue principale', 1, 38),
+(66, 'products/propolis/pastilles-detail.jpg', 'Pastilles propolis miel - detail', 2, 38),
+(67, 'products/propolis/baume.jpg', 'Baume propolis intense - vue principale', 1, 39),
+(68, 'products/propolis/baume-detail.jpg', 'Baume propolis intense - detail', 2, 39),
+(69, 'products/propolis/solution-brute.jpg', 'Solution propolis brute - vue principale', 1, 40),
+(70, 'products/propolis/solution-brute-detail.jpg', 'Solution propolis brute - detail', 2, 40),
+(71, 'products/coffrets/douceur-matin.jpg', 'Coffret douceur du matin - vue principale', 1, 41),
+(72, 'products/coffrets/douceur-matin-detail.jpg', 'Coffret douceur du matin - detail', 2, 41),
+(73, 'products/coffrets/bain-relaxant.jpg', 'Coffret bain relaxant - vue principale', 1, 42),
+(74, 'products/coffrets/bain-relaxant-detail.jpg', 'Coffret bain relaxant - detail', 2, 42),
+(75, 'products/coffrets/gourmand.jpg', 'Coffret gourmand au miel - vue principale', 1, 43),
+(76, 'products/coffrets/gourmand-detail.jpg', 'Coffret gourmand au miel - detail', 2, 43),
+(77, 'products/coffrets/bien-etre.jpg', 'Coffret bien etre propolis - vue principale', 1, 44),
+(78, 'products/coffrets/bien-etre-detail.jpg', 'Coffret bien etre propolis - detail', 2, 44),
+(79, 'products/coffrets/maison-parfumee.jpg', 'Coffret maison parfumee - vue principale', 1, 45),
+(80, 'products/coffrets/maison-parfumee-detail.jpg', 'Coffret maison parfumee - detail', 2, 45);
 
 INSERT INTO classe (Id_categorie, Id_produit) VALUES
-(1, 1),
-(1, 2),
-(1, 3),
-(1, 4),
-(1, 5),
-(2, 1);
+(3, 6),
+(3, 7),
+(3, 8),
+(3, 9),
+(3, 10),
+(4, 11),
+(4, 12),
+(4, 13),
+(4, 14),
+(4, 15),
+(5, 16),
+(5, 17),
+(5, 18),
+(5, 19),
+(5, 20),
+(6, 21),
+(6, 22),
+(6, 23),
+(6, 24),
+(6, 25),
+(7, 26),
+(7, 27),
+(7, 28),
+(7, 29),
+(7, 30),
+(8, 31),
+(8, 32),
+(8, 33),
+(8, 34),
+(8, 35),
+(9, 36),
+(9, 37),
+(9, 38),
+(9, 39),
+(9, 40),
+(10, 41),
+(10, 42),
+(10, 43),
+(10, 44),
+(10, 45);
 
 INSERT INTO commande (Id_commande, reference, statut, total_ht, total_tva, frais_livraison, total_ttc, date_commande, date_paiement, Id_adresse, Id_utilisateur) VALUES
-(1, 'CMD-SEED-0001', 'payee', 80.00, 4.80, 5.00, 89.80, DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 23 HOUR), 3, 3);
+(1, 'CMD-SEED-0001', 'payee', 18.30, 1.10, 5.00, 24.40, '2026-05-28 17:55:40', '2026-05-28 18:25:40', 1, 3);
 
 INSERT INTO ligne_commande (Id_ligne_commande, quantite, prix_unitaire_ht, taux_tva, Id_produit, Id_commande) VALUES
-(1, 1, 45.00, 6.00, 1, 1),
-(2, 1, 35.00, 6.00, 2, 1);
+(1, 1, 8.90, 6.00, 6, 1),
+(2, 1, 9.40, 6.00, 7, 1);
 
 INSERT INTO paiement (Id_paiement, methode, reference_externe, montant, statut, date_paiement, Id_commande) VALUES
-(1, 'carte', 'TX-SEED-0001', 89.80, 'valide', DATE_SUB(NOW(), INTERVAL 23 HOUR), 1);
+(1, 'carte', 'TX-SEED-0001', 24.40, 'valide', '2026-05-28 18:25:40', 1);
 
 INSERT INTO avis (Id_avis, note, commentaire, date_avis, valide, Id_utilisateur, Id_produit) VALUES
-(1, 5, 'Produit de tres bonne qualite', NOW(), 1, 3, 1);
+(1, 5, 'Produit de tres bonne qualite', '2026-05-29 17:55:40', 1, 3, 6);
 
 INSERT INTO statistique_artisan (Id_statistique, id_utilisateur, date_consultation, ip_adress, id_produit, Id_artisan) VALUES
-(1, '3', NOW(), '127.0.0.1', '1', 1);
+(3, 3, '2026-05-29 19:42:00', '127.0.0.1', 6, 3);
 
 

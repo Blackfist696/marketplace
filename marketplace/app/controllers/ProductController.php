@@ -4,9 +4,13 @@ namespace App\Controllers;
 require_once __DIR__ . '/Controller.php';
 require_once __DIR__ . '/../models/ProduitModel.php';
 require_once __DIR__ . '/../models/ArtisanModel.php';
+require_once __DIR__ . '/../models/ClasseModel.php';
+require_once __DIR__ . '/../models/CategorieModel.php';
 
 use App\Models\Produit;
 use App\Models\Artisan;
+use App\Models\Classe;
+use App\Models\Categorie;
 
 /**
  * Controller pour les operations CRUD sur les produits.
@@ -19,7 +23,7 @@ class ProductController extends Controller
      */
     public function index(): void
     {
-        $products = Produit::getBy('actif', 1);
+        $products = $this->withCategories(Produit::getBy('actif', 1));
         $this->respond(200, 'Liste des produits', $products);
     }
 
@@ -35,7 +39,7 @@ class ProductController extends Controller
             return;
         }
 
-        $this->respond(200, 'Produit', $product);
+        $this->respond(200, 'Produit', $this->withCategory($product));
     }
 
     /**
@@ -45,7 +49,40 @@ class ProductController extends Controller
     {
         $products = Produit::getBy('id_artisan', $artisan_id);
         $active   = array_values(array_filter($products, fn($p) => $p['actif']));
-        $this->respond(200, 'Produits de l\'artisan', $active);
+        $this->respond(200, 'Produits de l\'artisan', $this->withCategories($active));
+    }
+
+    private function withCategories(array $products): array
+    {
+        return array_map(fn(array $product) => $this->withCategory($product), $products);
+    }
+
+    private function withCategory(array $product): array
+    {
+        $classes = Classe::getByProduitId((int) ($product['id_produit'] ?? 0));
+        $firstClass = $classes[0] ?? null;
+
+        if ($firstClass === null) {
+            $product['categorie'] = null;
+            return $product;
+        }
+
+        $category = Categorie::getById((int) ($firstClass['id_categorie'] ?? 0));
+        $product['categorie'] = $category !== null
+            ? $this->slugifyCategory((string) ($category['nom'] ?? ''))
+            : null;
+
+        return $product;
+    }
+
+    private function slugifyCategory(string $label): string
+    {
+        $normalized = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $label);
+        $normalized = $normalized === false ? $label : $normalized;
+        $normalized = strtolower($normalized);
+        $normalized = preg_replace('/[^a-z0-9]+/', '-', $normalized) ?? $normalized;
+
+        return trim($normalized, '-');
     }
 
     /**

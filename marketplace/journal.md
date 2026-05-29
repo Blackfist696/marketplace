@@ -406,3 +406,86 @@ La seule correction prioritaire restante pour un seed 100% sans warning est de c
 ### Notes importantes
 - En local, les 404 API etaient dus au proxy dev vers le mauvais port; correction appliquee sur `frontend/proxy.conf.json` vers `http://localhost:8000`.
 - Le warning seed `Unknown column 'Id_utilisateur'` venait d un trigger obsoletement charge dans la DB locale; corrige en remettant la version du trigger basee sur `r_utilisateur_adresse`.
+
+## 2026-05-29 (enrichissement seed catalogue)
+
+### Demande couverte
+- Peupler la base avec 8 sortes de produits: Miels, Savons, Confiseries, Cosmetiques, Bougies, Pollen, Propolis, Coffrets.
+- Creer 1 artisan dedie par sorte.
+- Creer 5 produits par sorte avec images associees.
+
+### Implementation
+- Extension de `app/seed.php` pour creer 8 categories metier idempotentes.
+- Creation de 8 comptes artisans specialises et de leurs fiches artisan.
+- Creation de 40 produits au total (5 par categorie).
+- Creation de 80 images produit au total (2 par produit: principale + detail).
+
+### Verification
+- Seed relance avec succes.
+- Comptages verifies en base:
+  - Miels: 5
+  - Savons: 5
+  - Confiseries: 5
+  - Cosmetiques: 5
+  - Bougies: 5
+  - Pollen: 5
+  - Propolis: 5
+  - Coffrets: 5
+  - artisans specialises: 8
+  - images produit: 80
+
+## 2026-05-29 (note de migration legacy -> catalogue specialise)
+
+### Objectif
+Conserver une procedure claire pour migrer une base existante contenant encore les anciens produits legacy
+(ex: Bijoux/Decoration, vendeur@example.com, artisan generique) vers le catalogue specialise actuel.
+
+### Scripts concernes
+- `sql/MigrateLegacyCatalog.sql`
+- `sql/SeedSpecializedCatalog.sql`
+- `sql/SeedDataClone.sql`
+- `sql/SetupCloneDatabase.sql`
+- `sql/SetupCloneDatabase.production.sql`
+
+### Strategie d execution
+1. Si la base est deja en place (avec donnees historiques):
+- Executer d abord `sql/SeedSpecializedCatalog.sql` pour injecter le nouveau catalogue sans casser l existant.
+- Executer ensuite `sql/MigrateLegacyCatalog.sql` pour:
+  - remapper les references legacy vers les nouveaux produits,
+  - supprimer les elements legacy devenus orphelins,
+  - dedoublonner les lignes de commande/avis fusionnes,
+  - recalculer `commande.total_ht`, `commande.total_tva`, `commande.total_ttc`,
+  - synchroniser `paiement.montant` avec `commande.total_ttc`.
+
+2. Si la base doit etre recreee from scratch:
+- Utiliser directement `sql/SetupCloneDatabase.sql` (dev) ou
+  `sql/SetupCloneDatabase.production.sql` (prod).
+- Ces scripts sont alignes sur le dataset final (8 categories, 8 artisans, 40 produits, 80 images).
+
+### Resultat attendu apres migration
+- Plus de categories legacy `Bijoux` et `Decoration`.
+- Plus de comptes legacy `vendeur@example.com` et `artisan@example.com` (si orphelins).
+- Catalogue final limite a:
+  - Miels, Savons, Confiseries, Cosmetiques, Bougies, Pollen, Propolis, Coffrets.
+- 5 produits par categorie, 40 produits au total.
+- Commande seed de reference coherente:
+  - `total_ht = 18.30`
+  - `total_tva = 1.10`
+  - `total_ttc = 24.40`
+  - `paiement.montant = 24.40`
+
+### Note de prudence
+Les IDs seedes comportent volontairement des trous (pas de renumerotation globale) pour eviter les effets de bord
+sur les cles et references existantes.
+
+## 2026-05-29 (trace comptes seedes)
+
+### Action
+- Generation d un tableau des utilisateurs seedes et de leurs mots de passe initiaux de developpement.
+
+### Fichier de reference
+- `docs/comptes-seed.md`
+
+### Rappel
+- Ces mots de passe sont strictement prevus pour le developpement local.
+- En base, les mots de passe sont stockes en hash bcrypt.
