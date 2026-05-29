@@ -25,6 +25,7 @@ export interface Artisan {
 export interface Produit {
   id_produit: number;
   id_artisan: number;
+  categorie?: string | null;
   nom: string;
   description?: string;
   prix_ht: number;
