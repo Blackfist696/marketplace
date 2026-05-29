@@ -17,7 +17,7 @@ final class CorsMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $origin = $request->getHeaderLine('Origin');
-        $allowedOrigin = in_array($origin, self::ALLOWED_ORIGINS, true) ? $origin : self::ALLOWED_ORIGINS[0];
+        $allowedOrigin = in_array($origin, self::ALLOWED_ORIGINS, true) ? $origin : '';
 
         if ($request->getMethod() === 'OPTIONS') {
             $response = new \Slim\Psr7\Response();
@@ -30,11 +30,16 @@ final class CorsMiddleware implements MiddlewareInterface
 
     private function addCorsHeaders(ResponseInterface $response, string $origin): ResponseInterface
     {
+        if ($origin !== '') {
+            $response = $response
+                ->withHeader('Access-Control-Allow-Origin', $origin)
+                ->withHeader('Access-Control-Allow-Credentials', 'true');
+        }
+
         return $response
-            ->withHeader('Access-Control-Allow-Origin', $origin)
-            ->withHeader('Access-Control-Allow-Credentials', 'true')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
             ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+            ->withHeader('Access-Control-Expose-Headers', 'X-CSRF-Token')
             ->withHeader('Access-Control-Max-Age', '3600');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Middleware;
 
+use App\Security\SessionSecurity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -11,9 +12,8 @@ final class SessionMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $config = require __DIR__ . '/../config/app.php';
+        SessionSecurity::start($config['security']['session'] ?? []);
 
         return $handler->handle($request);
     }
