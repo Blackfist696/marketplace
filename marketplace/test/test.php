@@ -2,20 +2,14 @@
 
 require_once __DIR__ . '/../app/autoload.php';
 
+use App\Core\JsonResponder;
 use App\Controllers\HomeController;
 use App\Controllers\ProductController;
 use App\Models\Produit;
 use App\Models\Role;
 use App\Models\Utilisateur;
 use App\Models\Personne;
-use App\View\JsonView;
-
-function captureOutput(callable $fn): string
-{
-    ob_start();
-    $fn();
-    return ob_get_clean();
-}
+use Slim\Psr7\Response;
 
 function result(string $name, bool $success, string $details = ''): void
 {
@@ -43,32 +37,28 @@ try {
     $ok = is_array($products) && count($products) > 0;
     result('Produit::getAll()', $ok, $ok ? '' : 'should return at least one product');
 
-    // View tests
-    $jsonOutput = captureOutput(function () {
-        JsonView::render(['test' => 'value'], 200);
-    });
-    $parsed = json_decode($jsonOutput, true);
+    // JSON response helper tests
+    $response = JsonResponder::write(new Response(), 200, ['test' => 'value']);
+    $parsed = json_decode((string) $response->getBody(), true);
     $ok = is_array($parsed) && isset($parsed['test']) && $parsed['test'] === 'value';
-    result('JsonView::render()', $ok, $ok ? '' : 'invalid json output: ' . trim($jsonOutput));
+    result('JsonResponder::write()', $ok, $ok ? '' : 'invalid json output');
 
     // Controller tests
     $homeController = new HomeController();
-    $homeOutput = captureOutput(function () use ($homeController) {
-        $homeController->index();
-    });
-    $homeData = json_decode($homeOutput, true);
+    $homeController->index();
+    $homeResponse = $homeController->consumeResponse();
+    $homeData = $homeResponse ? json_decode((string) $homeResponse->getBody(), true) : null;
     $ok = is_array($homeData) && $homeData['status'] === 200 && $homeData['message'] === 'Accueil';
-    result('HomeController::index()', $ok, $ok ? '' : 'output: ' . trim($homeOutput));
+    result('HomeController::index()', $ok, $ok ? '' : 'invalid response body');
 
     if ($ok && count($products) > 0) {
         $productId = (int) $products[0]['id_produit'];
         $productController = new ProductController();
-        $productOutput = captureOutput(function () use ($productController, $productId) {
-            $productController->show($productId);
-        });
-        $productData = json_decode($productOutput, true);
+        $productController->show($productId);
+        $productResponse = $productController->consumeResponse();
+        $productData = $productResponse ? json_decode((string) $productResponse->getBody(), true) : null;
         $ok = is_array($productData) && $productData['status'] === 200 && isset($productData['data']);
-        result('ProductController::show()', $ok, $ok ? '' : 'output: ' . trim($productOutput));
+        result('ProductController::show()', $ok, $ok ? '' : 'invalid response body');
     } else {
         result('ProductController::show()', false, 'no product available to test');
         $success = false;
