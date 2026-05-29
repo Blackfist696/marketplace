@@ -68,7 +68,8 @@
               "buildTarget": "marketplace-frontend:build:production"
             },
             "development": {
-              "buildTarget": "marketplace-frontend:build:development"
+              "buildTarget": "marketplace-frontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
