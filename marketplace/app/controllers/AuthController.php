@@ -5,12 +5,21 @@ require_once __DIR__ . '/Controller.php';
 require_once __DIR__ . '/../models/UtilisateurModel.php';
 
 use App\Models\Utilisateur;
+use App\Security\SessionSecurity;
 
 /**
  * Controller gerant l'authentification et l'inscription utilisateur.
  */
 class AuthController extends Controller
 {
+    private int $defaultRegisterRoleId;
+
+    public function __construct()
+    {
+        $config = require __DIR__ . '/../config/app.php';
+        $this->defaultRegisterRoleId = (int) ($config['security']['default_register_role_id'] ?? 3);
+    }
+
     /**
      * Affiche la structure du formulaire de connexion.
      */
@@ -44,9 +53,8 @@ class AuthController extends Controller
             return;
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        SessionSecurity::start();
+        SessionSecurity::regenerateId();
 
         $_SESSION['user_id']   = $user['id_utilisateur'];
         $_SESSION['user_role'] = $user['id_role'];
@@ -59,12 +67,12 @@ class AuthController extends Controller
      */
     public function logout(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        SessionSecurity::start();
 
         $_SESSION = [];
         session_destroy();
+        SessionSecurity::start();
+        SessionSecurity::regenerateId();
 
         $this->respond(200, 'Deconnexion effectuee');
     }
@@ -74,7 +82,7 @@ class AuthController extends Controller
      */
     public function registerForm(): void
     {
-        $this->respond(200, "Formulaire d'inscription", ['fields' => ['email', 'mot_de_passe', 'id_role']]);
+        $this->respond(200, "Formulaire d'inscription", ['fields' => ['email', 'mot_de_passe']]);
     }
 
     /**
@@ -84,7 +92,7 @@ class AuthController extends Controller
     {
         $data = $_POST;
 
-        if (empty($data['email']) || empty($data['mot_de_passe']) || empty($data['id_role'])) {
+        if (empty($data['email']) || empty($data['mot_de_passe'])) {
             $this->respond(400, 'Champs requis manquants');
             return;
         }
@@ -97,6 +105,7 @@ class AuthController extends Controller
 
         $data['mot_de_passe'] = password_hash($data['mot_de_passe'], PASSWORD_BCRYPT);
         $data['actif']        = 1;
+        $data['id_role']      = $this->defaultRegisterRoleId;
 
         $id = Utilisateur::createRecord($data);
         $this->respond(201, 'Utilisateur inscrit', ['id_utilisateur' => $id]);

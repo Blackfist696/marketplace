@@ -4,6 +4,8 @@ use App\Core\BasePathResolver;
 use App\Middleware\CorsMiddleware;
 use App\Middleware\RequestDataMiddleware;
 use App\Middleware\SessionMiddleware;
+use App\Security\CsrfTokenManager;
+use App\Security\Middleware\CsrfMiddleware;
 use Slim\Factory\AppFactory;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -21,6 +23,11 @@ if ($basePath !== '') {
 $app->addRoutingMiddleware();
 $app->add(new CorsMiddleware());
 $app->add(new RequestDataMiddleware());
+$app->add(new CsrfMiddleware(
+    new CsrfTokenManager(),
+    (array) ($config['security']['csrf']['except_paths'] ?? []),
+    (bool) ($config['security']['csrf']['enabled'] ?? true)
+));
 $app->add(new SessionMiddleware());
 $app->addErrorMiddleware((bool) ($config['display_error_details'] ?? false), true, true);
 

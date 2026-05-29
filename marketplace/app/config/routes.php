@@ -3,6 +3,8 @@
 use App\Core\ControllerActionInvoker;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
+use App\Security\Middleware\LoginRateLimitMiddleware;
+use App\Security\RateLimit\SlidingWindowLimiter;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -29,11 +31,18 @@ return function (App $app): void {
     $artisanRole = new RoleMiddleware([2]);
     $clientRole = new RoleMiddleware([3]);
     $adminRole = new RoleMiddleware([1]);
+    $securityConfig = require __DIR__ . '/app.php';
+    $rateConfig = (array) ($securityConfig['security']['rate_limit'] ?? []);
+    $loginRateLimit = new LoginRateLimitMiddleware(
+        new SlidingWindowLimiter(),
+        (int) ($rateConfig['login_max_attempts'] ?? 5),
+        (int) ($rateConfig['login_window_seconds'] ?? 300)
+    );
 
     $register('GET', '/', 'App\\Controllers\\HomeController@index');
 
     $register('GET', '/login', 'App\\Controllers\\AuthController@loginForm');
-    $register('POST', '/login', 'App\\Controllers\\AuthController@login');
+    $register('POST', '/login', 'App\\Controllers\\AuthController@login', [$loginRateLimit]);
     $register('POST', '/logout', 'App\\Controllers\\AuthController@logout', [$auth]);
     $register('GET', '/register', 'App\\Controllers\\AuthController@registerForm');
     $register('POST', '/register', 'App\\Controllers\\AuthController@register');
@@ -82,15 +91,15 @@ return function (App $app): void {
 
     $register('GET', '/api/pays', 'App\\Controllers\\PaysController@index');
     $register('GET', '/api/pays/{id}', 'App\\Controllers\\PaysController@show');
-    $register('POST', '/api/pays', 'App\\Controllers\\PaysController@store');
-    $register('PUT', '/api/pays/{id}', 'App\\Controllers\\PaysController@update');
-    $register('DELETE', '/api/pays/{id}', 'App\\Controllers\\PaysController@destroy');
+    $register('POST', '/api/pays', 'App\\Controllers\\PaysController@store', [$adminRole]);
+    $register('PUT', '/api/pays/{id}', 'App\\Controllers\\PaysController@update', [$adminRole]);
+    $register('DELETE', '/api/pays/{id}', 'App\\Controllers\\PaysController@destroy', [$adminRole]);
 
     $register('GET', '/api/villes', 'App\\Controllers\\VilleController@index');
     $register('GET', '/api/villes/{id}', 'App\\Controllers\\VilleController@show');
-    $register('POST', '/api/villes', 'App\\Controllers\\VilleController@store');
-    $register('PUT', '/api/villes/{id}', 'App\\Controllers\\VilleController@update');
-    $register('DELETE', '/api/villes/{id}', 'App\\Controllers\\VilleController@destroy');
+    $register('POST', '/api/villes', 'App\\Controllers\\VilleController@store', [$adminRole]);
+    $register('PUT', '/api/villes/{id}', 'App\\Controllers\\VilleController@update', [$adminRole]);
+    $register('DELETE', '/api/villes/{id}', 'App\\Controllers\\VilleController@destroy', [$adminRole]);
 
     $register('GET', '/api/avis', 'App\\Controllers\\AvisController@index');
     $register('GET', '/api/avis/{id}', 'App\\Controllers\\AvisController@show');

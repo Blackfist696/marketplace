@@ -9,6 +9,7 @@ require_once __DIR__ . '/../models/ProduitModel.php';
 use App\Models\Commande;
 use App\Models\LigneCommande;
 use App\Models\Produit;
+use Throwable;
 
 /**
  * Controller pour la gestion des commandes (clients authentifies uniquement).
@@ -150,16 +151,30 @@ class OrderController extends Controller
         $data['frais_livraison'] = round($fraisLivraison, 2);
         $data['total_ttc'] = round($totalHt + $totalTva + $fraisLivraison, 2);
 
-        $id = Commande::createRecord($data);
+        $pdo = Commande::getPDO();
+        $pdo->beginTransaction();
 
-        foreach ($linesToCreate as $line) {
-            LigneCommande::createRecord([
-                'id_commande' => $id,
-                'id_produit' => $line['id_produit'],
-                'quantite' => $line['quantite'],
-                'prix_unitaire_ht' => $line['prix_unitaire_ht'],
-                'taux_tva' => $line['taux_tva'],
-            ]);
+        try {
+            $id = Commande::createRecord($data);
+
+            foreach ($linesToCreate as $line) {
+                LigneCommande::createRecord([
+                    'id_commande' => $id,
+                    'id_produit' => $line['id_produit'],
+                    'quantite' => $line['quantite'],
+                    'prix_unitaire_ht' => $line['prix_unitaire_ht'],
+                    'taux_tva' => $line['taux_tva'],
+                ]);
+            }
+
+            $pdo->commit();
+        } catch (Throwable $throwable) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            $this->respond(500, 'Echec de creation de la commande');
+            return;
         }
 
         $_SESSION['cart'] = [];

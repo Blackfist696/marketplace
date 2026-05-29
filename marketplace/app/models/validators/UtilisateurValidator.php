@@ -17,7 +17,7 @@ class UtilisateurValidator extends AbstractValidator
     {
         $this->result = new ValidationResult();
 
-            $this->validateRequired($data, ['email', 'mot_de_passe', 'id_role']);
+            $this->validateRequired($data, ['email', 'mot_de_passe']);
         $this->validateEmail('email', $data);
 
         if (isset($data['mot_de_passe']) && mb_strlen((string) $data['mot_de_passe']) < 6) {

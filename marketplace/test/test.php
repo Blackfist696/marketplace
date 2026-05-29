@@ -5,10 +5,10 @@ require_once __DIR__ . '/../app/autoload.php';
 use App\Core\JsonResponder;
 use App\Controllers\HomeController;
 use App\Controllers\ProductController;
+use App\Models\Artisan;
 use App\Models\Produit;
 use App\Models\Role;
 use App\Models\Utilisateur;
-use App\Models\Personne;
 use Slim\Psr7\Response;
 
 function result(string $name, bool $success, string $details = ''): void
@@ -29,9 +29,9 @@ try {
     $ok = is_array($users) && count($users) > 0 && $users[0]['email'] === 'client1@example.com';
     result('Utilisateur::getBy(email)', $ok, $ok ? '' : 'missing client1@example.com');
 
-    $people = Personne::getBy('nom', 'Dupont');
-    $ok = is_array($people);
-    result('Personne::getBy(nom)', $ok, $ok ? '' : 'should return array');
+    $artisans = Artisan::getAll();
+    $ok = is_array($artisans);
+    result('Artisan::getAll()', $ok, $ok ? '' : 'should return array');
 
     $products = Produit::getAll();
     $ok = is_array($products) && count($products) > 0;

@@ -22,12 +22,12 @@ class Database
             $configFile = __DIR__ . '/../config/databaseConfig.php';
             $config = file_exists($configFile) ? require $configFile : [];
 
-            $host = $config['host'] ?? getenv('DB_HOST') ?: '127.0.0.1';
-            $port = $config['port'] ?? getenv('DB_PORT') ?: 3306;
-            $dbname = $config['name'] ?? getenv('DB_NAME') ?: 'marketplace_artisanal';
-            $user = $config['user'] ?? getenv('DB_USER') ?: 'root';
-            $password = $config['password'] ?? getenv('DB_PASS') ?: '';
-            $charset = $config['charset'] ?? getenv('DB_CHARSET') ?: 'utf8mb4';
+            $host = getenv('DB_HOST') ?: ($config['host'] ?? '127.0.0.1');
+            $port = (int) (getenv('DB_PORT') ?: ($config['port'] ?? 3306));
+            $dbname = getenv('DB_NAME') ?: ($config['name'] ?? 'marketplace_artisanal');
+            $user = getenv('DB_USER') ?: ($config['user'] ?? 'marketplace_app');
+            $password = getenv('DB_PASS') ?: ($config['password'] ?? '');
+            $charset = getenv('DB_CHARSET') ?: ($config['charset'] ?? 'utf8mb4');
             $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $host, $port, $dbname, $charset);
 
             self::$pdo = new PDO(
