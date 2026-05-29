@@ -1,8 +1,18 @@
 <?php
 
+/**
+ * Configuration globale de l'application.
+ *
+ * Regroupe les options de debug, de logging et de securite.
+ */
+
 return [
     'base_path' => '/project02',
     'display_error_details' => filter_var(getenv('APP_DEBUG') ?: '0', FILTER_VALIDATE_BOOL),
+    'logging' => [
+        // Rotation simple .1 pilotee par AppLogger.
+        'max_file_bytes' => (int) (getenv('APP_LOG_MAX_BYTES') ?: 1048576),
+    ],
     'security' => [
         'default_register_role_id' => (int) (getenv('DEFAULT_REGISTER_ROLE_ID') ?: 3),
         'session' => [

@@ -2,8 +2,17 @@
 
 namespace App\Core;
 
+/**
+ * Determine dynamiquement le base path de l'application.
+ *
+ * Utile quand l'app est deployee dans un sous-dossier (ex: /project02).
+ */
 final class BasePathResolver
 {
+    /**
+     * Tente de resoudre le prefixe d'URL depuis l'environnement, le script
+     * courant ou la configuration applicative.
+     */
     public static function resolve(array $config = []): string
     {
         $envBasePath = getenv('APP_BASE_PATH');
@@ -29,6 +38,9 @@ final class BasePathResolver
         return '';
     }
 
+    /**
+     * Normalise un chemin pour garantir un format '/prefix' ou chaine vide.
+     */
     private static function normalize(string $basePath): string
     {
         $basePath = '/' . trim(str_replace('\\', '/', $basePath), '/');

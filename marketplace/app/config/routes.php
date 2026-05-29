@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Registre central des routes HTTP du backend.
+ *
+ * Chaque endpoint est associe a un handler Controller@action et, si besoin,
+ * a une pile de middlewares (auth, role, rate-limit).
+ */
+
 use App\Core\ControllerActionInvoker;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;

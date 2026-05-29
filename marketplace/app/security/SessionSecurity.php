@@ -2,8 +2,14 @@
 
 namespace App\Security;
 
+/**
+ * Encapsule les bonnes pratiques de session PHP.
+ */
 final class SessionSecurity
 {
+    /**
+     * Demarre la session avec les options de cookie securisees.
+     */
     public static function start(array $sessionConfig = []): void
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -14,6 +20,9 @@ final class SessionSecurity
         session_start();
     }
 
+    /**
+     * Regenerer l'identifiant de session apres login/logout.
+     */
     public static function regenerateId(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {

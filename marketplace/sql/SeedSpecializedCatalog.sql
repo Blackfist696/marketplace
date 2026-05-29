@@ -1,5 +1,9 @@
--- Seed complementaire du catalogue specialise.
--- Prerequis: la base schema est deja en place avec les villes Bruxelles et Lyon.
+-- =============================================================
+-- SeedSpecializedCatalog.sql
+--
+-- Role: enrichir le catalogue specialise (artisans/categorie/produits).
+-- Prerequis: schema deja cree et donnees de base disponibles.
+-- =============================================================
 
 START TRANSACTION;
 

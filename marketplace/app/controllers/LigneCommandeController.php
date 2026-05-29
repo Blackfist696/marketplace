@@ -9,8 +9,14 @@ use App\Models\LigneCommande;
 use App\Security\Auth\AuthContext;
 use App\Security\Authorization\OwnershipGuard;
 
+/**
+ * API des lignes de commande, protegee par ownership/admin.
+ */
 class LigneCommandeController extends Controller
 {
+    /**
+     * Liste les lignes visibles par l'utilisateur courant.
+     */
     public function index(): void
     {
         $auth = AuthContext::current();
@@ -30,6 +36,9 @@ class LigneCommandeController extends Controller
         $this->respond(200, 'Liste des lignes de commande', $lines);
     }
 
+    /**
+     * Retourne une ligne par identifiant si acces autorise.
+     */
     public function show(int $id): void
     {
         $auth = AuthContext::current();
@@ -52,6 +61,9 @@ class LigneCommandeController extends Controller
         $this->respond(200, 'Ligne de commande', $item);
     }
 
+    /**
+     * Liste les lignes d'une commande donnee.
+     */
     public function indexByCommande(int $idCommande): void
     {
         $auth = AuthContext::current();
@@ -68,6 +80,9 @@ class LigneCommandeController extends Controller
         $this->respond(200, 'Lignes de la commande', LigneCommande::getBy('id_commande', $idCommande));
     }
 
+    /**
+     * Cree une ligne sur une commande accessible.
+     */
     public function store(): void
     {
         $auth = AuthContext::current();
@@ -86,6 +101,9 @@ class LigneCommandeController extends Controller
         $this->respond(201, 'Ligne de commande creee', ['id_ligne_commande' => $id]);
     }
 
+    /**
+     * Met a jour une ligne de commande.
+     */
     public function update(int $id): void
     {
         $auth = AuthContext::current();
@@ -109,6 +127,9 @@ class LigneCommandeController extends Controller
         $this->respond($ok ? 200 : 400, $ok ? 'Ligne de commande mise a jour' : 'Echec de mise a jour');
     }
 
+    /**
+     * Supprime une ligne de commande.
+     */
     public function destroy(int $id): void
     {
         $auth = AuthContext::current();

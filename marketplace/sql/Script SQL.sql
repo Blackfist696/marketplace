@@ -1,3 +1,11 @@
+-- =============================================================
+-- Script SQL.sql
+--
+-- Role: schema principal de la base marketplace_artisanal.
+-- Contenu: creation de la base puis creation des tables et contraintes.
+-- Usage: a executer avant tout script de seed.
+-- =============================================================
+
 CREATE DATABASE marketplace_artisanal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE marketplace_artisanal;
 

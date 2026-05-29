@@ -9,6 +9,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 require_once __DIR__ . '/AbstractSecurityMiddleware.php';
 
+/**
+ * Limite les tentatives de login par couple IP/email.
+ */
 final class LoginRateLimitMiddleware extends AbstractSecurityMiddleware
 {
     public function __construct(

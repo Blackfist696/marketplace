@@ -8,13 +8,24 @@ use App\Models\Avis;
 use App\Security\Auth\AuthContext;
 use App\Security\Authorization\OwnershipGuard;
 
+/**
+ * API des avis produits.
+ *
+ * Les creations/modifications/suppressions sont reservees a l'auteur ou admin.
+ */
 class AvisController extends Controller
 {
+    /**
+     * Liste tous les avis.
+     */
     public function index(): void
     {
         $this->respond(200, 'Liste des avis', Avis::getAll());
     }
 
+    /**
+     * Retourne un avis par identifiant.
+     */
     public function show(int $id): void
     {
         $item = Avis::getById($id);
@@ -26,11 +37,17 @@ class AvisController extends Controller
         $this->respond(200, 'Avis', $item);
     }
 
+    /**
+     * Liste les avis d'un produit.
+     */
     public function indexByProduit(int $idProduit): void
     {
         $this->respond(200, 'Avis du produit', Avis::getBy('id_produit', $idProduit));
     }
 
+    /**
+     * Cree un avis pour l'utilisateur courant (ou id explicite pour admin).
+     */
     public function store(): void
     {
         $auth = AuthContext::current();
@@ -57,6 +74,9 @@ class AvisController extends Controller
         $this->respond(201, 'Avis cree', ['id_avis' => $id]);
     }
 
+    /**
+     * Met a jour un avis existant.
+     */
     public function update(int $id): void
     {
         $auth = AuthContext::current();
@@ -85,6 +105,9 @@ class AvisController extends Controller
         $this->respond($ok ? 200 : 400, $ok ? 'Avis mis a jour' : 'Echec de mise a jour');
     }
 
+    /**
+     * Supprime un avis existant.
+     */
     public function destroy(int $id): void
     {
         $auth = AuthContext::current();

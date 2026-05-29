@@ -2,6 +2,9 @@
 
 namespace App\Security;
 
+/**
+ * Gere le cycle de vie du token CSRF stocke en session.
+ */
 final class CsrfTokenManager
 {
     private const SESSION_KEY = '_csrf_token';

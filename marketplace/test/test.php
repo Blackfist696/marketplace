@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Smoke tests backend executes en CLI.
+ *
+ * Objectif:
+ * - verifier la connectivite modele/DB,
+ * - verifier le helper JsonResponder,
+ * - verifier un flux controleur minimal.
+ */
+
 require_once __DIR__ . '/../app/autoload.php';
 
 use App\Core\JsonResponder;
@@ -13,6 +22,7 @@ use Slim\Psr7\Response;
 
 function result(string $name, bool $success, string $details = ''): void
 {
+    // Format d'affichage uniforme pour lecture rapide en terminal.
     $status = $success ? 'OK' : 'FAIL';
     echo sprintf("[%s] %s%s\n", $status, $name, $details !== '' ? ' - ' . $details : '');
 }

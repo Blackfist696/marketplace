@@ -2,6 +2,9 @@
 
 namespace App\Security\RateLimit;
 
+/**
+ * Resultat immutable d'une verification de limite de debit.
+ */
 final class RateLimitDecision
 {
     public function __construct(

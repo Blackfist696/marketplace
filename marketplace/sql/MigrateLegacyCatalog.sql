@@ -1,5 +1,9 @@
--- Migration des donnees legacy (bijoux/decoration) vers le catalogue specialise actuel.
--- Prerequis: le catalogue specialise a deja ete insere (seed PHP ou SeedSpecializedCatalog.sql).
+-- =============================================================
+-- MigrateLegacyCatalog.sql
+--
+-- Role: migrer les anciennes donnees (legacy) vers le nouveau catalogue.
+-- Prerequis: catalogue specialise deja peuple.
+-- =============================================================
 
 START TRANSACTION;
 

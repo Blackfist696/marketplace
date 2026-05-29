@@ -7,6 +7,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * Gere les en-tetes CORS et les requetes preflight OPTIONS.
+ */
 final class CorsMiddleware implements MiddlewareInterface
 {
     private const ALLOWED_ORIGINS = [
