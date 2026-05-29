@@ -113,7 +113,7 @@ return function (App $app): void {
 
     $register('GET', '/api/user-addresses', 'App\\Controllers\\UserAddressController@index', [$auth]);
     $register('GET', '/api/utilisateurs/{id_utilisateur}/adresses', 'App\\Controllers\\UserAddressController@indexByUtilisateur', [$auth]);
-    $register('GET', '/api/adresses/{id_adresse}/utilisateurs', 'App\\Controllers\\UserAddressController@indexByAdresse', [$auth]);
+    $register('GET', '/api/adresses/{id_adresse}/utilisateurs', 'App\\Controllers\\UserAddressController@indexByAdresse', [$adminRole]);
     $register('POST', '/api/user-addresses', 'App\\Controllers\\UserAddressController@store', [$auth]);
     $register('DELETE', '/api/user-addresses/{id_utilisateur}/{id_adresse}', 'App\\Controllers\\UserAddressController@destroy', [$auth]);
 
@@ -124,9 +124,9 @@ return function (App $app): void {
     $register('PUT', '/api/lignes-commandes/{id}', 'App\\Controllers\\LigneCommandeController@update', [$auth]);
     $register('DELETE', '/api/lignes-commandes/{id}', 'App\\Controllers\\LigneCommandeController@destroy', [$auth]);
 
-    $register('GET', '/api/statistiques-artisans', 'App\\Controllers\\StatistiqueArtisanController@index');
-    $register('GET', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@show');
-    $register('GET', '/api/artisans/{id_artisan}/statistiques', 'App\\Controllers\\StatistiqueArtisanController@indexByArtisan');
+    $register('GET', '/api/statistiques-artisans', 'App\\Controllers\\StatistiqueArtisanController@index', [$adminRole]);
+    $register('GET', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@show', [$adminRole]);
+    $register('GET', '/api/artisans/{id_artisan}/statistiques', 'App\\Controllers\\StatistiqueArtisanController@indexByArtisan', [$artisanRole]);
     $register('POST', '/api/statistiques-artisans', 'App\\Controllers\\StatistiqueArtisanController@store', [$adminRole]);
     $register('PUT', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@update', [$adminRole]);
     $register('DELETE', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@destroy', [$adminRole]);

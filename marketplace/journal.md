@@ -362,3 +362,47 @@ La seule correction prioritaire restante pour un seed 100% sans warning est de c
 4. Ajouter un jeu minimal de tests de non-regression sur les routes critiques API.
 
 5. Quand Angular sera integre dans `frontend/`, reevaluer la migration eventuelle vers une structure `backend/` + `frontend/` (sans urgence immediate).
+
+## 2026-05-29 (runbook pre-migration production)
+
+### Contexte cible
+- URL production: `https://bacinfo.eci-liege.info/project02/`
+- Base MySQL production:
+  - host: `localhost`
+  - user: `project02@bacinfo.eci-liege.info`
+  - password: `project02@bacinfo.eci-liege.info`
+
+### Checklist a executer juste avant de deplacer le projet
+1. Frontend Angular (build prod sous sous-chemin `/project02/`)
+- Modifier `frontend/src/index.html`:
+  - `<base href="/">` -> `<base href="/project02/">`
+- Modifier `frontend/src/environments/environment.prod.ts`:
+  - `apiUrl: ''` -> `apiUrl: '/project02'`
+
+2. Backend (base path + debug)
+- Verifier `app/config/app.php`:
+  - `base_path` doit rester `'/project02'`
+- Mettre `APP_DEBUG=0` en production.
+
+3. Connexion base de donnees production
+- Mettre a jour `app/config/databaseConfig.php`:
+  - `host` = `localhost`
+  - `user` = `project02@bacinfo.eci-liege.info`
+  - `password` = `project02@bacinfo.eci-liege.info`
+  - `name` = base cible de production
+
+4. Base SQL (installation propre)
+- Importer `sql/SetupCloneDatabase.production.sql` via phpMyAdmin.
+- Ce script recree une base vide au depart (`DROP DATABASE IF EXISTS ...`).
+
+5. Verification post-deploiement (smoke test)
+- Ouvrir `https://bacinfo.eci-liege.info/project02/`.
+- Verifier:
+  - chargement page d accueil
+  - `GET /project02/products` retourne 200
+  - login admin/client/artisan
+  - acces refuses conformes (client -> admin, artisan -> autre artisan)
+
+### Notes importantes
+- En local, les 404 API etaient dus au proxy dev vers le mauvais port; correction appliquee sur `frontend/proxy.conf.json` vers `http://localhost:8000`.
+- Le warning seed `Unknown column 'Id_utilisateur'` venait d un trigger obsoletement charge dans la DB locale; corrige en remettant la version du trigger basee sur `r_utilisateur_adresse`.
