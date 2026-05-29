@@ -1,37 +1,59 @@
-# Frontend Angular
+# MarketplaceFrontend
 
-Ce dossier est reserve au projet frontend Angular.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.12.
 
-Principes retenus:
-- le backend Slim/PHP reste dans ce depot, a la racine actuelle
-- le frontend Angular aura son propre code source ici
-- en developpement, le frontend peut etre lance separement
-- en production, le build Angular pourra etre publie selon la strategie retenue (par exemple via public/ ou un sous-dossier dedie)
+## Development server
 
-A definir lors de l integration du frontend:
-- strategie de build/deploiement Angular
-- URL API consommees par le frontend
-- gestion de l authentification (session/cookie ou token)
-- configuration CORS si frontend et backend ne partagent pas exactement la meme origine
+To start a local development server, run:
 
-Structure cible recommandee dans ce dossier:
-- src/
-- public/ ou assets/ selon le squelette Angular retenu
-- angular.json
-- package.json
-- tsconfig*.json
+```bash
+ng serve
+```
 
-Convention d integration recommandee:
-- toutes les requetes frontend vers le backend passent par les routes /api
-- le frontend ne doit pas acceder directement aux fichiers PHP du backend
-- les reponses backend doivent rester coherentes en JSON
-- la configuration d URL d API doit etre centralisee cote Angular
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-Notes de deploiement:
-- en local, Angular peut tourner separement du backend
-- en production, le frontend et le backend seront heberges sous le meme projet
-- si Angular est servi sur une origine differente en developpement, une configuration CORS ou un proxy Angular sera necessaire
+## Code scaffolding
 
-Important:
-- ne pas installer Angular a la racine du depot
-- conserver l isolation du frontend dans ce dossier pour eviter de melanger Node/Angular et PHP/Composer
+Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+
+```bash
+ng generate component component-name
+```
+
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+
+```bash
+ng generate --help
+```
+
+## Building
+
+To build the project run:
+
+```bash
+ng build
+```
+
+This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+
+## Running unit tests
+
+To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+
+```bash
+ng test
+```
+
+## Running end-to-end tests
+
+For end-to-end (e2e) testing, run:
+
+```bash
+ng e2e
+```
+
+Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Additional Resources
+
+For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

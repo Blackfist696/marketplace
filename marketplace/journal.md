@@ -1,5 +1,178 @@
 # Journal de travail
 
+---
+
+## 2026-05-29 — Analyse du frontend Angular (collègue)
+
+### Contexte
+Le collègue a livré un frontend Angular complet dans `marketplace/frontend/marketplace-frontend/`.
+Après déplacement du contenu vers `marketplace/frontend/`, une erreur `tsconfig.app.json` a été corrigée
+(ajout de `"rootDir": "./src"` dans les `compilerOptions`).
+
+---
+
+### Stack et configuration
+
+| Élément | Valeur |
+|---|---|
+| Framework | Angular 21.2 (standalone components, no NgModule) |
+| CSS framework | Tailwind CSS 3 + PostCSS |
+| Graphiques | Chart.js 4 + ng2-charts 10 |
+| Dates | date-fns 4 |
+| Notifications | ngx-toastr 20 |
+| URL API dev | `http://localhost:8000` (via `environment.ts`) |
+| URL API proxy dev | `http://localhost` (via `proxy.conf.json`) |
+
+> **Note importante:** l'`environment.ts` pointe sur `:8000` mais le `proxy.conf.json` pointe sur `:80`.
+> Il faudra décider d'une stratégie cohérente (voir section "Points de liaison").
+
+---
+
+### Architecture des dossiers `src/app/`
+
+```
+app/
+├── app.ts           → bootstrap: charge profil + panier au démarrage
+├── app.config.ts    → provideRouter + provideHttpClient(withFetch)
+├── app.routes.ts    → routing lazy-loaded
+├── core/
+│   ├── guards/      → authGuard, roleGuard
+│   ├── models/      → models.ts (toutes les interfaces TS)
+│   └── services/    → 9 services HTTP
+├── layouts/
+│   ├── main-layout/     → layout public (header, footer)
+│   ├── artisan-layout/  → layout espace artisan
+│   └── admin-layout/    → layout back-office admin
+├── pages/
+│   ├── auth/        → login, register
+│   ├── home/        → page d'accueil
+│   ├── catalogue/   → liste produits
+│   ├── product-detail/
+│   ├── cart/        → panier
+│   ├── checkout/    → passage de commande
+│   ├── artisan-shop/→ boutique publique artisan
+│   ├── artisan/     → dashboard, produits, commandes, stats (espace artisan)
+│   ├── admin/       → dashboard, artisans, commandes, produits (back-office)
+│   └── not-found/
+└── shared/
+    ├── kpi-card/
+    ├── product-card/
+    └── toast-container/
+```
+
+---
+
+### Routing et protection des accès
+
+Le routing est entièrement **lazy-loaded** (pas de bundle initial lourd).
+Deux niveaux de garde :
+
+| Guard | Logique |
+|---|---|
+| `authGuard` | Redirige vers `/login` si `currentUser` signal est null |
+| `roleGuard(role)` | Accepte le rôle exact OU le rôle admin (id 1) |
+
+Correspondance des rôles back ↔ front :
+- `id_role = 1` → admin → route `/admin`
+- `id_role = 2` → artisan → route `/artisan`
+- `id_role = 3` → client → routes publiques + `/commande`
+
+---
+
+### Services HTTP et correspondance avec le backend
+
+Tous les services utilisent `{ withCredentials: true }` (session cookie), ce qui est cohérent avec la stratégie de session PHP actuelle.
+
+| Service | Endpoints appelés | Routes backend (routes.php) |
+|---|---|---|
+| `AuthService` | `POST /login`, `POST /logout`, `POST /register`, `GET /profile` | ✅ OK |
+| `ProductService` | `GET /products`, `GET /products/{id}`, `GET /artisans/{id}/products`, `GET /artisan/products`, `POST/PUT/DELETE /products/{id}`, `GET/PUT/DELETE /admin/products/{id}` | ✅ OK |
+| `ArtisanService` | `GET /artisans`, `GET /artisans/{id}`, `GET /artisan/stats`, `GET/PUT/DELETE /admin/artisans/{id}` | ✅ OK |
+| `CartService` | `GET /cart`, `POST /cart`, `PUT /cart/{id}`, `DELETE /cart/{id}` | ✅ OK |
+| `OrderService` | `GET /orders`, `GET /orders/{id}`, `POST /orders` | ✅ OK |
+| `AdminService` | `GET /admin/stats`, `GET/PUT/DELETE /admin/users/{id}` | ✅ OK |
+| `AddressService` | `GET /api/pays`, `GET /api/villes`, `GET /api/user-addresses`, `POST /api/user-addresses`, `DELETE /api/user-addresses/{u}/{a}` | ✅ OK |
+| `AvisService` | `GET /api/produits/{id}/avis`, `GET /api/avis`, `POST /api/avis`, `PUT /api/avis/{id}` | ✅ OK |
+| `ToastService` | Service interne, pas d'appel HTTP | — |
+
+---
+
+### Modèles TypeScript vs schéma SQL
+
+Les interfaces de `models.ts` sont très fidèles au schéma SQL établi.
+Points de concordance vérifiés :
+
+- `Utilisateur` : champs `id_utilisateur`, `email`, `nom`, `prenom`, `id_role`, `actif` → ✅
+- `Artisan` : `id_artisan`, `nom_boutique`, `valide`, `commission`, `iban` → ✅
+- `Produit` : `prix_ht`, `taux_tva`, `stock`, `mis_en_avant`, `actif` → ✅
+- `Commande` : `reference`, `statut` (type union TypeScript), `total_ht`, `total_tva`, `total_ttc` → ✅
+- `LigneCommande`, `Avis`, `Adresse`, `Ville`, `Pays` → ✅
+- Constantes `STATUT_LABELS`, `STATUT_NEXT` : modélisent la machine à états de la commande → ✅
+- `CATEGORY_LABELS` : 8 catégories (miels, savons, confiseries…) → à croiser avec la table `categorie` en base
+
+---
+
+### Incohérences et points à résoudre
+
+#### 1. Port API inconsistant
+- `environment.ts` → `http://localhost:8000`
+- `proxy.conf.json` → `http://localhost` (port 80)
+- **Action requise :** Aligner sur le port réel du serveur PHP local (`localhost` + Apache ou `localhost:8000` si PHP built-in). Mettre à jour `environment.ts` ou démarrer le backend sur `:8000`.
+
+#### 2. Endpoint `adminUpdateStatut` incorrect
+Dans `order.service.ts`, `adminUpdateStatut` appelle :
+```
+PUT /api/lignes-commandes/{id}
+```
+Or la mise à jour du statut d'une **commande** devrait cibler :
+```
+PUT /admin/orders/{id}   ← route inexistante dans routes.php
+```
+La route backend `PUT /api/lignes-commandes/{id}` existe mais est destinée aux lignes, pas au statut de la commande.
+- **Action requise :** Ajouter la route `PUT /admin/orders/{id}` côté PHP **ou** adapter le service Angular pour utiliser le bon endpoint.
+
+#### 3. Route `GET /admin/orders` absente
+`AdminService` récupère les commandes via `GET /orders` (route client, protégée `clientRole`).
+Il n'existe pas de route dédiée admin pour lister toutes les commandes.
+- **Action requise :** Ajouter `GET /admin/orders` avec `$adminRole` dans `routes.php` et un contrôleur correspondant.
+
+#### 4. CORS pour le développement
+`CorsMiddleware` est en place côté backend (origines `localhost:4200` autorisées).
+Pour que `ng serve` fonctionne, il faut que le middleware soit actif dans `bootstrap.php`.
+À vérifier : `CorsMiddleware` est-il bien enregistré dans `app/bootstrap.php` ?
+
+#### 5. Catégories vs `CATEGORY_LABELS`
+Le frontend définit 8 catégories hardcodées dans `CATEGORY_LABELS`.
+Le backend possède une table `categorie` dynamique.
+- **À clarifier :** le frontend utilise-t-il ces labels pour filtrer en dur ou s'attend-il à un endpoint `GET /api/categories` ?
+  Si oui, la route et le contrôleur sont à créer côté PHP.
+
+---
+
+### Points de liaison backend ↔ frontend (résumé actionnable)
+
+| Priorité | Action | Fichier(s) concerné(s) |
+|---|---|---|
+| 🔴 Critique | Choisir et uniformiser le port API | `frontend/src/environments/environment.ts`, `proxy.conf.json` |
+| 🔴 Critique | Vérifier que `CorsMiddleware` est bien ajouté dans `bootstrap.php` | `app/bootstrap.php` |
+| 🟠 Important | Ajouter `GET /admin/orders` dans les routes backend | `app/config/routes.php`, `AdminController.php` |
+| 🟠 Important | Corriger `adminUpdateStatut` dans `order.service.ts` | `frontend/src/app/core/services/order.service.ts` |
+| 🟡 Mineur | Décider si les catégories sont statiques ou dynamiques (endpoint `GET /api/categories`) | `models.ts`, éventuellement nouveau contrôleur PHP |
+
+---
+
+### Commandes de démarrage du frontend
+
+```bash
+cd marketplace/frontend
+npm install
+ng serve --proxy-config proxy.conf.json
+```
+
+---
+
+
+
 ## Check-list de reprise (5 minutes)
 
 - [x] Ouvrir le projet et verifier l etat Git: `git status --short`
