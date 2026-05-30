@@ -51,6 +51,51 @@ Exemple: POST /project02/api/avis
 9. JsonResponder construit la reponse JSON PSR-7.
 10. Les logs sont enrichis selon le statut et le contexte.
 
+### 3.1 Schema simple de la chaine middleware (version debutant)
+
+Pour visualiser simplement, la requete passe par cette chaine:
+
+Client HTTP
+-> ErrorMiddleware
+-> SessionMiddleware
+-> CsrfMiddleware
+-> RequestDataMiddleware
+-> CorsMiddleware
+-> RoutingMiddleware
+-> Middleware(s) de route (Auth/Role/RateLimit selon endpoint)
+-> ControllerActionInvoker
+-> Controller@action
+-> JsonResponder
+-> Reponse JSON
+
+Lecture rapide:
+- 401: pas connecte
+- 403: connecte mais pas autorise
+- 422: donnees invalides
+- 500: erreur interne
+
+Diagramme Mermaid:
+
+```mermaid
+flowchart TD
+	A[Client HTTP] --> B[ErrorMiddleware]
+	B --> C[SessionMiddleware]
+	C --> D[CsrfMiddleware]
+	D --> E[RequestDataMiddleware]
+	E --> F[CorsMiddleware]
+	F --> G[RoutingMiddleware]
+	G --> H[Middleware de route\nAuth Role RateLimit]
+	H --> I[ControllerActionInvoker]
+	I --> J[Controller action]
+	J --> K[JsonResponder]
+	K --> L[Reponse JSON]
+
+	H --> M[401 pas connecte]
+	H --> N[403 pas autorise]
+	J --> O[422 validation]
+	B --> P[500 erreur interne]
+```
+
 ## 4. Role des composants centraux
 
 ## 4.1 app/core
