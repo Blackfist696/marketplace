@@ -540,3 +540,43 @@ sur les cles et references existantes.
 - Ajout de la note de migration legacy dans ce journal.
 - Ajout du tableau des comptes seedes (dev) et mots de passe initiaux dans:
   - `docs/comptes-seed.md`
+
+## 2026-05-30 (journal de session: documentation backend)
+
+### Demande utilisateur
+- Expliquer de facon simple le role des fichiers dans `app/middleware`.
+- Ajouter un schema de la chaine middleware dans les 2 cahiers techniques.
+- Ajouter une version Mermaid du schema dans les 2 cahiers.
+
+### Actions realisees
+- Lecture et analyse des middlewares backend:
+  - `app/middleware/SessionMiddleware.php`
+  - `app/middleware/CorsMiddleware.php`
+  - `app/middleware/RequestDataMiddleware.php`
+  - `app/middleware/AuthMiddleware.php`
+  - `app/middleware/RoleMiddleware.php`
+- Verification de l'ordre reel d'execution via `app/bootstrap.php`.
+- Ajout d'un schema texte debutant dans:
+  - `docs/cahier-technique-backend-db.md`
+  - `docs/cahier-technique-backend-db-tfe.md`
+- Ajout d'un diagramme Mermaid coherent avec le flux reel dans:
+  - `docs/cahier-technique-backend-db.md`
+  - `docs/cahier-technique-backend-db-tfe.md`
+
+### Resultat
+- Les 2 documents contiennent maintenant:
+  - une chaine middleware lisible de bout en bout,
+  - un rappel rapide des statuts `401`, `403`, `422`, `500`,
+  - un schema Mermaid exploitable pour support oral/TFE.
+
+## 2026-05-30 (activation journalisation automatique)
+
+### Demande utilisateur
+- Activer la journalisation automatique pour toute nouvelle action.
+
+### Action realisee
+- Regle de travail activee: chaque action importante sera consignée dans `journal.md`.
+- Memoire repo mise a jour pour persister cette consigne de fonctionnement.
+
+### Engagement
+- A partir de maintenant, j'ajoute une entree datee au journal apres chaque lot d'actions significatif.
