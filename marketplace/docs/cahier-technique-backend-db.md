@@ -73,6 +73,51 @@ Execution entrante (du plus externe au plus interne):
 
 Execution sortante: ordre inverse.
 
+### 3.3.1 Schema simple pour neophyte
+
+Pensez la requete comme un passage par des controles successifs:
+
+Client HTTP
+-> ErrorMiddleware (capture les erreurs)
+-> SessionMiddleware (ouvre/secure la session)
+-> CsrfMiddleware (verifie token CSRF sur actions sensibles)
+-> RequestDataMiddleware (lit et normalise les donnees)
+-> CorsMiddleware (autorise l'origine frontend)
+-> RoutingMiddleware (trouve la bonne route)
+-> Middleware(s) de route (Auth/Role/RateLimit selon endpoint)
+-> ControllerActionInvoker
+-> Controller@action
+-> JsonResponder
+-> Reponse JSON au client
+
+Memo court:
+- Non connecte sur une route protegee => 401
+- Role insuffisant => 403
+- Donnees invalides => 422
+- Erreur serveur => 500
+
+Diagramme Mermaid:
+
+```mermaid
+flowchart TD
+   A[Client HTTP] --> B[ErrorMiddleware]
+   B --> C[SessionMiddleware]
+   C --> D[CsrfMiddleware]
+   D --> E[RequestDataMiddleware]
+   E --> F[CorsMiddleware]
+   F --> G[RoutingMiddleware]
+   G --> H[Middleware de route\nAuth Role RateLimit]
+   H --> I[ControllerActionInvoker]
+   I --> J[Controller action]
+   J --> K[JsonResponder]
+   K --> L[Reponse JSON]
+
+   H --> M[401 si non connecte]
+   H --> N[403 si role interdit]
+   J --> O[422 si validation KO]
+   B --> P[500 si erreur interne]
+```
+
 ### 3.4 Dispatch controller
 
 - Fichier: app/core/ControllerActionInvoker.php
