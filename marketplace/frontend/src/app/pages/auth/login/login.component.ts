@@ -58,7 +58,7 @@ export class LoginComponent {
           const user = this.auth.currentUser();
           if (user?.id_role === 1) this.router.navigate(['/admin/dashboard']);
           else if (user?.id_role === 2) this.router.navigate(['/artisan/dashboard']);
-          else this.router.navigate(['/home']);
+          else this.router.navigate(['/catalogue']);
         } else {
           this.error.set(res?.message ?? 'Identifiants invalides');
         }
