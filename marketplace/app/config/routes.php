@@ -54,6 +54,9 @@ return function (App $app): void {
     $register('GET', '/register', 'App\\Controllers\\AuthController@registerForm');
     $register('POST', '/register', 'App\\Controllers\\AuthController@register');
 
+    $register('GET', '/categories', 'App\\Controllers\\CategorieController@index');
+    $register('GET', '/categories/{id}', 'App\\Controllers\\CategorieController@show');
+
     $register('GET', '/artisans', 'App\\Controllers\\ArtisanController@index');
     $register('GET', '/artisans/{id}', 'App\\Controllers\\ArtisanController@show');
 
