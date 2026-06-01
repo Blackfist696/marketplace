@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { Produit } from '../models/models';
+import { Produit, Categorie } from '../models/models';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -9,6 +9,11 @@ export class ProductService {
   private readonly base = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
+
+  getCategories(): Observable<Categorie[]> {
+    return this.http.get<any>(`${this.base}/categories`)
+      .pipe(map(r => r.data ?? []));
+  }
 
   getAll(): Observable<Produit[]> {
     return this.http.get<any>(`${this.base}/products`, { withCredentials: true })
