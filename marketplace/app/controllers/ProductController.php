@@ -95,6 +95,19 @@ class ProductController extends Controller
         }
 
         $data = $_POST;
+        if (!$this->isAdmin()) {
+            $artisans = Artisan::getBy('id_utilisateur', (int) $_SESSION['user_id']);
+            if (empty($artisans)) {
+                $this->respond(404, 'Profil artisan introuvable');
+                return;
+            }
+
+            $data['id_artisan'] = (int) ($artisans[0]['id_artisan'] ?? 0);
+        } elseif (empty($data['id_artisan']) || Artisan::getById((int) $data['id_artisan']) === null) {
+            $this->respond(400, 'id_artisan invalide');
+            return;
+        }
+
         $data['actif'] = 1;
         $id = Produit::createRecord($data);
         $this->respond(201, 'Produit cree', ['id_produit' => $id]);
@@ -120,6 +133,13 @@ class ProductController extends Controller
         }
 
         $data = $_POST;
+        if (!$this->isAdmin()) {
+            unset($data['id_artisan']);
+        } elseif (isset($data['id_artisan']) && Artisan::getById((int) $data['id_artisan']) === null) {
+            $this->respond(400, 'id_artisan invalide');
+            return;
+        }
+
         $success = Produit::updateRecord($id, $data);
 
         if (!$success) {
@@ -211,5 +231,14 @@ class ProductController extends Controller
         }
 
         return true;
+    }
+
+    private function isAdmin(): bool
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        return ((int) ($_SESSION['user_role'] ?? 0)) === 1;
     }
 }
