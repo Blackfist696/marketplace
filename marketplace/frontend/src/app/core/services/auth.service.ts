@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, switchMap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { Utilisateur } from '../models/models';
 import { environment } from '../../../environments/environment';
@@ -22,10 +22,11 @@ export class AuthService {
     body.append('email', email);
     body.append('mot_de_passe', mot_de_passe);
     return this.http.post<any>(`${this.base}/login`, body, { withCredentials: true }).pipe(
-      tap(res => {
+      switchMap(res => {
         if (res?.data?.id_utilisateur) {
-          this.loadProfile().subscribe();
+          return this.loadProfile().pipe(tap(() => {}), switchMap(() => of(res)));
         }
+        return of(res);
       })
     );
   }
@@ -47,7 +48,8 @@ export class AuthService {
   loadProfile(): Observable<any> {
     return this.http.get<any>(`${this.base}/profile`, { withCredentials: true }).pipe(
       tap(res => {
-        if (res?.data) this.currentUser.set(res.data);
+        if (res?.data?.utilisateur) this.currentUser.set(res.data.utilisateur);
+        else if (res?.data && !res.data.utilisateur) this.currentUser.set(res.data);
       }),
       catchError(() => { this.currentUser.set(null); return of(null); })
     );

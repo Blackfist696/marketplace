@@ -143,6 +143,15 @@ export const STATUT_NEXT: Partial<Record<StatutCommande, StatutCommande>> = {
   expediee:       'livree',
 };
 
+export interface Categorie {
+  id_categorie: number;
+  nom: string;
+  description?: string;
+  image?: string;
+  ordre?: number;
+  actif: number;
+}
+
 export const CATEGORY_LABELS: Record<string, string> = {
   miels:        'Miels',
   savons:       'Savons',

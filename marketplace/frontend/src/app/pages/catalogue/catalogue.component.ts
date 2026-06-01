@@ -4,7 +4,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card.component';
-import { Produit, CATEGORY_LABELS } from '../../core/models/models';
+import { Produit, Categorie } from '../../core/models/models';
 
 @Component({
   selector: 'app-catalogue',
@@ -29,21 +29,28 @@ import { Produit, CATEGORY_LABELS } from '../../core/models/models';
               <p class="text-xs font-medium text-gray-500 uppercase mb-2">Catégorie</p>
               <div class="space-y-1">
                 <label class="flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="radio" name="cat" [value]="''" [(ngModel)]="selectedCategory" (change)="page.set(1)" />
+                  <input type="radio" name="cat" value=""
+                         [checked]="selectedCategory() === ''"
+                         (change)="selectedCategory.set(''); page.set(1)" />
                   Toutes
                 </label>
-                @for (cat of categories; track cat.key) {
+                @for (cat of categories(); track cat.id_categorie) {
                   <label class="flex items-center gap-2 text-sm cursor-pointer">
-                    <input type="radio" name="cat" [value]="cat.key" [(ngModel)]="selectedCategory" (change)="page.set(1)" />
-                    {{ cat.label }}
+                    <input type="radio" name="cat" [value]="cat.nom"
+                           [checked]="selectedCategory() === cat.nom"
+                           (change)="selectedCategory.set(cat.nom); page.set(1)" />
+                    {{ cat.nom | titlecase }}
                   </label>
                 }
               </div>
             </div>
 
             <div class="mb-4">
-              <p class="text-xs font-medium text-gray-500 uppercase mb-2">Prix max : {{ maxPrice }} €</p>
-              <input type="range" min="0" max="200" step="5" [(ngModel)]="maxPrice" (change)="page.set(1)" class="w-full" />
+              <p class="text-xs font-medium text-gray-500 uppercase mb-2">Prix max : {{ maxPrice() }} €</p>
+              <input type="range" min="0" max="200" step="5"
+                     [ngModel]="maxPrice()"
+                     (ngModelChange)="maxPrice.set($event); page.set(1)"
+                     class="w-full" />
             </div>
 
             <button (click)="resetFilters()" class="text-xs text-amber-600 hover:underline">Réinitialiser</button>
@@ -55,12 +62,15 @@ import { Produit, CATEGORY_LABELS } from '../../core/models/models';
           <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
             <!-- Search -->
             <div class="relative flex-1 min-w-[200px] max-w-sm">
-              <input type="text" placeholder="Rechercher..." [(ngModel)]="search" (ngModelChange)="page.set(1)"
+              <input type="text" placeholder="Rechercher..."
+                     [ngModel]="search()"
+                     (ngModelChange)="search.set($event); page.set(1)"
                      class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
             </div>
             <div class="flex items-center gap-2">
-              <select [(ngModel)]="sortBy" class="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+              <select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)"
+                      class="border border-gray-200 rounded-lg px-3 py-2 text-sm">
                 <option value="default">Pertinence</option>
                 <option value="price-asc">Prix croissant</option>
                 <option value="price-desc">Prix décroissant</option>
@@ -113,38 +123,52 @@ import { Produit, CATEGORY_LABELS } from '../../core/models/models';
   `,
 })
 export class CatalogueComponent implements OnInit {
-  all      = signal<Produit[]>([]);
-  loading  = signal(true);
-  page     = signal(1);
-  search   = '';
-  selectedCategory = '';
-  maxPrice = 200;
-  sortBy   = 'default';
+  all              = signal<Produit[]>([]);
+  categories       = signal<Categorie[]>([]);
+  loading          = signal(true);
+  page             = signal(1);
+  search           = signal('');
+  selectedCategory = signal('');
+  maxPrice         = signal(200);
+  sortBy           = signal('default');
   readonly PER_PAGE = 9;
 
-  categories = Object.entries(CATEGORY_LABELS).map(([key, label]) => ({ key, label }));
-
   filtered = computed(() => {
+    const q    = this.search().toLowerCase();
+    const cat  = this.selectedCategory().toLowerCase();
+    const max  = this.maxPrice();
+    const sort = this.sortBy();
+
     let result = this.all().filter(p => p.actif);
-    if (this.search) result = result.filter(p => p.nom.toLowerCase().includes(this.search.toLowerCase()));
-    if (this.selectedCategory) result = result.filter(p => (p as any).categorie === this.selectedCategory);
-    result = result.filter(p => p.prix_ht <= this.maxPrice);
-    if (this.sortBy === 'price-asc')  result = [...result].sort((a,b) => a.prix_ht - b.prix_ht);
-    if (this.sortBy === 'price-desc') result = [...result].sort((a,b) => b.prix_ht - a.prix_ht);
-    if (this.sortBy === 'newest')     result = [...result].sort((a,b) => (b.date_creation ?? '').localeCompare(a.date_creation ?? ''));
+    if (q)   result = result.filter(p => p.nom.toLowerCase().includes(q));
+    if (cat) result = result.filter(p => ((p as any).categorie ?? '').toLowerCase() === cat);
+    result = result.filter(p => p.prix_ht <= max);
+
+    if (sort === 'price-asc')  return [...result].sort((a, b) => a.prix_ht - b.prix_ht);
+    if (sort === 'price-desc') return [...result].sort((a, b) => b.prix_ht - a.prix_ht);
+    if (sort === 'newest')     return [...result].sort((a, b) => (b.date_creation ?? '').localeCompare(a.date_creation ?? ''));
     return result;
   });
 
   totalPages = computed(() => Math.max(1, Math.ceil(this.filtered().length / this.PER_PAGE)));
-  paginated  = computed(() => this.filtered().slice((this.page()-1)*this.PER_PAGE, this.page()*this.PER_PAGE));
-  pageRange  = computed(() => Array.from({length: Math.min(this.totalPages(), 5)}, (_,i) => i+1));
+  paginated  = computed(() => this.filtered().slice((this.page() - 1) * this.PER_PAGE, this.page() * this.PER_PAGE));
+  pageRange  = computed(() => Array.from({ length: Math.min(this.totalPages(), 5) }, (_, i) => i + 1));
 
   constructor(private productSvc: ProductService, private route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.route.queryParams.subscribe(p => { if (p['category']) this.selectedCategory = p['category']; });
+    this.route.queryParams.subscribe(p => {
+      if (p['category']) this.selectedCategory.set(p['category']);
+    });
+    this.productSvc.getCategories().subscribe(cats => this.categories.set(cats));
     this.productSvc.getAll().subscribe(ps => { this.all.set(ps); this.loading.set(false); });
   }
 
-  resetFilters() { this.search = ''; this.selectedCategory = ''; this.maxPrice = 200; this.sortBy = 'default'; this.page.set(1); }
+  resetFilters() {
+    this.search.set('');
+    this.selectedCategory.set('');
+    this.maxPrice.set(200);
+    this.sortBy.set('default');
+    this.page.set(1);
+  }
 }
