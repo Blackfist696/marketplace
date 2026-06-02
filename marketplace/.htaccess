@@ -1,5 +1,8 @@
 RewriteEngine On
 
+# Homepage should open the Angular frontend build.
+RewriteRule ^$ /project02/public/app/ [R=302,L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]

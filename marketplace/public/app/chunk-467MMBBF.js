@@ -1,1 +1,1 @@
-var n={production:!1,apiUrl:""};export{n as a};
+var n={production:!0,apiUrl:"/project02"};export{n as a};
