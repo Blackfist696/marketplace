@@ -47,6 +47,7 @@ return function (App $app): void {
     );
 
     $register('GET', '/', 'App\\Controllers\\HomeController@index');
+    $register('GET', '/Home', 'App\\Controllers\\HomeController@index');
 
     $register('GET', '/login', 'App\\Controllers\\AuthController@loginForm');
     $register('POST', '/login', 'App\\Controllers\\AuthController@login', [$loginRateLimit]);
@@ -84,6 +85,8 @@ return function (App $app): void {
     $register('DELETE', '/profile', 'App\\Controllers\\ProfileController@deactivate', [$auth]);
 
     $register('GET', '/artisan/products', 'App\\Controllers\\ArtisanController@myProducts', [$artisanRole]);
+    $register('GET', '/artisan/dashboard', 'App\\Controllers\\ArtisanController@dashboard', [$artisanRole]);
+    $register('GET', '/artisan/orders', 'App\\Controllers\\ArtisanController@orders', [$artisanRole]);
     $register('GET', '/artisan/stats', 'App\\Controllers\\ArtisanController@stats', [$artisanRole]);
 
     $register('GET', '/admin/users', 'App\\Controllers\\AdminController@users', [$adminRole]);
@@ -94,6 +97,13 @@ return function (App $app): void {
     $register('GET', '/admin/artisans/{id}', 'App\\Controllers\\AdminController@showArtisan', [$adminRole]);
     $register('PUT', '/admin/artisans/{id}', 'App\\Controllers\\AdminController@updateArtisan', [$adminRole]);
     $register('DELETE', '/admin/artisans/{id}', 'App\\Controllers\\AdminController@deactivateArtisan', [$adminRole]);
+    $register('GET', '/admin/orders', 'App\\Controllers\\AdminController@orders', [$adminRole]);
+    $register('GET', '/admin/orders/{id}', 'App\\Controllers\\AdminController@showOrder', [$adminRole]);
+    $register('PUT', '/admin/orders/{id}', 'App\\Controllers\\AdminController@updateOrder', [$adminRole]);
+    $register('GET', '/admin/categories', 'App\\Controllers\\AdminController@categories', [$adminRole]);
+    $register('PUT', '/admin/categories/bulk', 'App\\Controllers\\AdminController@updateCategoriesBulk', [$adminRole]);
+    $register('PUT', '/admin/categories/all', 'App\\Controllers\\AdminController@updateAllCategories', [$adminRole]);
+    $register('PUT', '/admin/categories/{id}', 'App\\Controllers\\AdminController@updateCategory', [$adminRole]);
     $register('GET', '/admin/products', 'App\\Controllers\\AdminController@products', [$adminRole]);
     $register('PUT', '/admin/products/{id}', 'App\\Controllers\\AdminController@updateProduct', [$adminRole]);
     $register('DELETE', '/admin/products/{id}', 'App\\Controllers\\AdminController@deactivateProduct', [$adminRole]);
