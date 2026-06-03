@@ -6,11 +6,13 @@ require_once __DIR__ . '/../models/UtilisateurModel.php';
 require_once __DIR__ . '/../models/ArtisanModel.php';
 require_once __DIR__ . '/../models/ProduitModel.php';
 require_once __DIR__ . '/../models/CommandeModel.php';
+require_once __DIR__ . '/../models/CategorieModel.php';
 
 use App\Models\Utilisateur;
 use App\Models\Artisan;
 use App\Models\Produit;
 use App\Models\Commande;
+use App\Models\Categorie;
 
 /**
  * Controller administration (role admin requis, regles 7 et 8).
@@ -105,6 +107,152 @@ class AdminController extends Controller
         if (!$this->requireAdmin()) { return; }
         $success = Produit::updateRecord($id, ['actif' => 0]);
         $this->respond($success ? 200 : 400, $success ? 'Produit desactive' : 'Echec');
+    }
+
+    // ── Commandes ───────────────────────────────────────────────────────────
+
+    public function orders(): void
+    {
+        if (!$this->requireAdmin()) { return; }
+        $this->respond(200, 'Commandes', Commande::getAll());
+    }
+
+    public function showOrder(int $id): void
+    {
+        if (!$this->requireAdmin()) { return; }
+        $order = Commande::getById($id);
+        if ($order === null) { $this->respond(404, 'Commande introuvable'); return; }
+        $this->respond(200, 'Commande', $order);
+    }
+
+    public function updateOrder(int $id): void
+    {
+        if (!$this->requireAdmin()) { return; }
+        $success = Commande::updateRecord($id, $_POST);
+        $this->respond($success ? 200 : 400, $success ? 'Commande mise a jour' : 'Echec');
+    }
+
+    // ── Categories ──────────────────────────────────────────────────────────
+
+    public function categories(): void
+    {
+        if (!$this->requireAdmin()) { return; }
+        $this->respond(200, 'Categories', Categorie::getAll());
+    }
+
+    public function updateCategory(int $id): void
+    {
+        if (!$this->requireAdmin()) { return; }
+        $success = Categorie::updateRecord($id, $_POST);
+        $this->respond($success ? 200 : 400, $success ? 'Categorie mise a jour' : 'Echec');
+    }
+
+    /**
+     * Met a jour plusieurs categories.
+     * Payload accepte:
+     * - {"categories":[{"id_categorie":1,"nom":"x"}, ...]}
+     * - {"ids":[1,2], "data":{"actif":0}}
+     */
+    public function updateCategoriesBulk(): void
+    {
+        if (!$this->requireAdmin()) { return; }
+
+        $updated = 0;
+        $errors = [];
+
+        $categories = $_POST['categories'] ?? null;
+        if (is_array($categories)) {
+            foreach ($categories as $index => $item) {
+                if (!is_array($item) || !isset($item['id_categorie'])) {
+                    $errors[] = ['index' => $index, 'message' => 'id_categorie manquant'];
+                    continue;
+                }
+
+                $id = (int) $item['id_categorie'];
+                unset($item['id_categorie']);
+
+                if (empty($item)) {
+                    $errors[] = ['id_categorie' => $id, 'message' => 'Aucune donnee a mettre a jour'];
+                    continue;
+                }
+
+                if (Categorie::updateRecord($id, $item)) {
+                    $updated++;
+                    continue;
+                }
+
+                $errors[] = ['id_categorie' => $id, 'message' => 'Echec de mise a jour'];
+            }
+
+            $this->respond(200, 'Mise a jour multiple categories terminee', [
+                'updated' => $updated,
+                'errors' => $errors,
+            ]);
+            return;
+        }
+
+        $ids = $_POST['ids'] ?? null;
+        $data = $_POST['data'] ?? null;
+        if (!is_array($ids) || !is_array($data) || empty($data)) {
+            $this->respond(400, 'Payload invalide pour mise a jour multiple');
+            return;
+        }
+
+        foreach ($ids as $rawId) {
+            $id = (int) $rawId;
+            if ($id <= 0) {
+                $errors[] = ['id_categorie' => $rawId, 'message' => 'Identifiant invalide'];
+                continue;
+            }
+
+            if (Categorie::updateRecord($id, $data)) {
+                $updated++;
+                continue;
+            }
+
+            $errors[] = ['id_categorie' => $id, 'message' => 'Echec de mise a jour'];
+        }
+
+        $this->respond(200, 'Mise a jour multiple categories terminee', [
+            'updated' => $updated,
+            'errors' => $errors,
+        ]);
+    }
+
+    /**
+     * Met a jour toutes les categories avec les memes donnees.
+     */
+    public function updateAllCategories(): void
+    {
+        if (!$this->requireAdmin()) { return; }
+
+        if (empty($_POST) || !is_array($_POST)) {
+            $this->respond(400, 'Payload invalide pour mise a jour globale');
+            return;
+        }
+
+        $categories = Categorie::getAll();
+        $updated = 0;
+        $errors = [];
+
+        foreach ($categories as $cat) {
+            $id = (int) ($cat['id_categorie'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+
+            if (Categorie::updateRecord($id, $_POST)) {
+                $updated++;
+                continue;
+            }
+
+            $errors[] = ['id_categorie' => $id, 'message' => 'Echec de mise a jour'];
+        }
+
+        $this->respond(200, 'Mise a jour globale categories terminee', [
+            'updated' => $updated,
+            'errors' => $errors,
+        ]);
     }
 
     // ── Statistiques avancees (regle 8) ───────────────────────────────────────
