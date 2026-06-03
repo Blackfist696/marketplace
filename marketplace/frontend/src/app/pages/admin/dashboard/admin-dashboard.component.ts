@@ -114,7 +114,7 @@ export class AdminDashboardComponent implements OnInit {
       this.pendingArtisans.set(as.filter(a => !a.valide));
       this.activeArtisans.set(as.filter(a => a.valide).length);
     });
-    this.orderSvc.adminGetAll().subscribe(os => this.orders.set(os));
+    this.orderSvc.getAdminOrders().subscribe(os => this.orders.set(os));
     this.avisSvc.getAll().subscribe(av => this.pendingAvis.set(av.filter(a => a.statut === 'pending')));
   }
 

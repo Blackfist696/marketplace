@@ -106,7 +106,7 @@ export class ArtisanStatsComponent implements OnInit {
       this.produits.set(ps);
       this.topProduits.set([...ps].sort((a,b) => b.stock - a.stock).slice(0,5));
     });
-    this.orderSvc.getMyOrders().subscribe(os => {
+    this.orderSvc.getArtisanOrders().subscribe(os => {
       this.orders.set(os);
       const total = os.reduce((s,o) => s + o.total_ttc, 0);
       this.totalRevenue.set(total.toFixed(2));

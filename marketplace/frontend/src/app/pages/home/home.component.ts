@@ -30,7 +30,7 @@ import { Produit, Artisan, CATEGORY_LABELS } from '../../core/models/models';
       <h2 class="font-serif text-2xl font-bold mb-6">Nos catégories</h2>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         @for (cat of categories; track cat.key) {
-          <a [routerLink]="['/catalogue']" [queryParams]="{category: cat.key}"
+          <a [routerLink]="['/catalogue']" [queryParams]="{category: cat.label}"
              class="card p-5 text-center hover:border-amber-400 hover:shadow transition-all cursor-pointer">
             <p class="text-2xl mb-2">{{ cat.emoji }}</p>
             <p class="font-medium text-sm">{{ cat.label }}</p>
