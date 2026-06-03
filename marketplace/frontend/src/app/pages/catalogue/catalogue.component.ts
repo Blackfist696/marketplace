@@ -135,13 +135,13 @@ export class CatalogueComponent implements OnInit {
 
   filtered = computed(() => {
     const q    = this.search().toLowerCase();
-    const cat  = this.selectedCategory().toLowerCase();
+    const cat  = this.slugify(this.selectedCategory());
     const max  = this.maxPrice();
     const sort = this.sortBy();
 
     let result = this.all().filter(p => p.actif);
     if (q)   result = result.filter(p => p.nom.toLowerCase().includes(q));
-    if (cat) result = result.filter(p => ((p as any).categorie ?? '').toLowerCase() === cat);
+    if (cat) result = result.filter(p => ((p as any).categorie ?? '') === cat);
     result = result.filter(p => p.prix_ht <= max);
 
     if (sort === 'price-asc')  return [...result].sort((a, b) => a.prix_ht - b.prix_ht);
@@ -162,6 +162,14 @@ export class CatalogueComponent implements OnInit {
     });
     this.productSvc.getCategories().subscribe(cats => this.categories.set(cats));
     this.productSvc.getAll().subscribe(ps => { this.all.set(ps); this.loading.set(false); });
+  }
+
+  slugify(s: string): string {
+    return s.toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 
   resetFilters() {
