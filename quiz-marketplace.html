@@ -163,7 +163,7 @@
 <button class="opt-btn" data-i="2">computed() est un signal dérivé, recalculé depuis d'autres signals</button>
 <button class="opt-btn" data-i="3">Les deux sont identiques, computed() est juste un alias de signal()</button>
 </div>
-<div class="expl"><strong>Réponse : C.</strong> Dans <code>artisan-shop.component.ts</code> lignes 110-113 : <code>filteredProduits = computed(() => { const f = this.activeFilter(); return f ? this.produits().filter(p => p.categorie === f) : this.produits(); })</code>. Pourquoi <code>computed()</code> et pas un getter classique ? Parce qu'il est réactif : il se recalcule automatiquement quand <code>activeFilter</code> ou <code>produits</code> changent, sans appel explicite.</div>
+<div class="expl"><strong>Réponse : C.</strong> Dans <code>artisan-shop.component.ts</code> : <code>filteredProduits = computed(() => { const f = this.activeFilter(); return f ? this.produits().filter(p => p.categorie === f) : this.produits(); })</code>. <code>computed()</code> ne se recalcule que quand ses dépendances <em>Signal</em> changent — ici <code>activeFilter</code> et <code>produits</code> sont tous les deux des <code>signal()</code>. <strong>Piège concret :</strong> dans <code>catalogue.component.ts</code>, <code>search</code>, <code>selectedCategory</code>, <code>maxPrice</code> étaient déclarés en <code>string</code> ordinaire — le <code>computed()</code> du filtre ne les lisait jamais dans son graphe de dépendances et ne se recalculait donc jamais quand l'utilisateur changeait un filtre. Correction : les passer en <code>signal('')</code> et lire <code>this.search()</code> dans le computed.</div>
 </div>
 
 <div class="q" data-correct="0">
