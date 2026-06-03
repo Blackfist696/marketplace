@@ -61,11 +61,11 @@ export class ArtisanOrdersComponent implements OnInit {
   constructor(private orderSvc: OrderService, private toast: ToastService) {}
 
   ngOnInit() {
-    this.orderSvc.getMyOrders().subscribe(os => { this.orders.set(os); this.loading.set(false); });
+    this.orderSvc.getArtisanOrders().subscribe(os => { this.orders.set(os); this.loading.set(false); });
   }
 
   updateStatut(order: Commande, statut: StatutCommande) {
-    this.orderSvc.adminUpdateStatut(order.id_commande, statut).subscribe({
+    this.orderSvc.updateAdminOrderStatus(order.id_commande, statut).subscribe({
       next: () => this.toast.success('Statut mis à jour'),
       error: () => this.toast.error('Erreur'),
     });

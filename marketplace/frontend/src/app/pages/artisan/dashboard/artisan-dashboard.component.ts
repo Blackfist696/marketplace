@@ -95,7 +95,7 @@ export class ArtisanDashboardComponent implements OnInit {
       this.totalStock.set(ps.reduce((s,p) => s + p.stock, 0));
       this.topProduits.set([...ps].sort((a,b) => b.stock - a.stock).slice(0,4));
     });
-    this.orderSvc.getMyOrders().subscribe(os => {
+    this.orderSvc.getArtisanOrders().subscribe(os => {
       this.orders.set(os);
       const ca = os.reduce((s,o) => s + o.total_ttc, 0);
       this.caEstime.set(ca.toFixed(2));

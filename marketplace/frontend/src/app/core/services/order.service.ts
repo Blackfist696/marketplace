@@ -10,8 +10,18 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
-  getMyOrders(): Observable<Commande[]> {
+  getClientOrders(): Observable<Commande[]> {
     return this.http.get<any>(`${this.base}/orders`, { withCredentials: true })
+      .pipe(map(r => r.data ?? []));
+  }
+
+  getArtisanOrders(): Observable<Commande[]> {
+    return this.http.get<any>(`${this.base}/artisan/orders`, { withCredentials: true })
+      .pipe(map(r => r.data ?? []));
+  }
+
+  getAdminOrders(): Observable<Commande[]> {
+    return this.http.get<any>(`${this.base}/admin/orders`, { withCredentials: true })
       .pipe(map(r => r.data ?? []));
   }
 
@@ -32,14 +42,9 @@ export class OrderService {
       .pipe(map(r => r.data ?? []));
   }
 
-  adminGetAll(): Observable<Commande[]> {
-    return this.http.get<any>(`${this.base}/orders`, { withCredentials: true })
-      .pipe(map(r => r.data ?? []));
-  }
-
-  adminUpdateStatut(id: number, statut: StatutCommande): Observable<any> {
+  updateAdminOrderStatus(id: number, statut: StatutCommande): Observable<any> {
     const form = new FormData();
     form.append('statut', statut);
-    return this.http.put<any>(`${this.base}/api/lignes-commandes/${id}`, form, { withCredentials: true });
+    return this.http.put<any>(`${this.base}/admin/orders/${id}`, form, { withCredentials: true });
   }
 }

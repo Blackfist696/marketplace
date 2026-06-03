@@ -97,7 +97,7 @@ export class AdminOrdersComponent implements OnInit {
   constructor(private orderSvc: OrderService, private toast: ToastService) {}
 
   ngOnInit() {
-    this.orderSvc.adminGetAll().subscribe(os => { this.orders.set(os); this.loading.set(false); });
+    this.orderSvc.getAdminOrders().subscribe(os => { this.orders.set(os); this.loading.set(false); });
   }
 
   countByStatut(s: StatutCommande) { return this.orders().filter(o => o.statut === s).length; }
@@ -107,14 +107,14 @@ export class AdminOrdersComponent implements OnInit {
   advance(o: Commande) {
     const next = this.nextStatut(o.statut);
     if (!next) return;
-    this.orderSvc.adminUpdateStatut(o.id_commande, next).subscribe({
+    this.orderSvc.updateAdminOrderStatus(o.id_commande, next).subscribe({
       next: () => { this.ngOnInit(); this.toast.success('Statut avancé'); },
       error: () => this.toast.error('Erreur'),
     });
   }
 
   cancel(o: Commande) {
-    this.orderSvc.adminUpdateStatut(o.id_commande, 'annulee').subscribe({
+    this.orderSvc.updateAdminOrderStatus(o.id_commande, 'annulee').subscribe({
       next: () => { this.ngOnInit(); this.toast.success('Commande annulée'); },
       error: () => this.toast.error('Erreur'),
     });
