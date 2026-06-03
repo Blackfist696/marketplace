@@ -2,6 +2,102 @@
 
 ---
 
+## 2026-06-03 — Cartographie flux backend dans ACTIONS.HTML
+
+### Contexte
+Demande utilisateur: documenter les "chemins" au sens des parcours requete/reponse (de `index.php` jusqu'au frontend) pour chaque route, puis ajouter une vulgarisation maximale avec exemples.
+
+### Action
+- Inventaire initial des chemins backend pour preparer la documentation (`docs/backend-paths.txt`).
+- Creation puis refonte complete de `docs/ACTIONS.HTML` pour passer d'une simple liste de fichiers a une cartographie de flux HTTP.
+- Ajout du pipeline global commun: `index.php` -> `public/index.php` -> `app/bootstrap.php` -> `app/config/routes.php`.
+- Ajout d'un tableau exhaustif route par route: methode, endpoint, handler, middlewares de route, parcours vers la reponse frontend.
+- Ajout de 4 blocs pedagogiques demandes:
+  - schema visuel par etape,
+  - exemple complet de requete reussie,
+  - exemple complet de requete en echec,
+  - tableau "qui fait quoi" des middlewares.
+- Ajout d'une legende visuelle des statuts HTTP (2xx, 4xx, 5xx) en tete du document.
+- Verification de format apres chaque modification via `git diff --check -- docs/ACTIONS.HTML`.
+
+### Resultat
+- `docs/ACTIONS.HTML` est devenu un support de lecture pedagogique + technique: il explique le fonctionnement global du backend et le detail de chaque route jusqu'a la reponse envoyee au frontend.
+
+---
+
+## 2026-06-03 — Documentation inline backend (core/security/config/middleware)
+
+### Contexte
+Demande utilisateur: commenter/expliquer en detail les fichiers de core, security, config et middleware, puis commenter uniquement les classes parentes dans controllers, models et validators.
+
+### Action
+- Ajout de commentaires explicatifs dans les fichiers `app/core/*` pour documenter la resolution de base path, l'invocation des controleurs legacy et la reponse JSON PSR-7.
+- Enrichissement des fichiers `app/config/*` pour expliciter les options de securite/session et la mecanique d'enregistrement des routes.
+- Documentation des middlewares `app/middleware/*` et `app/security/*` (CORS, session, CSRF, auth, roles, rate limit).
+- Commentaires detailes ajoutes sur les classes parentes seulement: `app/controllers/Controller.php`, `app/models/Model.php`, `app/models/validators/AbstractValidator.php`.
+
+### Resultat
+- Le backend est maintenant mieux auto-documente pour la maintenance et la passation, sans changement de logique metier.
+
+---
+
+## 2026-06-03 — Correctif affichage PlantUML
+
+### Contexte
+Demande utilisateur: les diagrammes PlantUML affichaient des puces de fonctions sans les noms.
+
+### Action
+- Ajout dans chaque bloc PlantUML des directives `show methods`, `show fields` et `skinparam classAttributeIconSize 0`.
+
+### Resultat
+- Le rendu PlantUML affiche explicitement les noms des fonctions dans les classes (au lieu d'icones seules).
+
+---
+
+## 2026-06-03 — UML fonctions et découpage
+
+### Contexte
+Demande utilisateur: ajouter les fonctions présentes dans les classes et découper le diagramme en sections plus lisibles, avec un complément dans la version TFE si utile.
+
+### Action
+- Découpage du diagramme de `docs/cahier-technique-backend-db.md` en blocs séparés: contrôleurs, socle technique, modèles de référentiel et modèles métier.
+- Ajout des fonctions visibles par classe dans la documentation détaillée.
+- Ajout d'un résumé des fonctions clés dans `docs/cahier-technique-backend-db-tfe.md`.
+
+### Resultat
+- La documentation est plus lisible et montre les fonctions importantes sans perdre la version exhaustive.
+
+---
+
+## 2026-06-03 — UML detaille backend
+
+### Contexte
+Demande utilisateur: produire une version detaillee avec cardinalites et une version PlantUML du diagramme de classes backend.
+
+### Action
+- Enrichissement de `docs/cahier-technique-backend-db.md` avec une vue UML detaillee et un bloc PlantUML directement reutilisable.
+- Ajout d'une version pedagogique resume dans `docs/cahier-technique-backend-db-tfe.md`.
+
+### Resultat
+- Les deux documents de reference contiennent maintenant des diagrammes de classes exploitables pour la documentation et pour l'export.
+
+---
+
+## 2026-06-03 — Diagramme UML backend
+
+### Contexte
+Demande utilisateur: ajouter un diagramme UML des classes du backend.
+
+### Action
+- Ajout d'une section UML dans `docs/cahier-technique-backend-db.md`.
+- Separation en deux vues: heritage applicatif et relations metier.
+- Mise en evidence des classes principales du backend PHP: controllers, models, validators, base `Model` et `Database`.
+
+### Resultat
+- La documentation technique contient maintenant une vue structurelle du backend exploitable pour la lecture et le partage.
+
+---
+
 ## 2026-05-29 — Analyse du frontend Angular (collègue)
 
 ### Contexte
@@ -575,7 +671,7 @@ sur les cles et references existantes.
 - Activer la journalisation automatique pour toute nouvelle action.
 
 ### Action realisee
-- Regle de travail activee: chaque action importante sera consign�e dans `journal.md`.
+- Regle de travail activee: chaque action importante sera consign�e dans `journal.md`.
 - Memoire repo mise a jour pour persister cette consigne de fonctionnement.
 
 ### Engagement

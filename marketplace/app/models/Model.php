@@ -17,9 +17,11 @@ require_once __DIR__ . '/Database.php';
  */
 abstract class Model
 {
+    // Metadonnees a definir dans chaque modele enfant.
     protected static string $table;
     protected static string $primaryKey = 'id';
     protected static array $fields = [];
+    // Permet de brancher un validateur dedie sans coupler la couche controleur.
     protected static ?string $validatorClass = null;
     protected array $attributes = [];
 
@@ -61,6 +63,7 @@ abstract class Model
     {
         $validatorClass = static::getValidatorClass();
         if ($validatorClass === null) {
+            // Aucun validateur defini: validation consideree comme reussie.
             return new ValidationResult();
         }
 
@@ -135,6 +138,7 @@ abstract class Model
      */
     public function fill(array $attributes): self
     {
+        // Sanitization centralisee avant hydration des attributs.
         $attributes = static::sanitizeData($attributes);
 
         if (isset($attributes[static::$primaryKey])) {
@@ -191,6 +195,7 @@ abstract class Model
      */
     public static function getPDO(): PDO
     {
+        // Point d'entree unique vers la connexion partagée de l'application.
         return Database::getConnection();
     }
 
@@ -255,6 +260,7 @@ abstract class Model
      */
     public static function create(array $data): int
     {
+        // Whitelist stricte: seuls les champs declares peuvent etre inseres.
         $fields = array_intersect_key($data, array_flip(static::$fields));
         $fields = static::sanitizeData($fields);
         if (empty($fields)) {
@@ -295,6 +301,7 @@ abstract class Model
      */
     public static function update(int $id, array $data): bool
     {
+        // Meme politique de whitelist que create() pour eviter les updates sauvages.
         $fields = array_intersect_key($data, array_flip(static::$fields));
         $fields = static::sanitizeData($fields);
         if (empty($fields)) {
@@ -343,6 +350,7 @@ abstract class Model
      */
     public function save(): int
     {
+        // Pattern Active Record simple: update si cle primaire presente, sinon create.
         if (isset($this->attributes[static::$primaryKey])) {
             static::update((int) $this->attributes[static::$primaryKey], $this->attributes);
             return (int) $this->attributes[static::$primaryKey];

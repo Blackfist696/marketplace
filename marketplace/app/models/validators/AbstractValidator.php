@@ -7,6 +7,7 @@ namespace App\Models\Validators;
  */
 abstract class AbstractValidator
 {
+    // Accumulateur d'erreurs partage par les helpers de validation.
     protected ValidationResult $result;
 
     /**
@@ -33,6 +34,7 @@ abstract class AbstractValidator
      */
     protected function validateRequired(array $data, array $fields): void
     {
+        // Validation minimale: presence et non-vide (apres trim).
         foreach ($fields as $field) {
             if (!isset($data[$field]) || trim((string) $data[$field]) === '') {
                 $this->result->addError($field, sprintf('Le champ "%s" est requis.', $field));
@@ -48,6 +50,7 @@ abstract class AbstractValidator
      */
     protected function validateEmail(string $field, array $data): void
     {
+        // Si le champ est optionnel et absent, on ne remonte pas d'erreur ici.
         if (!isset($data[$field]) || trim((string) $data[$field]) === '') {
             return;
         }
@@ -65,6 +68,7 @@ abstract class AbstractValidator
      */
     protected function validateNumeric(string $field, array $data): void
     {
+        // Validation de type utile avant cast/metier ou ecriture SQL.
         if (!isset($data[$field]) || $data[$field] === '') {
             return;
         }
@@ -82,6 +86,7 @@ abstract class AbstractValidator
      */
     protected function validatePositive(string $field, array $data): void
     {
+        // Regle metier generique: valeur numerique >= 0.
         if (!isset($data[$field]) || $data[$field] === '') {
             return;
         }

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ACTIONS - Flux Requete/Reponse Backend</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --line: #d9e1ee;
+      --text: #1a2d44;
+      --muted: #526882;
+      --head: #e9f1ff;
+      --accent: #1a69d8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #eaf1fb 0%, var(--bg) 55%);
+      line-height: 1.45;
+    }
+
+    .container {
+      width: min(1320px, 96%);
+      margin: 22px auto 40px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 22px rgba(18, 44, 82, 0.07);
+      margin-bottom: 14px;
+    }
+
+    h1 { margin: 0 0 8px; font-size: 1.55rem; color: #0d4ca9; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; color: #0d4ca9; }
+    p { margin: 6px 0; color: var(--muted); }
+
+    .mono {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      color: #26466b;
+    }
+
+    .pill {
+      display: inline-block;
+      margin-right: 6px;
+      margin-bottom: 4px;
+      border: 1px solid #c6d9fb;
+      background: #e7f0ff;
+      color: #184f9e;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.83rem;
+    }
+
+    .status-legend {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .status-2xx {
+      background: #e8f7ea;
+      color: #1f6a2d;
+      border-color: #b6e3bf;
+    }
+
+    .status-4xx {
+      background: #fff4e5;
+      color: #8a5300;
+      border-color: #ffd8a8;
+    }
+
+    .status-5xx {
+      background: #fdeeee;
+      color: #8d1f1f;
+      border-color: #f6c0c0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 9px;
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    th {
+      background: var(--head);
+      color: #153f74;
+    }
+
+    .method { font-weight: 700; color: #0d4ca9; }
+    .muted { color: var(--muted); }
+    .flow { font-size: 0.86rem; }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fbfdff;
+    }
+
+    .step strong {
+      color: #123d78;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .scenario {
+      border-left: 4px solid #9fc0f5;
+      padding-left: 12px;
+      margin-top: 8px;
+    }
+
+    .scenario-ok {
+      border-left-color: #55a35a;
+      background: #f7fcf7;
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+
+    .scenario-ko {
+      border-left-color: #d55a52;
+      background: #fff8f7;
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+
+    .compact-table th,
+    .compact-table td {
+      font-size: 0.88rem;
+      padding: 7px 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>ACTIONS.HTML - Parcours requete/reponse backend</h1>
+      <p>Document de suivi des flux HTTP du projet, depuis le front controller jusqu'a la reponse renvoyee au frontend, pour chaque route declaree.</p>
+      <p class="mono">Base de reference: index.php -> public/index.php -> app/bootstrap.php -> app/config/routes.php</p>
+      <div class="status-legend" aria-label="Legende statuts HTTP">
+        <span class="status-pill status-2xx">2xx - Succes (ex: 200, 201, 204)</span>
+        <span class="status-pill status-4xx">4xx - Erreur client (ex: 401, 403, 422, 429)</span>
+        <span class="status-pill status-5xx">5xx - Erreur serveur (ex: 500)</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Pipeline global (commun a toutes les routes backend)</h2>
+      <p><span class="pill">1</span> Entree via index.php racine, qui delegue a public/index.php.</p>
+      <p><span class="pill">2</span> public/index.php sert le frontend SPA sur routes non-backend, sinon charge app/bootstrap.php.</p>
+      <p><span class="pill">3</span> Bootstrap Slim + basePath, puis pile middleware globale (execution a l'entree): ErrorMiddleware -> SessionMiddleware -> CsrfMiddleware -> RequestDataMiddleware -> CorsMiddleware -> RoutingMiddleware.</p>
+      <p><span class="pill">4</span> Matching de route dans routes.php, puis middlewares de route (Auth/Role/RateLimit selon endpoint).</p>
+      <p><span class="pill">5</span> ControllerActionInvoker execute Controller@action, recupere output/headers/status.</p>
+      <p><span class="pill">6</span> Reponse finale vers frontend: JSON via JsonResponder/Controller::respond, ou HTTP d'erreur uniforme via ErrorMiddleware (422 validation, 500 interne).</p>
+    </section>
+
+    <section class="card">
+      <h2>Modele de sortie vers le frontend</h2>
+      <p><span class="pill">Succes</span> payload JSON standardise (status, message, data) pour la majorite des endpoints API/metier.</p>
+      <p><span class="pill">Erreur metier</span> ValidationException -> 422 avec details errors[] dans la reponse JSON.</p>
+      <p><span class="pill">Erreur technique</span> exception non capturee -> 500 JSON; details internes exposes seulement si debug active.</p>
+      <p><span class="pill">CORS/Preflight</span> OPTIONS -> 204 avec en-tetes CORS, traite par CorsMiddleware + route wildcard OPTIONS.</p>
+    </section>
+
+    <section class="card">
+      <h2>Schema visuel par etape (vulgarise)</h2>
+      <div class="steps">
+        <article class="step">
+          <strong>1. Frontend envoie la requete</strong>
+          <span class="mono">Ex: GET /api/pays</span>
+        </article>
+        <article class="step">
+          <strong>2. Porte d'entree du backend</strong>
+          <span class="mono">index.php -> public/index.php</span>
+        </article>
+        <article class="step">
+          <strong>3. Filtre de securite et normalisation</strong>
+          <span class="mono">middlewares globaux dans bootstrap.php</span>
+        </article>
+        <article class="step">
+          <strong>4. Aiguillage vers la bonne route</strong>
+          <span class="mono">RoutingMiddleware + routes.php</span>
+        </article>
+        <article class="step">
+          <strong>5. Controleur execute</strong>
+          <span class="mono">Controller@action</span>
+        </article>
+        <article class="step">
+          <strong>6. Reponse renvoyee au frontend</strong>
+          <span class="mono">JSON succes / erreur 4xx-5xx</span>
+        </article>
+      </div>
+      <p class="scenario">Image mentale simple: une requete passe plusieurs postes de controle, puis arrive au bon guichet, et repart avec un ticket de reponse.</p>
+    </section>
+
+    <section class="card">
+      <h2>Exemple complet de requete reussie</h2>
+      <div class="scenario-ok">
+        <p><strong>Scenario:</strong> connexion utilisateur avec <span class="mono">POST /login</span>.</p>
+        <p>1. Angular envoie email + mot de passe.</p>
+        <p>2. La requete entre par <span class="mono">index.php</span> puis <span class="mono">public/index.php</span>.</p>
+        <p>3. Passage dans les middlewares globaux (session, CSRF, normalisation body, CORS, routing).</p>
+        <p>4. Middleware de route <span class="mono">LoginRateLimitMiddleware</span> verifie qu'il n'y a pas trop de tentatives.</p>
+        <p>5. <span class="mono">AuthController@login</span> valide les identifiants et cree/met a jour la session.</p>
+        <p>6. Le backend renvoie une reponse JSON de succes au frontend (utilisateur connecte).</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Exemple complet de requete en echec</h2>
+      <div class="scenario-ko">
+        <p><strong>Scenario:</strong> creation de ressource avec donnees invalides.</p>
+        <p>1. Le frontend envoie un <span class="mono">POST</span> avec champs manquants.</p>
+        <p>2. Le flux entre dans le pipeline global puis atteint le controleur cible.</p>
+        <p>3. La validation metier echoue et leve une <span class="mono">ValidationException</span>.</p>
+        <p>4. <span class="mono">ErrorMiddleware</span> intercepte l'erreur au niveau global.</p>
+        <p>5. Reponse uniforme envoyee au frontend: statut <span class="mono">422</span> + tableau d'erreurs detaille.</p>
+        <p>6. Le frontend peut afficher des messages champ par champ sans parser une erreur technique.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Qui fait quoi dans les middlewares</h2>
+      <table class="compact-table" aria-label="Roles des middlewares">
+        <thead>
+          <tr>
+            <th style="width: 220px;">Middleware</th>
+            <th style="width: 250px;">Role principal</th>
+            <th>Effet concret sur la requete/reponse</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">ErrorMiddleware</td>
+            <td>Filet de securite global</td>
+            <td>Attrape les exceptions non gerees et renvoie un JSON coherent (422 ou 500).</td>
+          </tr>
+          <tr>
+            <td class="mono">SessionMiddleware</td>
+            <td>Gestion de session</td>
+            <td>Demarre/garantit la session HTTP, indispensable pour auth et CSRF.</td>
+          </tr>
+          <tr>
+            <td class="mono">CsrfMiddleware</td>
+            <td>Protection anti-CSRF</td>
+            <td>Verifie le token pour les requetes mutantes et bloque si token absent/invalide.</td>
+          </tr>
+          <tr>
+            <td class="mono">RequestDataMiddleware</td>
+            <td>Normalisation des donnees</td>
+            <td>Uniformise JSON/form-data en parsedBody pour simplifier les controleurs.</td>
+          </tr>
+          <tr>
+            <td class="mono">CorsMiddleware</td>
+            <td>Autorisation cross-origin</td>
+            <td>Ajoute les en-tetes CORS et gere les preflight OPTIONS.</td>
+          </tr>
+          <tr>
+            <td class="mono">RoutingMiddleware</td>
+            <td>Selection de route</td>
+            <td>Associe URL + methode HTTP au handler Controller@action.</td>
+          </tr>
+          <tr>
+            <td class="mono">AuthMiddleware</td>
+            <td>Controle de connexion</td>
+            <td>Refuse les requetes sans utilisateur connecte (401).</td>
+          </tr>
+          <tr>
+            <td class="mono">RoleMiddleware</td>
+            <td>Controle des droits</td>
+            <td>Autorise/refuse selon role (admin/artisan/client), sinon 403.</td>
+          </tr>
+          <tr>
+            <td class="mono">LoginRateLimitMiddleware</td>
+            <td>Anti brute-force login</td>
+            <td>Limite le nombre de tentatives de connexion et peut renvoyer 429.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Flux par route</h2>
+      <table aria-label="Flux par route backend">
+        <thead>
+          <tr>
+            <th style="width: 80px;">Methode</th>
+            <th style="width: 280px;">Route</th>
+            <th style="width: 310px;">Handler</th>
+            <th style="width: 210px;">Middlewares de route</th>
+            <th>Parcours requete -> reponse</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="method">OPTIONS</td><td class="mono">/{routes:.+}</td><td class="mono">Closure (preflight)</td><td class="mono">-</td><td class="flow">Frontend -> index.php -> public/index.php -> Slim -> CorsMiddleware -> route OPTIONS -> 204 + headers CORS -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/</td><td class="mono">HomeController@index</td><td class="mono">-</td><td class="flow">Entree backend -> pipeline global -> HomeController@index -> reponse HTTP/JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/Home</td><td class="mono">HomeController@index</td><td class="mono">-</td><td class="flow">Entree backend -> pipeline global -> HomeController@index -> reponse HTTP/JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/login</td><td class="mono">AuthController@loginForm</td><td class="mono">-</td><td class="flow">Pipeline global -> AuthController@loginForm -> reponse de formulaire/JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/login</td><td class="mono">AuthController@login</td><td class="mono">LoginRateLimitMiddleware</td><td class="flow">Pipeline global -> LoginRateLimitMiddleware -> AuthController@login -> session/mise a jour auth -> JSON de connexion -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/logout</td><td class="mono">AuthController@logout</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> AuthController@logout -> invalidation session -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/register</td><td class="mono">AuthController@registerForm</td><td class="mono">-</td><td class="flow">Pipeline global -> AuthController@registerForm -> reponse formulaire/JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/register</td><td class="mono">AuthController@register</td><td class="mono">-</td><td class="flow">Pipeline global -> AuthController@register -> validation + creation utilisateur -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/categories</td><td class="mono">CategorieController@index</td><td class="mono">-</td><td class="flow">Pipeline global -> CategorieController@index -> liste categories -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/categories/{id}</td><td class="mono">CategorieController@show</td><td class="mono">-</td><td class="flow">Pipeline global -> CategorieController@show -> detail categorie -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/artisans</td><td class="mono">ArtisanController@index</td><td class="mono">-</td><td class="flow">Pipeline global -> ArtisanController@index -> liste artisans -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/artisans/{id}</td><td class="mono">ArtisanController@show</td><td class="mono">-</td><td class="flow">Pipeline global -> ArtisanController@show -> detail artisan -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/products</td><td class="mono">ProductController@index</td><td class="mono">-</td><td class="flow">Pipeline global -> ProductController@index -> catalogue -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/products/{id}</td><td class="mono">ProductController@show</td><td class="mono">-</td><td class="flow">Pipeline global -> ProductController@show -> fiche produit -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/artisans/{artisan_id}/products</td><td class="mono">ProductController@indexByArtisan</td><td class="mono">-</td><td class="flow">Pipeline global -> ProductController@indexByArtisan -> produits artisan -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/products</td><td class="mono">ProductController@store</td><td class="mono">RoleMiddleware([2])</td><td class="flow">Pipeline global -> RoleMiddleware artisan -> ProductController@store -> creation produit -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/products/{id}</td><td class="mono">ProductController@update</td><td class="mono">RoleMiddleware([2])</td><td class="flow">Pipeline global -> RoleMiddleware artisan -> ProductController@update -> MAJ produit -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/products/{id}</td><td class="mono">ProductController@destroy</td><td class="mono">RoleMiddleware([2])</td><td class="flow">Pipeline global -> RoleMiddleware artisan -> ProductController@destroy -> suppression/desactivation -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/cart</td><td class="mono">CartController@index</td><td class="mono">-</td><td class="flow">Pipeline global -> CartController@index -> lignes panier -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/cart</td><td class="mono">CartController@add</td><td class="mono">-</td><td class="flow">Pipeline global -> CartController@add -> ajout ligne panier -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/cart/{id_produit}</td><td class="mono">CartController@updateLine</td><td class="mono">-</td><td class="flow">Pipeline global -> CartController@updateLine -> MAJ quantite -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/cart/{id_produit}</td><td class="mono">CartController@remove</td><td class="mono">-</td><td class="flow">Pipeline global -> CartController@remove -> suppression ligne -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/payment</td><td class="mono">PaymentController@page</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> PaymentController@page -> page/payload paiement -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/payment/process</td><td class="mono">PaymentController@process</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> PaymentController@process -> traitement paiement -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/orders</td><td class="mono">OrderController@index</td><td class="mono">RoleMiddleware([3])</td><td class="flow">Pipeline global -> RoleMiddleware client -> OrderController@index -> commandes client -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/orders/{id}</td><td class="mono">OrderController@show</td><td class="mono">RoleMiddleware([3])</td><td class="flow">Pipeline global -> RoleMiddleware client -> OrderController@show -> detail commande -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/orders</td><td class="mono">OrderController@store</td><td class="mono">RoleMiddleware([3])</td><td class="flow">Pipeline global -> RoleMiddleware client -> OrderController@store -> creation commande -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/profile</td><td class="mono">ProfileController@show</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> ProfileController@show -> profil utilisateur -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/profile</td><td class="mono">ProfileController@update</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> ProfileController@update -> MAJ profil -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/profile</td><td class="mono">ProfileController@deactivate</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> ProfileController@deactivate -> desactivation compte -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/artisan/products</td><td class="mono">ArtisanController@myProducts</td><td class="mono">RoleMiddleware([2])</td><td class="flow">Pipeline global -> RoleMiddleware artisan -> ArtisanController@myProducts -> produits de l'artisan -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/artisan/dashboard</td><td class="mono">ArtisanController@dashboard</td><td class="mono">RoleMiddleware([2])</td><td class="flow">Pipeline global -> RoleMiddleware artisan -> ArtisanController@dashboard -> indicateurs -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/artisan/orders</td><td class="mono">ArtisanController@orders</td><td class="mono">RoleMiddleware([2])</td><td class="flow">Pipeline global -> RoleMiddleware artisan -> ArtisanController@orders -> commandes artisan -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/artisan/stats</td><td class="mono">ArtisanController@stats</td><td class="mono">RoleMiddleware([2])</td><td class="flow">Pipeline global -> RoleMiddleware artisan -> ArtisanController@stats -> statistiques artisan -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/admin/users</td><td class="mono">AdminController@users</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@users -> liste utilisateurs -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/admin/users/{id}</td><td class="mono">AdminController@showUser</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@showUser -> detail utilisateur -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/admin/users/{id}</td><td class="mono">AdminController@updateUser</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@updateUser -> MAJ utilisateur -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/admin/users/{id}</td><td class="mono">AdminController@deactivateUser</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@deactivateUser -> desactivation -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/admin/artisans</td><td class="mono">AdminController@artisans</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@artisans -> liste artisans -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/admin/artisans/{id}</td><td class="mono">AdminController@showArtisan</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@showArtisan -> detail artisan -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/admin/artisans/{id}</td><td class="mono">AdminController@updateArtisan</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@updateArtisan -> MAJ artisan -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/admin/artisans/{id}</td><td class="mono">AdminController@deactivateArtisan</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@deactivateArtisan -> desactivation -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/admin/orders</td><td class="mono">AdminController@orders</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@orders -> toutes commandes -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/admin/orders/{id}</td><td class="mono">AdminController@showOrder</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@showOrder -> detail commande -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/admin/orders/{id}</td><td class="mono">AdminController@updateOrder</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@updateOrder -> MAJ statut/commande -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/admin/categories</td><td class="mono">AdminController@categories</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@categories -> categories admin -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/admin/categories/bulk</td><td class="mono">AdminController@updateCategoriesBulk</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@updateCategoriesBulk -> MAJ lot -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/admin/categories/all</td><td class="mono">AdminController@updateAllCategories</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@updateAllCategories -> MAJ globale -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/admin/categories/{id}</td><td class="mono">AdminController@updateCategory</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@updateCategory -> MAJ categorie -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/admin/products</td><td class="mono">AdminController@products</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@products -> produits admin -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/admin/products/{id}</td><td class="mono">AdminController@updateProduct</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@updateProduct -> MAJ produit -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/admin/products/{id}</td><td class="mono">AdminController@deactivateProduct</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@deactivateProduct -> desactivation -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/admin/stats</td><td class="mono">AdminController@stats</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> AdminController@stats -> KPIs admin -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/api/pays</td><td class="mono">PaysController@index</td><td class="mono">-</td><td class="flow">Pipeline global -> PaysController@index -> liste pays -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/pays/{id}</td><td class="mono">PaysController@show</td><td class="mono">-</td><td class="flow">Pipeline global -> PaysController@show -> detail pays -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/api/pays</td><td class="mono">PaysController@store</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> PaysController@store -> creation pays -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/api/pays/{id}</td><td class="mono">PaysController@update</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> PaysController@update -> MAJ pays -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/api/pays/{id}</td><td class="mono">PaysController@destroy</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> PaysController@destroy -> suppression pays -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/api/villes</td><td class="mono">VilleController@index</td><td class="mono">-</td><td class="flow">Pipeline global -> VilleController@index -> liste villes -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/villes/{id}</td><td class="mono">VilleController@show</td><td class="mono">-</td><td class="flow">Pipeline global -> VilleController@show -> detail ville -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/api/villes</td><td class="mono">VilleController@store</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> VilleController@store -> creation ville -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/api/villes/{id}</td><td class="mono">VilleController@update</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> VilleController@update -> MAJ ville -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/api/villes/{id}</td><td class="mono">VilleController@destroy</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> VilleController@destroy -> suppression ville -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/api/avis</td><td class="mono">AvisController@index</td><td class="mono">-</td><td class="flow">Pipeline global -> AvisController@index -> liste avis -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/avis/{id}</td><td class="mono">AvisController@show</td><td class="mono">-</td><td class="flow">Pipeline global -> AvisController@show -> detail avis -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/produits/{id_produit}/avis</td><td class="mono">AvisController@indexByProduit</td><td class="mono">-</td><td class="flow">Pipeline global -> AvisController@indexByProduit -> avis produit -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/api/avis</td><td class="mono">AvisController@store</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> AvisController@store -> creation avis -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/api/avis/{id}</td><td class="mono">AvisController@update</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> AvisController@update -> MAJ avis -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/api/avis/{id}</td><td class="mono">AvisController@destroy</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> AvisController@destroy -> suppression avis -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/api/paiements</td><td class="mono">PaiementApiController@index</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> PaiementApiController@index -> liste paiements -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/paiements/{id}</td><td class="mono">PaiementApiController@show</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> PaiementApiController@show -> detail paiement -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/api/paiements</td><td class="mono">PaiementApiController@store</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> PaiementApiController@store -> creation paiement -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/api/paiements/{id}</td><td class="mono">PaiementApiController@update</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> PaiementApiController@update -> MAJ paiement -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/api/paiements/{id}</td><td class="mono">PaiementApiController@destroy</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> PaiementApiController@destroy -> suppression paiement -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/api/classes</td><td class="mono">ClasseController@index</td><td class="mono">-</td><td class="flow">Pipeline global -> ClasseController@index -> classes -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/categories/{id_categorie}/classes</td><td class="mono">ClasseController@indexByCategorie</td><td class="mono">-</td><td class="flow">Pipeline global -> ClasseController@indexByCategorie -> classes par categorie -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/produits/{id_produit}/classes</td><td class="mono">ClasseController@indexByProduit</td><td class="mono">-</td><td class="flow">Pipeline global -> ClasseController@indexByProduit -> classes par produit -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/api/classes</td><td class="mono">ClasseController@store</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> ClasseController@store -> creation classe -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/api/classes/{id_categorie}/{id_produit}</td><td class="mono">ClasseController@destroy</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> ClasseController@destroy -> suppression classe -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/api/user-addresses</td><td class="mono">UserAddressController@index</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> UserAddressController@index -> adresses utilisateur courant -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/utilisateurs/{id_utilisateur}/adresses</td><td class="mono">UserAddressController@indexByUtilisateur</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> UserAddressController@indexByUtilisateur -> adresses d'un utilisateur -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/adresses/{id_adresse}/utilisateurs</td><td class="mono">UserAddressController@indexByAdresse</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> UserAddressController@indexByAdresse -> utilisateurs d'une adresse -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/api/user-addresses</td><td class="mono">UserAddressController@store</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> UserAddressController@store -> liaison utilisateur/adresse -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/api/user-addresses/{id_utilisateur}/{id_adresse}</td><td class="mono">UserAddressController@destroy</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> UserAddressController@destroy -> suppression liaison -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/api/lignes-commandes</td><td class="mono">LigneCommandeController@index</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> LigneCommandeController@index -> lignes commandes -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/lignes-commandes/{id}</td><td class="mono">LigneCommandeController@show</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> LigneCommandeController@show -> detail ligne commande -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/commandes/{id_commande}/lignes</td><td class="mono">LigneCommandeController@indexByCommande</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> LigneCommandeController@indexByCommande -> lignes par commande -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/api/lignes-commandes</td><td class="mono">LigneCommandeController@store</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> LigneCommandeController@store -> creation ligne commande -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/api/lignes-commandes/{id}</td><td class="mono">LigneCommandeController@update</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> LigneCommandeController@update -> MAJ ligne commande -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/api/lignes-commandes/{id}</td><td class="mono">LigneCommandeController@destroy</td><td class="mono">AuthMiddleware</td><td class="flow">Pipeline global -> AuthMiddleware -> LigneCommandeController@destroy -> suppression ligne -> JSON -> frontend.</td></tr>
+
+          <tr><td class="method">GET</td><td class="mono">/api/statistiques-artisans</td><td class="mono">StatistiqueArtisanController@index</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> StatistiqueArtisanController@index -> stats artisans -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/statistiques-artisans/{id}</td><td class="mono">StatistiqueArtisanController@show</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> StatistiqueArtisanController@show -> detail stat -> JSON -> frontend.</td></tr>
+          <tr><td class="method">GET</td><td class="mono">/api/artisans/{id_artisan}/statistiques</td><td class="mono">StatistiqueArtisanController@indexByArtisan</td><td class="mono">RoleMiddleware([2])</td><td class="flow">Pipeline global -> RoleMiddleware artisan -> StatistiqueArtisanController@indexByArtisan -> stats artisan cible -> JSON -> frontend.</td></tr>
+          <tr><td class="method">POST</td><td class="mono">/api/statistiques-artisans</td><td class="mono">StatistiqueArtisanController@store</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> StatistiqueArtisanController@store -> creation stat -> JSON -> frontend.</td></tr>
+          <tr><td class="method">PUT</td><td class="mono">/api/statistiques-artisans/{id}</td><td class="mono">StatistiqueArtisanController@update</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> StatistiqueArtisanController@update -> MAJ stat -> JSON -> frontend.</td></tr>
+          <tr><td class="method">DELETE</td><td class="mono">/api/statistiques-artisans/{id}</td><td class="mono">StatistiqueArtisanController@destroy</td><td class="mono">RoleMiddleware([1])</td><td class="flow">Pipeline global -> RoleMiddleware admin -> StatistiqueArtisanController@destroy -> suppression stat -> JSON -> frontend.</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Note: la chaine detaillee est identique en socle (front controller + middleware globaux) et varie surtout sur le middleware de route et le couple Controller@action.</p>
+    </section>
+  </main>
+</body>
+</html>

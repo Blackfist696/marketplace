@@ -18,6 +18,7 @@ final class ControllerActionInvoker
      */
     public function invoke(ServerRequestInterface $request, ResponseInterface $response, string $handler, array $args = []): ResponseInterface
     {
+        // Resolution du handler texte "Controller@action".
         [$controllerClass, $action] = explode('@', $handler, 2);
 
         if (!class_exists($controllerClass) || !method_exists($controllerClass, $action)) {
@@ -27,6 +28,7 @@ final class ControllerActionInvoker
         $controller = new $controllerClass();
         $previousStatus = http_response_code(200);
 
+        // Capture du flux legacy (echo) pour le reinjecter dans PSR-7.
         ob_start();
         try {
             $result = $controller->{$action}(...array_values($args));
@@ -39,6 +41,7 @@ final class ControllerActionInvoker
         $status = http_response_code();
         $status = is_int($status) && $status >= 100 ? $status : 200;
         $headers = headers_list();
+        // Nettoyage de l'etat global PHP pour eviter les fuites sur la requete suivante.
         header_remove();
         http_response_code($previousStatus === false ? 200 : $previousStatus);
 
@@ -55,10 +58,12 @@ final class ControllerActionInvoker
             $response->getBody()->write($output);
         }
 
+        // Priorite 1: si l'action retourne deja une Response PSR-7, on la respecte.
         if ($result instanceof ResponseInterface) {
             return $result;
         }
 
+        // Priorite 2: compat avec la base Controller qui stocke une reponse interne.
         if (method_exists($controller, 'consumeResponse')) {
             $controllerResponse = $controller->consumeResponse();
             if ($controllerResponse instanceof ResponseInterface) {
@@ -66,6 +71,7 @@ final class ControllerActionInvoker
             }
         }
 
+        // Fallback: reutilise la reponse courante avec le statut observe.
         return $response->withStatus($status);
     }
 }

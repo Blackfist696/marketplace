@@ -29,12 +29,15 @@ final class AppLogger
             'context' => self::sanitizeContext($context),
         ];
 
+        // JSONL: 1 ligne JSON = 1 evenement, facile a parser/outiller.
         $line = json_encode($record, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if (!is_string($line)) {
+            // Fallback defensif: evite de casser la journalisation si json_encode echoue.
             $line = '{"timestamp":"' . date('c') . '","level":"ERROR","channel":"logger","message":"json_encode_failed"}';
         }
 
         $logFile = self::LOG_DIR . '/' . $channel . '.log';
+        // Rotation simple avant append pour limiter la taille des fichiers.
         self::rotateIfNeeded($logFile);
         @file_put_contents($logFile, $line . PHP_EOL, FILE_APPEND | LOCK_EX);
     }
@@ -64,6 +67,7 @@ final class AppLogger
 
     private static function sanitizeContext(array $context): array
     {
+        // On garde des donnees serialisables pour rester robuste en production.
         foreach ($context as $key => $value) {
             if (is_scalar($value) || $value === null) {
                 continue;
@@ -91,6 +95,7 @@ final class AppLogger
             return;
         }
 
+        // Politique volontairement simple: un seul fichier de backup (.1).
         $rotated = $logFile . '.1';
         if (file_exists($rotated)) {
             @unlink($rotated);

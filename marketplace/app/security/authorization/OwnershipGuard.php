@@ -14,6 +14,7 @@ final class OwnershipGuard
      */
     public static function canAccessCommande(int $commandeId, array $auth): bool
     {
+        // Raccourci admin: acces global sans verification de propriete.
         if ($auth['is_admin']) {
             return true;
         }
@@ -23,6 +24,7 @@ final class OwnershipGuard
             return false;
         }
 
+        // Verifie la propriete metier: commande rattachee a l'utilisateur courant.
         return (int) ($commande['id_utilisateur'] ?? 0) === $auth['user_id'];
     }
 
@@ -32,6 +34,7 @@ final class OwnershipGuard
      */
     public static function canAccessPaiement(array $paiement, array $auth): bool
     {
+        // Un paiement est accessible via la commande qu'il reference.
         $commandeId = (int) ($paiement['id_commande'] ?? 0);
         if ($commandeId <= 0) {
             return false;
@@ -46,6 +49,7 @@ final class OwnershipGuard
      */
     public static function canAccessLigneCommande(array $ligneCommande, array $auth): bool
     {
+        // Meme logique: la ligne herite des droits de sa commande parente.
         $commandeId = (int) ($ligneCommande['id_commande'] ?? 0);
         if ($commandeId <= 0) {
             return false;
@@ -64,6 +68,7 @@ final class OwnershipGuard
             return true;
         }
 
+        // Hors admin: seul l'auteur de l'avis peut modifier/supprimer.
         return (int) ($avis['id_utilisateur'] ?? 0) === $auth['user_id'];
     }
 }

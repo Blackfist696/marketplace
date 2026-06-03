@@ -12,6 +12,7 @@ final class SessionSecurity
      */
     public static function start(array $sessionConfig = []): void
     {
+        // Idempotence: evite warnings et effets de bord si deja active.
         if (session_status() === PHP_SESSION_ACTIVE) {
             return;
         }
@@ -29,6 +30,7 @@ final class SessionSecurity
             return;
         }
 
+        // Mitige la fixation de session apres changement de privilege (login/logout).
         session_regenerate_id(true);
     }
 
@@ -43,6 +45,7 @@ final class SessionSecurity
         $cookieSameSite = (string) ($sessionConfig['cookie_samesite'] ?? 'Lax');
         $cookieLifetime = (int) ($sessionConfig['cookie_lifetime'] ?? 0);
 
+        // Durcissement PHP natif: cookies uniquement + mode strict.
         ini_set('session.use_strict_mode', '1');
         ini_set('session.use_only_cookies', '1');
 

@@ -19,6 +19,7 @@ final class RoleMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        // Le role ne peut etre verifie que si l'utilisateur est authentifie.
         if (empty($_SESSION['user_id'])) {
             return JsonResponder::write($this->createResponse(), 401, [
                 'status' => 401,
@@ -27,6 +28,7 @@ final class RoleMiddleware implements MiddlewareInterface
         }
 
         $roleId = (int) ($_SESSION['user_role'] ?? 0);
+        // Convention projet: role 1 = admin, bypass de toutes les restrictions de role.
         if ($roleId !== 1 && !in_array($roleId, $this->allowedRoles, true)) {
             return JsonResponder::write($this->createResponse(), 403, [
                 'status' => 403,

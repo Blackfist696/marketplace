@@ -11,6 +11,7 @@ final class AuthContext
      */
     public static function current(): ?array
     {
+        // Garantit un acces coherent a la session depuis les middlewares/controleurs.
         SessionSecurity::start();
 
         if (empty($_SESSION['user_id'])) {
@@ -20,6 +21,7 @@ final class AuthContext
         $userId = (int) $_SESSION['user_id'];
         $roleId = (int) ($_SESSION['user_role'] ?? 0);
 
+        // Snapshot standardise du contexte auth reutilisable partout.
         return [
             'user_id' => $userId,
             'role_id' => $roleId,

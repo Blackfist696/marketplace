@@ -26,6 +26,7 @@ final class LoginRateLimitMiddleware extends AbstractSecurityMiddleware
         $body = $request->getParsedBody();
         $body = is_array($body) ? $body : [];
 
+        // Cle de throttling = combinaison IP + email pour limiter le brute-force cible.
         $email = strtolower(trim((string) ($body['email'] ?? '')));
         $ip = $this->resolveClientIp();
         $key = hash('sha256', $ip . '|' . $email);
@@ -42,6 +43,7 @@ final class LoginRateLimitMiddleware extends AbstractSecurityMiddleware
 
     private function resolveClientIp(): string
     {
+        // En presence de proxy reverse, on privilegie X-Forwarded-For.
         $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
         if ($forwarded !== '') {
             return trim(explode(',', $forwarded)[0]);

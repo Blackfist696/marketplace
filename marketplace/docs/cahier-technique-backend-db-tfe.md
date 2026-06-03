@@ -36,6 +36,236 @@ Il apporte:
 
 Concretement, Slim orchestre le cycle complet d'une requete entrante jusqu'a la reponse JSON finale.
 
+## 2.2 Diagramme UML des classes backend
+
+Cette vue resume l'architecture objet du backend. Elle est volontairement plus compacte que la version technique detaillee, mais elle conserve les cardinalites utiles a la lecture.
+
+### 2.2.1 Vue simplifiee avec cardinalites
+
+```mermaid
+classDiagram
+direction LR
+
+abstract class Controller
+class AdminController
+class ArtisanController
+class AuthController
+class AvisController
+class CartController
+class CategorieController
+class ClasseController
+class HomeController
+class LigneCommandeController
+class OrderController
+class PaiementApiController
+class PaymentController
+class PaysController
+class ProductController
+class ProfileController
+class StatistiqueArtisanController
+class UserAddressController
+class VilleController
+
+Controller <|-- AdminController
+Controller <|-- ArtisanController
+Controller <|-- AuthController
+Controller <|-- AvisController
+Controller <|-- CartController
+Controller <|-- CategorieController
+Controller <|-- ClasseController
+Controller <|-- HomeController
+Controller <|-- LigneCommandeController
+Controller <|-- OrderController
+Controller <|-- PaiementApiController
+Controller <|-- PaymentController
+Controller <|-- PaysController
+Controller <|-- ProductController
+Controller <|-- ProfileController
+Controller <|-- StatistiqueArtisanController
+Controller <|-- UserAddressController
+Controller <|-- VilleController
+
+abstract class Model
+class Database
+Model --> Database : PDO
+
+abstract class AbstractValidator
+class Utilisateur
+class Role
+class Artisan
+class Produit
+class Commande
+class LigneCommande
+class Paiement
+class Adresse
+class Ville
+class Pays
+class Avis
+class ImageProduit
+class Categorie
+class Classe
+class RUtilisateurAdresse
+class StatistiqueArtisan
+
+Model <|-- Utilisateur
+Model <|-- Role
+Model <|-- Artisan
+Model <|-- Produit
+Model <|-- Commande
+Model <|-- LigneCommande
+Model <|-- Paiement
+Model <|-- Adresse
+Model <|-- Ville
+Model <|-- Pays
+Model <|-- Avis
+Model <|-- ImageProduit
+Model <|-- Categorie
+Model <|-- Classe
+Model <|-- RUtilisateurAdresse
+Model <|-- StatistiqueArtisan
+
+Role "1" <-- "0..*" Utilisateur
+Utilisateur "1" <-- "0..1" Artisan
+Utilisateur "1" <-- "0..*" Commande
+Utilisateur "1" <-- "0..*" Avis
+Artisan "1" <-- "0..*" Produit
+Produit "1" <-- "0..*" LigneCommande
+Commande "1" <-- "1..*" LigneCommande
+Commande "1" <-- "0..1" Paiement
+Produit "1" <-- "0..*" Avis
+Produit "1" <-- "0..*" ImageProduit
+Adresse "1" <-- "0..*" Commande
+Ville "1" <-- "0..*" Adresse
+Pays "1" <-- "0..*" Ville
+Categorie "1" <-- "0..*" Classe
+Produit "1" <-- "0..*" Classe
+Utilisateur "1" <-- "0..*" RUtilisateurAdresse
+Adresse "1" <-- "0..*" RUtilisateurAdresse
+```
+
+### 2.2.2 Version PlantUML directement exploitable
+
+```plantuml
+@startuml
+show methods
+show fields
+skinparam classAttributeIconSize 0
+left to right direction
+
+abstract class Controller
+class AdminController
+class ArtisanController
+class AuthController
+class AvisController
+class CartController
+class CategorieController
+class ClasseController
+class HomeController
+class LigneCommandeController
+class OrderController
+class PaiementApiController
+class PaymentController
+class PaysController
+class ProductController
+class ProfileController
+class StatistiqueArtisanController
+class UserAddressController
+class VilleController
+
+Controller <|-- AdminController
+Controller <|-- ArtisanController
+Controller <|-- AuthController
+Controller <|-- AvisController
+Controller <|-- CartController
+Controller <|-- CategorieController
+Controller <|-- ClasseController
+Controller <|-- HomeController
+Controller <|-- LigneCommandeController
+Controller <|-- OrderController
+Controller <|-- PaiementApiController
+Controller <|-- PaymentController
+Controller <|-- PaysController
+Controller <|-- ProductController
+Controller <|-- ProfileController
+Controller <|-- StatistiqueArtisanController
+Controller <|-- UserAddressController
+Controller <|-- VilleController
+
+abstract class Model
+class Database
+Model --> Database : PDO
+
+abstract class AbstractValidator
+class Utilisateur
+class Role
+class Artisan
+class Produit
+class Commande
+class LigneCommande
+class Paiement
+class Adresse
+class Ville
+class Pays
+class Avis
+class ImageProduit
+class Categorie
+class Classe
+class RUtilisateurAdresse
+class StatistiqueArtisan
+
+Model <|-- Utilisateur
+Model <|-- Role
+Model <|-- Artisan
+Model <|-- Produit
+Model <|-- Commande
+Model <|-- LigneCommande
+Model <|-- Paiement
+Model <|-- Adresse
+Model <|-- Ville
+Model <|-- Pays
+Model <|-- Avis
+Model <|-- ImageProduit
+Model <|-- Categorie
+Model <|-- Classe
+Model <|-- RUtilisateurAdresse
+Model <|-- StatistiqueArtisan
+
+Role "1" <-- "0..*" Utilisateur
+Utilisateur "1" <-- "0..1" Artisan
+Utilisateur "1" <-- "0..*" Commande
+Utilisateur "1" <-- "0..*" Avis
+Artisan "1" <-- "0..*" Produit
+Produit "1" <-- "0..*" LigneCommande
+Commande "1" <-- "1..*" LigneCommande
+Commande "1" <-- "0..1" Paiement
+Produit "1" <-- "0..*" Avis
+Produit "1" <-- "0..*" ImageProduit
+Adresse "1" <-- "0..*" Commande
+Ville "1" <-- "0..*" Adresse
+Pays "1" <-- "0..*" Ville
+Categorie "1" <-- "0..*" Classe
+Produit "1" <-- "0..*" Classe
+Utilisateur "1" <-- "0..*" RUtilisateurAdresse
+Adresse "1" <-- "0..*" RUtilisateurAdresse
+@enduml
+```
+
+### 2.2.3 Fonctions clefs a retenir
+
+Pour l'expose, il suffit souvent de retenir les groupes de fonctions suivants:
+
+| Bloc | Fonctions principales |
+|---|---|
+| Controller | `respond(...)`, `consumeResponse()` |
+| AuthController | `loginForm()`, `login()`, `logout()`, `registerForm()`, `register()` |
+| ProductController | `index()`, `show()`, `indexByArtisan()`, `store()`, `update()`, `destroy()` |
+| OrderController | `index()`, `show()`, `store()` |
+| AdminController | `users()`, `artisans()`, `products()`, `orders()`, `categories()`, `stats()` |
+| Model | `all()`, `find()`, `where()`, `create()`, `update()`, `delete()`, `save()` |
+| Validators | `validate()`, et `validateLogin()` pour `UtilisateurValidator` |
+
+La version detaillee contenant l'inventaire complet des fonctions reste dans `docs/cahier-technique-backend-db.md`.
+
 ## 3. Chemin complet d'une requete
 
 Exemple: POST /project02/api/avis

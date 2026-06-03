@@ -15,11 +15,13 @@ final class BasePathResolver
      */
     public static function resolve(array $config = []): string
     {
+        // Priorite 1: override explicite via variable d'environnement.
         $envBasePath = getenv('APP_BASE_PATH');
         if (is_string($envBasePath) && $envBasePath !== '') {
             return self::normalize($envBasePath);
         }
 
+        // Priorite 2: deduction depuis SCRIPT_NAME (cas Apache/Nginx classique).
         $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
         $scriptDir = dirname($scriptName);
         $scriptDir = $scriptDir === '.' ? '' : str_replace('\\', '/', $scriptDir);
@@ -29,6 +31,7 @@ final class BasePathResolver
             return self::normalize($scriptDir);
         }
 
+        // Priorite 3: fallback sur la config si l'URL courante correspond.
         $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
         $configuredBasePath = self::normalize($config['base_path'] ?? '');
         if ($configuredBasePath !== '' && ($requestPath === $configuredBasePath || str_starts_with($requestPath, $configuredBasePath . '/'))) {

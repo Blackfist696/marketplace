@@ -11,6 +11,8 @@ use Slim\Psr7\Response;
  */
 abstract class Controller
 {
+    // Reponse tamponnee: permet de conserver un style legacy void dans les actions
+    // tout en restant compatible avec le pipeline PSR-7 de Slim.
     private ?ResponseInterface $response = null;
 
     /**
@@ -22,6 +24,7 @@ abstract class Controller
      */
     protected function respond(int $status = 200, string $message = '', array $data = []): void
     {
+        // Contrat JSON minimal commun a tous les controleurs.
         $payload = [
             'status' => $status,
             'message' => $message,
@@ -31,6 +34,7 @@ abstract class Controller
             $payload['data'] = $data;
         }
 
+        // Journalisation standardisee des erreurs HTTP (4xx/5xx).
         if ($status >= 400) {
             AppLogger::log(
                 $status >= 500 ? 'app-error' : 'client-error',
@@ -46,11 +50,13 @@ abstract class Controller
             );
         }
 
+        // Construction de la Response PSR-7 finale, lue ensuite par l'invoker.
         $this->response = JsonResponder::write(new Response(), $status, $payload);
     }
 
     public function consumeResponse(): ?ResponseInterface
     {
+        // Consommation one-shot: evite de renvoyer deux fois la meme reponse.
         $response = $this->response;
         $this->response = null;
 
