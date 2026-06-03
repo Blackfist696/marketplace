@@ -15,7 +15,11 @@ final class SessionMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        // Charge la politique session (cookies secure/httponly/samesite, etc.)
+        // depuis la config applicative centralisee.
         $config = require __DIR__ . '/../config/app.php';
+
+        // start() est idempotent: ne redemarre pas la session si deja active.
         SessionSecurity::start($config['security']['session'] ?? []);
 
         return $handler->handle($request);

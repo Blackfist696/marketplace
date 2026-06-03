@@ -17,6 +17,7 @@ final class SlidingWindowLimiter
         $state = $this->readState();
 
         $attempts = $state[$key] ?? [];
+        // Sliding window: on conserve uniquement les tentatives encore dans la fenetre.
         $attempts = array_values(array_filter($attempts, static fn(int $ts): bool => ($now - $ts) < $windowSeconds));
 
         if (count($attempts) >= $maxAttempts) {
@@ -62,6 +63,7 @@ final class SlidingWindowLimiter
             mkdir($dir, 0775, true);
         }
 
+        // Ecriture verrouillee pour eviter les corruptions en acces concurrent.
         $handle = fopen($this->storageFile, 'c+');
         if ($handle === false) {
             return;

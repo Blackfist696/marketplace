@@ -30,6 +30,512 @@ Dependances composer:
 - slim/slim 4.x
 - slim/psr7 ^1.8
 
+## 2.1 Diagramme UML des classes backend
+
+Le backend est decoupe en quatre blocs pour garder une lecture fluide:
+- controleurs applicatifs,
+- socle technique et validation,
+- modeles de referentiel,
+- modeles metier et commerce.
+
+Les tableaux ci-dessous inventorient les fonctions visibles dans chaque classe, puis un bloc PlantUML compact permet de regenerer le diagramme par section.
+
+### 2.1.1 Controleurs applicatifs
+
+| Classe | Fonctions visibles |
+|---|---|
+| Controller | `respond(int $status = 200, string $message = '', array $data = []): void`, `consumeResponse(): ?ResponseInterface` |
+| AdminController | `users()`, `showUser(int $id)`, `updateUser(int $id)`, `deactivateUser(int $id)`, `artisans()`, `showArtisan(int $id)`, `updateArtisan(int $id)`, `deactivateArtisan(int $id)`, `products()`, `updateProduct(int $id)`, `deactivateProduct(int $id)`, `orders()`, `showOrder(int $id)`, `updateOrder(int $id)`, `categories()`, `updateCategory(int $id)`, `updateCategoriesBulk()`, `updateAllCategories()`, `stats()`, `requireAdmin(): bool` |
+| ArtisanController | `index()`, `show(int $id)`, `myProducts()`, `stats()`, `dashboard()`, `orders()`, `buildStrictArtisanOrders(int $artisanId, array $filters): array`, `buildArtisanStats(int $artisanId, array $filters): array`, `requireRole(int $role): int|false` |
+| AuthController | `__construct()`, `loginForm()`, `login()`, `logout()`, `registerForm()`, `register()` |
+| AvisController | `index()`, `show(int $id)`, `indexByProduit(int $idProduit)`, `store()`, `update(int $id)`, `destroy(int $id)` |
+| CartController | `index()`, `add()`, `updateLine(int $idProduit)`, `remove(int $idProduit)`, `startSession(): void` |
+| CategorieController | `index()`, `show(array $args)` |
+| ClasseController | `index()`, `indexByCategorie(int $idCategorie)`, `indexByProduit(int $idProduit)`, `store()`, `destroy(int $idCategorie, int $idProduit)` |
+| HomeController | `index()` |
+| OrderController | `index()`, `show(int $id)`, `store()` |
+| PaiementApiController | `index()`, `show(int $id)`, `store()`, `update(int $id)`, `destroy(int $id)` |
+| PaymentController | `page()`, `process()`, `getPrimaryKey(): string` |
+| PaysController | `index()`, `show(int $id)`, `store()`, `update(int $id)`, `destroy(int $id)` |
+| ProductController | `index()`, `show(int $id)`, `indexByArtisan(int $artisan_id)`, `store()`, `update(int $id)`, `destroy(int $id)`, `withCategories(array $products): array`, `withCategory(array $product): array`, `slugifyCategory(string $label): string`, `requireAuth(): bool`, `requireRole(array $allowedRoles): bool`, `requireOwnerOrAdmin(int $artisanId): bool`, `isAdmin(): bool` |
+| ProfileController | `show()`, `update()`, `deactivate()`, `requireAuth(): int|false` |
+| StatistiqueArtisanController | `index()`, `show(int $id)`, `indexByArtisan(int $idArtisan)`, `store()`, `update(int $id)`, `destroy(int $id)`, `requireAdmin(): bool`, `requireSessionUser(): array|false` |
+| UserAddressController | `index()`, `indexByUtilisateur(int $idUtilisateur)`, `indexByAdresse(int $idAdresse)`, `store()`, `destroy(int $idUtilisateur, int $idAdresse)`, `requireSessionUser(): array|false` |
+| VilleController | `index()`, `show(int $id)`, `store()`, `update(int $id)`, `destroy(int $id)` |
+
+```mermaid
+classDiagram
+direction LR
+
+class Controller {
+   +respond(int status = 200, string message = '', array data = []): void
+   +consumeResponse() ?ResponseInterface
+}
+
+class AdminController
+class ArtisanController
+class AuthController
+class AvisController
+class CartController
+class CategorieController
+class ClasseController
+class HomeController
+class OrderController
+class PaiementApiController
+class PaymentController
+class PaysController
+class ProductController
+class ProfileController
+class StatistiqueArtisanController
+class UserAddressController
+class VilleController
+
+Controller <|-- AdminController
+Controller <|-- ArtisanController
+Controller <|-- AuthController
+Controller <|-- AvisController
+Controller <|-- CartController
+Controller <|-- CategorieController
+Controller <|-- ClasseController
+Controller <|-- HomeController
+Controller <|-- OrderController
+Controller <|-- PaiementApiController
+Controller <|-- PaymentController
+Controller <|-- PaysController
+Controller <|-- ProductController
+Controller <|-- ProfileController
+Controller <|-- StatistiqueArtisanController
+Controller <|-- UserAddressController
+Controller <|-- VilleController
+```
+
+```plantuml
+@startuml
+show methods
+show fields
+skinparam classAttributeIconSize 0
+left to right direction
+
+abstract class Controller {
+   +respond(status: int = 200, message: string = '', data: array = []): void
+   +consumeResponse(): ?ResponseInterface
+}
+
+class AdminController
+class ArtisanController
+class AuthController
+class AvisController
+class CartController
+class CategorieController
+class ClasseController
+class HomeController
+class OrderController
+class PaiementApiController
+class PaymentController
+class PaysController
+class ProductController
+class ProfileController
+class StatistiqueArtisanController
+class UserAddressController
+class VilleController
+
+Controller <|-- AdminController
+Controller <|-- ArtisanController
+Controller <|-- AuthController
+Controller <|-- AvisController
+Controller <|-- CartController
+Controller <|-- CategorieController
+Controller <|-- ClasseController
+Controller <|-- HomeController
+Controller <|-- OrderController
+Controller <|-- PaiementApiController
+Controller <|-- PaymentController
+Controller <|-- PaysController
+Controller <|-- ProductController
+Controller <|-- ProfileController
+Controller <|-- StatistiqueArtisanController
+Controller <|-- UserAddressController
+Controller <|-- VilleController
+@enduml
+```
+
+### 2.1.2 Socle technique et validation
+
+| Classe | Fonctions visibles |
+|---|---|
+| Model | `normalizeRow(array $row): array`, `getValidatorClass(): ?string`, `validateData(array $data): ValidationResult`, `validate(array $data): ValidationResult`, `sanitizeValue($value)`, `sanitizeData(array $data): array`, `__construct(array $attributes = [])`, `fill(array $attributes): self`, `__get(string $name)`, `__set(string $name, $value): void`, `toArray(): array`, `getPDO(): PDO`, `all(): array`, `find(int $id): ?array`, `where(string $column, $value): array`, `create(array $data): int`, `update(int $id, array $data): bool`, `delete(int $id): bool`, `save(): int` |
+| Database | `getConnection(): PDO` |
+| AbstractValidator | `__construct()`, `validate(array $data): ValidationResult` |
+| ValidationException | `__construct(array $errors, string $message = 'Validation failed')`, `getErrors(): array` |
+| ValidationResult | `addError(string $field, string $message): void`, `isValid(): bool`, `getErrors(): array`, `firstError(): ?string`, `toArray(): array` |
+| AdresseValidator | `validate(array $data): ValidationResult` |
+| AvisValidator | `validate(array $data): ValidationResult` |
+| ClasseValidator | `validate(array $data): ValidationResult` |
+| CommandeValidator | `validate(array $data): ValidationResult` |
+| LigneCommandeValidator | `validate(array $data): ValidationResult` |
+| PaiementValidator | `validate(array $data): ValidationResult` |
+| PaysValidator | `validate(array $data): ValidationResult` |
+| ProduitValidator | `validate(array $data): ValidationResult` |
+| RUtilisateurAdresseValidator | `validate(array $data): ValidationResult` |
+| StatistiqueArtisanValidator | `validate(array $data): ValidationResult` |
+| UtilisateurValidator | `validate(array $data): ValidationResult`, `validateLogin(array $data): ValidationResult` |
+| VilleValidator | `validate(array $data): ValidationResult` |
+
+```mermaid
+classDiagram
+direction LR
+
+class Model {
+   <<abstract>>
+   +validate(array data) ValidationResult
+   +getPDO() PDO
+   +all() array
+   +find(int id) ?array
+   +where(string column, value) array
+   +create(array data) int
+   +update(int id, array data) bool
+   +delete(int id) bool
+   +save() int
+}
+
+class Database
+class AbstractValidator {
+   <<abstract>>
+   +validate(array data) ValidationResult
+}
+
+class ValidationException
+class ValidationResult
+
+Model --> Database : PDO
+AbstractValidator <|-- AdresseValidator
+AbstractValidator <|-- AvisValidator
+AbstractValidator <|-- ClasseValidator
+AbstractValidator <|-- CommandeValidator
+AbstractValidator <|-- LigneCommandeValidator
+AbstractValidator <|-- PaiementValidator
+AbstractValidator <|-- PaysValidator
+AbstractValidator <|-- ProduitValidator
+AbstractValidator <|-- RUtilisateurAdresseValidator
+AbstractValidator <|-- StatistiqueArtisanValidator
+AbstractValidator <|-- UtilisateurValidator
+AbstractValidator <|-- VilleValidator
+```
+
+```plantuml
+@startuml
+show methods
+show fields
+skinparam classAttributeIconSize 0
+left to right direction
+
+abstract class Model {
+   +validate(data: array): ValidationResult
+   +getPDO(): PDO
+   +all(): array
+   +find(id: int): ?array
+   +where(column: string, value): array
+   +create(data: array): int
+   +update(id: int, data: array): bool
+   +delete(id: int): bool
+   +save(): int
+}
+
+class Database {
+   +getConnection(): PDO
+}
+
+abstract class AbstractValidator {
+   +validate(data: array): ValidationResult
+}
+
+class ValidationException {
+   +__construct(errors: array, message: string = 'Validation failed')
+   +getErrors(): array
+}
+
+class ValidationResult {
+   +addError(field: string, message: string): void
+   +isValid(): bool
+   +getErrors(): array
+   +firstError(): ?string
+   +toArray(): array
+}
+
+Model --> Database : PDO
+@enduml
+```
+
+### 2.1.3 Modeles de referentiel
+
+| Classe | Fonctions visibles |
+|---|---|
+| Role | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Pays | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Ville | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Categorie | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Classe | `getAll()`, `createRecord(array $data)`, `link(int $idCategorie, int $idProduit)`, `unlink(int $idCategorie, int $idProduit)`, `getByCategorieId(int $idCategorie)`, `getByProduitId(int $idProduit)` |
+| RUtilisateurAdresse | `getAll()`, `createRecord(array $data)`, `link(int $idUtilisateur, int $idAdresse)`, `unlink(int $idUtilisateur, int $idAdresse)`, `getByUtilisateurId(int $idUtilisateur)`, `getByAdresseId(int $idAdresse)` |
+
+```mermaid
+classDiagram
+direction LR
+
+class Role
+class Pays
+class Ville
+class Categorie
+class Classe
+class RUtilisateurAdresse
+
+Role "1" <-- "0..*" Utilisateur : id_role
+Pays "1" <-- "0..*" Ville : id_pays
+Ville "1" <-- "0..*" Adresse : id_ville
+Categorie "1" <-- "0..*" Classe : id_categorie
+Categorie "0..1" <-- "0..*" Categorie : id_categorie_1
+Utilisateur "1" <-- "0..*" RUtilisateurAdresse : id_utilisateur
+Adresse "1" <-- "0..*" RUtilisateurAdresse : id_adresse
+```
+
+```plantuml
+@startuml
+show methods
+show fields
+skinparam classAttributeIconSize 0
+left to right direction
+
+class Role {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Pays {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Ville {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Categorie {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Classe {
+   +getAll(): array
+   +createRecord(data: array): int
+   +link(idCategorie: int, idProduit: int): int
+   +unlink(idCategorie: int, idProduit: int): bool
+   +getByCategorieId(idCategorie: int): array
+   +getByProduitId(idProduit: int): array
+}
+
+class RUtilisateurAdresse {
+   +getAll(): array
+   +createRecord(data: array): int
+   +link(idUtilisateur: int, idAdresse: int): int
+   +unlink(idUtilisateur: int, idAdresse: int): bool
+   +getByUtilisateurId(idUtilisateur: int): array
+   +getByAdresseId(idAdresse: int): array
+}
+@enduml
+```
+
+### 2.1.4 Modeles metier et commerce
+
+| Classe | Fonctions visibles |
+|---|---|
+| Utilisateur | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Artisan | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Produit | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| ImageProduit | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Commande | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| LigneCommande | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Paiement | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Avis | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| Adresse | `getByUtilisateurId(int $userId)`, `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+| StatistiqueArtisan | `getAll()`, `getById(int $id)`, `getBy(string $column, $value)`, `createRecord(array $data)`, `updateRecord(int $id, array $data)`, `deleteRecord(int $id)`, `saveRecord()` |
+
+```mermaid
+classDiagram
+direction LR
+
+class Utilisateur
+class Artisan
+class Produit
+class ImageProduit
+class Commande
+class LigneCommande
+class Paiement
+class Avis
+class Adresse
+class StatistiqueArtisan
+
+Role "1" <-- "0..*" Utilisateur : id_role
+Utilisateur "1" <-- "0..1" Artisan : id_utilisateur
+Utilisateur "1" <-- "0..*" Commande : id_utilisateur
+Utilisateur "1" <-- "0..*" Avis : id_utilisateur
+Utilisateur "1" <-- "0..*" StatistiqueArtisan : id_utilisateur
+Artisan "1" <-- "0..*" Produit : id_artisan
+Artisan "1" <-- "0..*" StatistiqueArtisan : id_artisan
+Commande "1" <-- "1..*" LigneCommande : id_commande
+Commande "1" <-- "0..1" Paiement : id_commande
+Produit "1" <-- "0..*" LigneCommande : id_produit
+Produit "1" <-- "0..*" Avis : id_produit
+Produit "1" <-- "0..*" ImageProduit : id_produit
+Produit "1" <-- "0..*" StatistiqueArtisan : id_produit
+Adresse "1" <-- "0..*" Commande : id_adresse
+Ville "1" <-- "0..*" Adresse : id_ville
+Pays "1" <-- "0..*" Ville : id_pays
+```
+
+```plantuml
+@startuml
+show methods
+show fields
+skinparam classAttributeIconSize 0
+left to right direction
+
+class Utilisateur {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Artisan {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Produit {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class ImageProduit {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Commande {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class LigneCommande {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Paiement {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Avis {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class Adresse {
+   +getByUtilisateurId(userId: int): array
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+class StatistiqueArtisan {
+   +getAll(): array
+   +getById(id: int): ?array
+   +getBy(column: string, value): array
+   +createRecord(data: array): int
+   +updateRecord(id: int, data: array): bool
+   +deleteRecord(id: int): bool
+   +saveRecord(): int
+}
+
+Utilisateur "1" <-- "0..1" Artisan : id_utilisateur
+Utilisateur "1" <-- "0..*" Commande : id_utilisateur
+Utilisateur "1" <-- "0..*" Avis : id_utilisateur
+Utilisateur "1" <-- "0..*" StatistiqueArtisan : id_utilisateur
+Artisan "1" <-- "0..*" Produit : id_artisan
+Artisan "1" <-- "0..*" StatistiqueArtisan : id_artisan
+Commande "1" <-- "1..*" LigneCommande : id_commande
+Commande "1" <-- "0..1" Paiement : id_commande
+Produit "1" <-- "0..*" LigneCommande : id_produit
+Produit "1" <-- "0..*" Avis : id_produit
+Produit "1" <-- "0..*" ImageProduit : id_produit
+Produit "1" <-- "0..*" StatistiqueArtisan : id_produit
+Adresse "1" <-- "0..*" Commande : id_adresse
+@enduml
+```
+
 ## 3. Architecture de l'execution HTTP
 
 ### 3.1 Front controller

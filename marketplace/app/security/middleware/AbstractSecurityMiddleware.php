@@ -20,6 +20,7 @@ abstract class AbstractSecurityMiddleware implements MiddlewareInterface
 
     protected function deny(int $status, string $message, array $extra = []): ResponseInterface
     {
+        // Canal de log choisi selon la nature du refus securite.
         $channel = match ($status) {
             401, 403 => 'access',
             429 => 'rate-limit',
@@ -34,6 +35,7 @@ abstract class AbstractSecurityMiddleware implements MiddlewareInterface
             'ip' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
         ] + $extra);
 
+        // Payload API coherent pour le frontend (status/message + meta optionnelle).
         $payload = array_merge([
             'status' => $status,
             'message' => $message,

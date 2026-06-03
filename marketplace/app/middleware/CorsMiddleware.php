@@ -12,6 +12,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 final class CorsMiddleware implements MiddlewareInterface
 {
+    // Whitelist explicite des origines frontend autorisees en dev.
     private const ALLOWED_ORIGINS = [
         'http://localhost:4200',
         'http://127.0.0.1:4200',
@@ -20,6 +21,7 @@ final class CorsMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $origin = $request->getHeaderLine('Origin');
+        // Reflection controlee: on ne renvoie que les origines explicitement connues.
         $allowedOrigin = in_array($origin, self::ALLOWED_ORIGINS, true) ? $origin : '';
 
         if ($request->getMethod() === 'OPTIONS') {
@@ -34,6 +36,7 @@ final class CorsMiddleware implements MiddlewareInterface
     private function addCorsHeaders(ResponseInterface $response, string $origin): ResponseInterface
     {
         if ($origin !== '') {
+            // Necessaire pour les cookies de session cross-origin avec Angular dev server.
             $response = $response
                 ->withHeader('Access-Control-Allow-Origin', $origin)
                 ->withHeader('Access-Control-Allow-Credentials', 'true');

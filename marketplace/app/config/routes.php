@@ -17,6 +17,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
 
 return function (App $app): void {
+    // Invoker unique: convertit les handlers texte Controller@action en appels PHP.
     $invoker = new ControllerActionInvoker();
 
     // CORS preflight handler for all routes
@@ -25,10 +26,13 @@ return function (App $app): void {
     });
 
     $register = static function (array|string $methods, string $path, string $handler, array $middlewares = []) use ($app, $invoker): void {
+        // Wrapping standard Slim -> invoker pour homogeniser le dispatch.
         $route = $app->map((array) $methods, $path, function (Request $request, Response $response, array $args) use ($invoker, $handler): Response {
             return $invoker->invoke($request, $response, $handler, $args);
         });
 
+        // Les middlewares de route sont ajoutes en ordre inverse pour respecter
+        // l'ordre declare dans le tableau (plus intuitif pour la lecture).
         foreach (array_reverse($middlewares) as $middleware) {
             $route->add($middleware);
         }
@@ -40,6 +44,7 @@ return function (App $app): void {
     $adminRole = new RoleMiddleware([1]);
     $securityConfig = require __DIR__ . '/app.php';
     $rateConfig = (array) ($securityConfig['security']['rate_limit'] ?? []);
+    // Middleware anti brute-force specialement cible sur POST /login.
     $loginRateLimit = new LoginRateLimitMiddleware(
         new SlidingWindowLimiter(),
         (int) ($rateConfig['login_max_attempts'] ?? 5),

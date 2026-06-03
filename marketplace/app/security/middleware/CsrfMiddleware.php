@@ -24,6 +24,7 @@ final class CsrfMiddleware extends AbstractSecurityMiddleware
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        // Le token CSRF est lie a la session: on s'assure qu'elle est active.
         SessionSecurity::start();
 
         $csrfToken = $this->tokenManager->getToken();
@@ -37,16 +38,19 @@ final class CsrfMiddleware extends AbstractSecurityMiddleware
             }
         }
 
+        // Token renvoye systematiquement pour faciliter le refresh cote frontend.
         $response = $handler->handle($request);
         return $response->withHeader('X-CSRF-Token', $csrfToken);
     }
 
     private function requiresValidation(string $method, string $path): bool
     {
+        // Aucune validation CSRF sur methodes de lecture/preflight.
         if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
             return false;
         }
 
+        // CSRF pertinent seulement pour un utilisateur authentifie.
         if (empty($_SESSION['user_id'])) {
             return false;
         }
