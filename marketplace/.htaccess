@@ -3,6 +3,10 @@ RewriteEngine On
 # Homepage should open the Angular frontend build.
 RewriteRule ^$ /project02/public/app/ [R=302,L]
 
+# Force les endpoints backend connus a passer par le front controller,
+# meme si l'hebergeur ou Apache tente une resolution repertoire/DirectorySlash.
+RewriteRule ^(api|login|logout|register|profile|products|artisans|artisan|orders|cart|admin|categories|payment|home)(/.*)?$ index.php [QSA,L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]

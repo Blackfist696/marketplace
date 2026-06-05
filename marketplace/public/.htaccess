@@ -1,5 +1,9 @@
 RewriteEngine On
 
+# Force les endpoints backend connus a passer par le front controller
+# avant toute tentative de fallback SPA ou resolution repertoire.
+RewriteRule ^(api|login|logout|register|profile|products|artisans|artisan|orders|cart|admin|categories|payment|home)(/.*)?$ index.php [QSA,L]
+
 # Keep Angular SPA routes under /app on the frontend entrypoint.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
