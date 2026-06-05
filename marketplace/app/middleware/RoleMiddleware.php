@@ -3,10 +3,13 @@
 namespace App\Middleware;
 
 use App\Core\JsonResponder;
+use App\Models\Utilisateur;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+
+require_once __DIR__ . '/../models/UtilisateurModel.php';
 
 final class RoleMiddleware implements MiddlewareInterface
 {
@@ -28,6 +31,15 @@ final class RoleMiddleware implements MiddlewareInterface
         }
 
         $roleId = (int) ($_SESSION['user_role'] ?? 0);
+        if ($roleId <= 0) {
+            $user = Utilisateur::getById((int) $_SESSION['user_id']);
+            $roleId = (int) ($user['id_role'] ?? 0);
+
+            if ($roleId > 0) {
+                $_SESSION['user_role'] = $roleId;
+            }
+        }
+
         // Convention projet: role 1 = admin, bypass de toutes les restrictions de role.
         if ($roleId !== 1 && !in_array($roleId, $this->allowedRoles, true)) {
             return JsonResponder::write($this->createResponse(), 403, [
