@@ -64,3 +64,7 @@ RewriteRule ^ index.php [QSA,L]
 1. `GET /` retourne bien la reponse attendue.
 2. `GET /api/pays` (ou autre endpoint public) retourne du JSON.
 3. Un endpoint protege retourne bien `401/403` selon le contexte.
+
+## Voir aussi
+
+- Plan SEO detaille: [docs/seo-implementation-plan.md](seo-implementation-plan.md)
