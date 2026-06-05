@@ -177,6 +177,9 @@ return function (App $app): void {
     $register('PUT', '/api/avis/{id}', 'App\\Controllers\\AvisController@update', [$auth]);
     $register('DELETE', '/api/avis/{id}', 'App\\Controllers\\AvisController@destroy', [$auth]);
 
+    // MVP AI: proxy backend vers Ollama local (auth obligatoire pour limiter l'abus).
+    $register('POST', '/api/ai/chat', 'App\\Controllers\\AiController@chat', [$auth]);
+
     $register('GET', '/api/paiements', 'App\\Controllers\\PaiementApiController@index', [$auth]);
     $register('GET', '/api/paiements/{id}', 'App\\Controllers\\PaiementApiController@show', [$auth]);
     $register('POST', '/api/paiements', 'App\\Controllers\\PaiementApiController@store', [$auth]);
