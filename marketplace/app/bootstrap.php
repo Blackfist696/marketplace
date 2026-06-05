@@ -14,6 +14,7 @@ use App\Core\JsonResponder;
 use App\Middleware\CorsMiddleware;
 use App\Middleware\RequestDataMiddleware;
 use App\Middleware\SessionMiddleware;
+use App\Middleware\StripTrailingSlashMiddleware;
 use App\Models\Validators\ValidationException;
 use App\Security\CsrfTokenManager;
 use App\Security\Middleware\CsrfMiddleware;
@@ -43,6 +44,10 @@ $app->addRoutingMiddleware();
 // 2) CorsMiddleware: ajoute les en-tetes CORS et gere les preflight OPTIONS.
 // Place avant le routing effectif pour repondre rapidement aux preflight.
 $app->add(new CorsMiddleware());
+
+// 2bis) StripTrailingSlashMiddleware: neutralise les slashs finaux imposes
+// par certains environnements Apache avant le matching des routes Slim.
+$app->add(new StripTrailingSlashMiddleware());
 
 // 3) RequestDataMiddleware: normalise les donnees d'entree (JSON/form)
 // pour un acces uniforme via parsedBody/$_POST dans les controleurs.
@@ -85,11 +90,23 @@ $errorMiddleware->setDefaultErrorHandler(
     ) use ($app): ResponseInterface {
         // Mapping technique -> metier: on choisit le statut HTTP et le canal de log
         // en fonction du type d'exception.
-        $status = $exception instanceof ValidationException ? 422 : 500;
-        $channel = $exception instanceof ValidationException ? 'validation' : 'app-error';
-        $message = $exception instanceof ValidationException
-            ? 'Erreur de validation'
-            : 'Erreur interne du serveur';
+        $status = 500;
+        $channel = 'app-error';
+        $message = 'Erreur interne du serveur';
+
+        if ($exception instanceof ValidationException) {
+            $status = 422;
+            $channel = 'validation';
+            $message = 'Erreur de validation';
+        } elseif ($exception instanceof \Slim\Exception\HttpNotFoundException) {
+            $status = 404;
+            $channel = 'client-error';
+            $message = 'Ressource introuvable';
+        } elseif ($exception instanceof \Slim\Exception\HttpMethodNotAllowedException) {
+            $status = 405;
+            $channel = 'client-error';
+            $message = 'Methode HTTP non autorisee';
+        }
 
         // Journalisation centralisee: contexte minimal pour diagnostiquer
         // (code HTTP, methode, URI, utilisateur courant, IP source).
