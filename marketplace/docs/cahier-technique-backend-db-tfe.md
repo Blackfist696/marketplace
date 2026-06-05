@@ -290,6 +290,7 @@ Client HTTP
 -> SessionMiddleware
 -> CsrfMiddleware
 -> RequestDataMiddleware
+-> StripTrailingSlashMiddleware
 -> CorsMiddleware
 -> RoutingMiddleware
 -> Middleware(s) de route (Auth/Role/RateLimit/QueryValidation selon endpoint)
@@ -312,18 +313,19 @@ flowchart TD
 	B --> C[SessionMiddleware]
 	C --> D[CsrfMiddleware]
 	D --> E[RequestDataMiddleware]
-	E --> F[CorsMiddleware]
-	F --> G[RoutingMiddleware]
-	G --> H[Middleware de route\nAuth Role RateLimit QueryValidation]
-	H --> I[ControllerActionInvoker]
-	I --> J[Controller action]
-	J --> K[JsonResponder]
-	K --> L[Reponse JSON]
+	E --> F[StripTrailingSlashMiddleware]
+	F --> G[CorsMiddleware]
+	G --> H[RoutingMiddleware]
+	H --> I[Middleware de route\nAuth Role RateLimit QueryValidation]
+	I --> J[ControllerActionInvoker]
+	J --> K[Controller action]
+	K --> L[JsonResponder]
+	L --> M[Reponse JSON]
 
-	H --> M[401 pas connecte]
-	H --> N[403 pas autorise]
-	J --> O[422 validation]
-	B --> P[500 erreur interne]
+	I --> N[401 pas connecte]
+	I --> O[403 pas autorise]
+	K --> P[422 validation]
+	B --> Q[500 erreur interne]
 ```
 
 ## 4. Role des composants centraux
@@ -339,6 +341,7 @@ flowchart TD
 
 - SessionMiddleware: initialise la session de facon securisee.
 - CorsMiddleware: gere CORS et preflight OPTIONS.
+- StripTrailingSlashMiddleware: retire les slashs finaux imposes par Apache avant le matching des routes.
 - RequestDataMiddleware: parse les corps JSON/form-data en entree.
 - AuthMiddleware: bloque les routes protegees pour les non connectes.
 - RoleMiddleware: bloque les routes non autorisees par role.
@@ -424,7 +427,17 @@ Pour faciliter le debug transverse:
 - renvoi de `X-Correlation-Id` dans la reponse
 - journalisation dediee des rejets query dans `app/logs/query-validation-attempts.log`
 
-## 6.8 Logs et tracabilite
+## 6.8 Normalisation des chemins
+
+En production, Apache peut rediriger automatiquement une URL comme `/products` vers `/products/`.
+
+Pour eviter que ce changement casse les routes Slim, le backend applique `StripTrailingSlashMiddleware`, qui retire le slash final avant le routage.
+
+Effet pratique:
+- les routes publiques continuent a fonctionner meme si le serveur ajoute un slash final
+- cela evite des erreurs artificielles sur les pages catalogue, artisans ou categories
+
+## 6.9 Logs et tracabilite
 
 Dossier:
 - app/logs
@@ -439,7 +452,7 @@ Canaux principaux:
 - php-error.log
 - query-validation-attempts.log
 
-## 6.9 Verification E2E
+## 6.10 Verification E2E
 
 Le script `test/api-checklist.ps1` valide les parcours critiques (anonyme, client, artisan, admin) et sert de garde-fou apres les changements de securite.
 

@@ -2,6 +2,27 @@
 
 ---
 
+## 2026-06-05 - Correctif production slash final Apache
+
+### Contexte
+En production, certaines routes publiques comme `/products` etaient redirigees par Apache vers `/products/`, ce qui cassait le matching Slim et degradait le chargement du catalogue sur la home.
+
+### Actions
+- Ajout du middleware `app/middleware/StripTrailingSlashMiddleware.php`.
+- Branchement du middleware dans `app/bootstrap.php` avant le routage effectif.
+- Ajustement du gestionnaire d'erreurs global pour distinguer correctement:
+  - `404` ressource introuvable
+  - `405` methode non autorisee
+  - `500` erreur interne reelle
+- Mise a jour des regles `.htaccess` racine et `public/` pour faire passer les endpoints backend connus par le front controller.
+
+### Resultat
+- Les slashs finaux imposes par Apache sont neutralises avant le matching des routes.
+- Les endpoints publics critiques (`/products`, `/artisans`, `/categories`) deviennent tolerants aux variantes avec slash final.
+- Les faux `500` lies au non-matching de route sont elimines au profit de codes HTTP plus justes.
+
+---
+
 ## 2026-06-05 - Durcissement query params, correlation id, fix session et validation E2E
 
 ### Contexte

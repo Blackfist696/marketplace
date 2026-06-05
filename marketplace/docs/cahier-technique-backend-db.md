@@ -561,21 +561,23 @@ Slim execute les middlewares en LIFO (dernier ajoute = premier execute).
 Ajouts dans le bootstrap:
 1. addRoutingMiddleware()
 2. CorsMiddleware
-3. RequestDataMiddleware
-4. CsrfMiddleware
-5. SessionMiddleware
-6. ErrorMiddleware
+3. StripTrailingSlashMiddleware
+4. RequestDataMiddleware
+5. CsrfMiddleware
+6. SessionMiddleware
+7. ErrorMiddleware
 
 Execution entrante (du plus externe au plus interne):
 1. ErrorMiddleware
 2. SessionMiddleware
 3. CsrfMiddleware
 4. RequestDataMiddleware
-5. CorsMiddleware
-6. RoutingMiddleware
-7. Middlewares de route (Auth/Role/RateLimit selon endpoint)
-8. ControllerActionInvoker
-9. Controller@action
+5. StripTrailingSlashMiddleware
+6. CorsMiddleware
+7. RoutingMiddleware
+8. Middlewares de route (Auth/Role/RateLimit selon endpoint)
+9. ControllerActionInvoker
+10. Controller@action
 
 Execution sortante: ordre inverse.
 
@@ -588,6 +590,7 @@ Client HTTP
 -> SessionMiddleware (ouvre/secure la session)
 -> CsrfMiddleware (verifie token CSRF sur actions sensibles)
 -> RequestDataMiddleware (lit et normalise les donnees)
+-> StripTrailingSlashMiddleware (retire les slashs finaux imposes par Apache)
 -> CorsMiddleware (autorise l'origine frontend)
 -> RoutingMiddleware (trouve la bonne route)
 -> Middleware(s) de route (Auth/Role/RateLimit/QueryValidation selon endpoint)
@@ -610,18 +613,19 @@ flowchart TD
    B --> C[SessionMiddleware]
    C --> D[CsrfMiddleware]
    D --> E[RequestDataMiddleware]
-   E --> F[CorsMiddleware]
-   F --> G[RoutingMiddleware]
-   G --> H[Middleware de route\nAuth Role RateLimit QueryValidation]
-   H --> I[ControllerActionInvoker]
-   I --> J[Controller action]
-   J --> K[JsonResponder]
-   K --> L[Reponse JSON]
+   E --> F[StripTrailingSlashMiddleware]
+   F --> G[CorsMiddleware]
+   G --> H[RoutingMiddleware]
+   H --> I[Middleware de route\nAuth Role RateLimit QueryValidation]
+   I --> J[ControllerActionInvoker]
+   J --> K[Controller action]
+   K --> L[JsonResponder]
+   L --> M[Reponse JSON]
 
-   H --> M[401 si non connecte]
-   H --> N[403 si role interdit]
-   J --> O[422 si validation KO]
-   B --> P[500 si erreur interne]
+   I --> N[401 si non connecte]
+   I --> O[403 si role interdit]
+   K --> P[422 si validation KO]
+   B --> Q[500 si erreur interne]
 ```
 
 ### 3.4 Dispatch controller
@@ -654,6 +658,7 @@ flowchart TD
 
 - SessionMiddleware.php: demarre et durcit la session selon config.
 - CorsMiddleware.php: gere CORS et preflight OPTIONS.
+- StripTrailingSlashMiddleware.php: normalise les chemins entrants en supprimant le slash final avant matching Slim.
 - RequestDataMiddleware.php: parse JSON/form et remplit parsedBody/$_POST.
 - AuthMiddleware.php: refuse si utilisateur non authentifie.
 - RoleMiddleware.php: refuse si role non autorise.
@@ -881,7 +886,21 @@ Canaux de logs dans app/logs:
 - php-error.log
 - query-validation-attempts.log
 
-## 6.9 Validation E2E des parcours critiques
+## 6.9 Normalisation des chemins en production
+
+Contexte:
+- certains environnements Apache redirigent automatiquement une route comme `/products` vers `/products/`
+- cette normalisation peut casser le matching Slim si les routes sont declarees sans slash final
+
+Mesure appliquee:
+- `StripTrailingSlashMiddleware` retire le slash final des chemins entrants avant le routage
+- le backend tolere ainsi les variantes `/products/`, `/artisans/`, `/categories/`, etc.
+
+Impact:
+- reduction des faux 404/500 lies aux differences de slash final
+- meilleur comportement en production derriere Apache et ses redirections de type `DirectorySlash`
+
+## 6.10 Validation E2E des parcours critiques
 
 Script de reference:
 - test/api-checklist.ps1
