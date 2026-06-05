@@ -45,6 +45,11 @@ Non-responsabilites:
 - logique de presentation Angular
 - gestion des composants UI frontend
 
+Composants transverses recents:
+- validation des query params par middleware dedie avec whitelist stricte
+- correlation_id propage via en-tete HTTP pour le tracage
+- journalisation dediee des tentatives de query invalides
+
 ### Frontend (Angular)
 
 Responsabilites:
@@ -78,6 +83,46 @@ Etat actuel:
 Recommandation:
 - centraliser progressivement les controles d acces dans les middlewares
 - limiter les verifications dupliquees dans les controleurs
+
+Etat applique:
+- `AuthMiddleware` et `RoleMiddleware` protegent les routes sensibles
+- `QueryValidationMiddleware` protege les routes GET avec filtres (`payment`, `artisan/orders`, `artisan/stats`, `admin/stats`)
+- validation de type des params (`int`, `date`, `string`), whitelist stricte, champs requis, et regle de coherence `date_debut <= date_fin`
+
+## Observabilite et tracabilite
+
+Mecanismes actifs:
+- `X-Correlation-Id` accepte s il est fourni (format controle), sinon genere cote backend
+- `X-Correlation-Id` renvoye dans les reponses des routes proteges par la validation query
+- logs dedies des tentatives invalidees dans `app/logs/query-validation-attempts.log`
+
+Contexte logge:
+- correlation_id
+- methode, chemin, IP, user_id
+- query brute recue et erreurs de validation
+
+## Pipeline de reponse et persistance de session
+
+Point technique important:
+- le pont `ControllerActionInvoker` fusionne maintenant les headers natifs PHP (dont `Set-Cookie`) dans les reponses PSR-7 retournees par les controleurs
+
+Impact:
+- persistance de session retablie sur les parcours login -> routes protegees
+- stabilisation des tests E2E bases sur `WebRequestSession`
+
+## Validation de bout en bout
+
+Script de verification:
+- `test/api-checklist.ps1`
+
+Perimetre couvre:
+- acces anonyme
+- authentification client, artisan, admin
+- controle d acces role/ownership
+- parcours API critiques (profile, orders, admin, artisan stats, adresses)
+
+Precondition:
+- comptes de test aligns sur `docs/comptes-seed.md`
 
 ## Environnements et deploiement
 
@@ -119,3 +164,8 @@ Moyen terme:
 - docs/backend-migration-plan.md
 - app/config/routes.php
 - app/bootstrap.php
+- app/middleware/QueryValidationMiddleware.php
+- app/core/ControllerActionInvoker.php
+- app/logs/query-validation-attempts.log
+- test/api-checklist.ps1
+- docs/comptes-seed.md

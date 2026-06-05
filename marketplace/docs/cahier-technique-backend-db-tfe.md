@@ -292,7 +292,7 @@ Client HTTP
 -> RequestDataMiddleware
 -> CorsMiddleware
 -> RoutingMiddleware
--> Middleware(s) de route (Auth/Role/RateLimit selon endpoint)
+-> Middleware(s) de route (Auth/Role/RateLimit/QueryValidation selon endpoint)
 -> ControllerActionInvoker
 -> Controller@action
 -> JsonResponder
@@ -314,7 +314,7 @@ flowchart TD
 	D --> E[RequestDataMiddleware]
 	E --> F[CorsMiddleware]
 	F --> G[RoutingMiddleware]
-	G --> H[Middleware de route\nAuth Role RateLimit]
+	G --> H[Middleware de route\nAuth Role RateLimit QueryValidation]
 	H --> I[ControllerActionInvoker]
 	I --> J[Controller action]
 	J --> K[JsonResponder]
@@ -331,7 +331,7 @@ flowchart TD
 ## 4.1 app/core
 
 - BasePathResolver: detecte le prefixe d'URL (ex: /project02).
-- ControllerActionInvoker: lien entre une route Controller@action et son execution reelle.
+- ControllerActionInvoker: lien entre une route Controller@action et son execution reelle, avec preservation des headers natifs (dont Set-Cookie) dans la reponse PSR-7.
 - JsonResponder: normalise toutes les sorties JSON.
 - AppLogger: journalise les evenements applicatifs avec rotation de logs.
 
@@ -342,6 +342,7 @@ flowchart TD
 - RequestDataMiddleware: parse les corps JSON/form-data en entree.
 - AuthMiddleware: bloque les routes protegees pour les non connectes.
 - RoleMiddleware: bloque les routes non autorisees par role.
+- QueryValidationMiddleware: valide les query params des routes filtrees (whitelist + types + contraintes).
 
 ## 4.3 app/security
 
@@ -371,6 +372,7 @@ La strategie de securisation des routes est explicite dans la declaration:
 - route publique (sans middleware),
 - route authentifiee (AuthMiddleware),
 - route restreinte par role (RoleMiddleware),
+- route filtree avec validation stricte des query params (QueryValidationMiddleware),
 - route sensible avec controle metier (ownership dans les controleurs).
 
 ## 6. Securite backend mise en place
@@ -403,7 +405,26 @@ La strategie de securisation des routes est explicite dans la declaration:
 - Chaque modele peut declarer un validator dedie.
 - Les erreurs de validation sont captees et renvoyees proprement (422).
 
-## 6.6 Logs et tracabilite
+## 6.6 Validation des query params
+
+Un middleware dedie est applique sur certains endpoints GET sensibles (paiement et statistiques) pour eviter les parametres inattendus.
+
+Le middleware applique:
+- whitelist des cles query autorisees
+- typage (`int`, `date`, `string`)
+- contraintes de presence (`required`) et bornes
+- regle de coherence de plage de dates (`date_debut <= date_fin`)
+
+En cas d'echec, la reponse est un 400 JSON explicite.
+
+## 6.7 Correlation ID et logs dedies
+
+Pour faciliter le debug transverse:
+- lecture de `X-Correlation-Id` si fourni (sinon generation backend)
+- renvoi de `X-Correlation-Id` dans la reponse
+- journalisation dediee des rejets query dans `app/logs/query-validation-attempts.log`
+
+## 6.8 Logs et tracabilite
 
 Dossier:
 - app/logs
@@ -416,6 +437,14 @@ Canaux principaux:
 - access.log
 - rate-limit.log
 - php-error.log
+- query-validation-attempts.log
+
+## 6.9 Verification E2E
+
+Le script `test/api-checklist.ps1` valide les parcours critiques (anonyme, client, artisan, admin) et sert de garde-fou apres les changements de securite.
+
+Precondition pratique:
+- utiliser les comptes seeds documentes dans docs/comptes-seed.md.
 
 Rotation simple:
 - seuil configurable (APP_LOG_MAX_BYTES),

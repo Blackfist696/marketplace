@@ -2,6 +2,41 @@
 
 ---
 
+## 2026-06-05 - Durcissement query params, correlation id, fix session et validation E2E
+
+### Contexte
+Demande utilisateur: renforcer la protection backend contre les manipulations de query params, ajouter de la tracabilite, et verifier que les chemins de bout en bout ne sont pas casses.
+
+### Actions
+- Ajout du middleware `app/middleware/QueryValidationMiddleware.php`.
+- Application de la validation query (whitelist + typage) sur les routes:
+  - `GET /payment`
+  - `GET /artisan/orders`
+  - `GET /artisan/stats`
+  - `GET /admin/stats`
+- Ajout des regles avancees:
+  - champs requis (ex: `id_commande` sur `/payment`)
+  - coherence de dates (`date_debut <= date_fin`)
+- Ajout de la journalisation dediee des tentatives invalides dans `app/logs/query-validation-attempts.log`.
+- Ajout du `correlation_id`:
+  - reprise de `X-Correlation-Id` si valide sinon generation backend
+  - retour de `X-Correlation-Id` dans la reponse
+  - correlation_id inclus dans les logs de rejet query
+- Diagnostic de persistance session/cookie:
+  - cause racine identifiee dans `app/core/ControllerActionInvoker.php`
+  - fix applique: fusion des headers natifs (dont `Set-Cookie`) dans les reponses PSR-7 retournees par les controleurs
+- Campagne E2E:
+  - relance de `test/api-checklist.ps1`
+  - alignement des comptes artisan du script de test sur `docs/comptes-seed.md`
+
+### Resultat
+- Session login persistante retablie.
+- Validation query active sur les routes sensibles.
+- Correlation ID propage et logge.
+- Checklist API E2E: `FAIL_COUNT=0`.
+
+---
+
 ## 2026-06-03 — Cartographie flux backend dans ACTIONS.HTML
 
 ### Contexte
