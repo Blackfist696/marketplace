@@ -1,0 +1,2 @@
+# Fichier de journal des tentatives de query invalides.
+# Format runtime: JSONL (1 evenement JSON par ligne) via AppLogger canal query-validation-attempts.
