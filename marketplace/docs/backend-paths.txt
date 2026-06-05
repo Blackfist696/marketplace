@@ -39,6 +39,7 @@ FILE|app/logs/app-error.log
 FILE|app/logs/client-error.log
 FILE|app/logs/desktop.ini
 FILE|app/logs/php-error.log
+FILE|app/logs/query-validation-attempts.log
 FILE|app/logs/rate-limit.log
 FILE|app/logs/security.log
 FILE|app/logs/validation.log
@@ -46,6 +47,7 @@ DIR|app/middleware
 FILE|app/middleware/AuthMiddleware.php
 FILE|app/middleware/CorsMiddleware.php
 FILE|app/middleware/desktop.ini
+FILE|app/middleware/QueryValidationMiddleware.php
 FILE|app/middleware/RequestDataMiddleware.php
 FILE|app/middleware/RoleMiddleware.php
 FILE|app/middleware/SessionMiddleware.php

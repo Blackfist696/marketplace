@@ -579,7 +579,7 @@ Execution entrante (du plus externe au plus interne):
 
 Execution sortante: ordre inverse.
 
-### 3.3.1 Schema simple pour neophyte
+### 3.3.1 Schema simple
 
 Pensez la requete comme un passage par des controles successifs:
 
@@ -590,7 +590,7 @@ Client HTTP
 -> RequestDataMiddleware (lit et normalise les donnees)
 -> CorsMiddleware (autorise l'origine frontend)
 -> RoutingMiddleware (trouve la bonne route)
--> Middleware(s) de route (Auth/Role/RateLimit selon endpoint)
+-> Middleware(s) de route (Auth/Role/RateLimit/QueryValidation selon endpoint)
 -> ControllerActionInvoker
 -> Controller@action
 -> JsonResponder
@@ -612,7 +612,7 @@ flowchart TD
    D --> E[RequestDataMiddleware]
    E --> F[CorsMiddleware]
    F --> G[RoutingMiddleware]
-   G --> H[Middleware de route\nAuth Role RateLimit]
+   G --> H[Middleware de route\nAuth Role RateLimit QueryValidation]
    H --> I[ControllerActionInvoker]
    I --> J[Controller action]
    J --> K[JsonResponder]
@@ -630,7 +630,7 @@ flowchart TD
 - Role:
 1. Convertit la cible texte Controller@action en appel concret.
 2. Execute la methode de controleur.
-3. Reconcile sortie legacy avec reponse PSR-7.
+3. Reconcile sortie legacy avec reponse PSR-7, en preservant les headers natifs critiques (dont Set-Cookie).
 4. Retourne une ResponseInterface a Slim.
 
 ### 3.5 Reponse JSON
@@ -657,6 +657,7 @@ flowchart TD
 - RequestDataMiddleware.php: parse JSON/form et remplit parsedBody/$_POST.
 - AuthMiddleware.php: refuse si utilisateur non authentifie.
 - RoleMiddleware.php: refuse si role non autorise.
+- QueryValidationMiddleware.php: valide les query params sur endpoints cibles (whitelist, typage, coherence, required).
 
 ## 4.3 app/security
 
@@ -840,6 +841,7 @@ Exemple URL complete locale:
 - cookie_samesite configurable (defaut Lax)
 - cookie_secure configurable
 - regeneration d'ID de session au login/logout.
+- preservation des headers `Set-Cookie` lors du dispatch via ControllerActionInvoker.
 
 ## 6.6 Validation metier
 
@@ -847,7 +849,27 @@ Exemple URL complete locale:
 - Echec validation => ValidationException.
 - Gestionnaire d'erreur global renvoie 422 JSON + details.
 
-## 6.7 Erreurs et logs
+## 6.7 Validation des query params (route-level)
+
+Routes protegees:
+- GET /project02/payment
+- GET /project02/artisan/orders
+- GET /project02/artisan/stats
+- GET /project02/admin/stats
+
+Regles appliquees par QueryValidationMiddleware:
+- whitelist stricte des cles query autorisees
+- validation de type (`int`, `date`, `string`)
+- contraintes `required`, `min/max`, `minLength/maxLength`, `enum`
+- contrainte `date_order` pour `date_debut <= date_fin`
+- rejet 400 JSON des requetes invalides
+
+Tracabilite associee:
+- correlation id lu depuis `X-Correlation-Id` (ou genere)
+- correlation id renvoye dans la reponse
+- tentative invalide loggee avec methode, chemin, IP, user_id, query brute et erreurs
+
+## 6.8 Erreurs et logs
 
 Canaux de logs dans app/logs:
 - app-error.log
@@ -857,6 +879,21 @@ Canaux de logs dans app/logs:
 - access.log
 - rate-limit.log
 - php-error.log
+- query-validation-attempts.log
+
+## 6.9 Validation E2E des parcours critiques
+
+Script de reference:
+- test/api-checklist.ps1
+
+Portee:
+- parcours anonyme, client, artisan et admin
+- controle des acces role/ownership
+- verification des endpoints sensibles de stats/commandes/profil/adresses
+
+Prerequis:
+- serveur MariaDB actif
+- comptes de test alignes sur docs/comptes-seed.md
 
 Rotation:
 - seuil max configurable via APP_LOG_MAX_BYTES,
