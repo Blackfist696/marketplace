@@ -58,16 +58,26 @@ final class ControllerActionInvoker
             $response->getBody()->write($output);
         }
 
+        $mergeNativeHeaders = static function (ResponseInterface $target, ResponseInterface $source): ResponseInterface {
+            foreach ($source->getHeaders() as $name => $values) {
+                foreach ($values as $value) {
+                    $target = $target->withAddedHeader($name, $value);
+                }
+            }
+
+            return $target;
+        };
+
         // Priorite 1: si l'action retourne deja une Response PSR-7, on la respecte.
         if ($result instanceof ResponseInterface) {
-            return $result;
+            return $mergeNativeHeaders($result, $response);
         }
 
         // Priorite 2: compat avec la base Controller qui stocke une reponse interne.
         if (method_exists($controller, 'consumeResponse')) {
             $controllerResponse = $controller->consumeResponse();
             if ($controllerResponse instanceof ResponseInterface) {
-                return $controllerResponse;
+                return $mergeNativeHeaders($controllerResponse, $response);
             }
         }
 

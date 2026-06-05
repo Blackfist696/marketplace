@@ -9,6 +9,7 @@
 
 use App\Core\ControllerActionInvoker;
 use App\Middleware\AuthMiddleware;
+use App\Middleware\QueryValidationMiddleware;
 use App\Middleware\RoleMiddleware;
 use App\Security\Middleware\LoginRateLimitMiddleware;
 use App\Security\RateLimit\SlidingWindowLimiter;
@@ -42,6 +43,49 @@ return function (App $app): void {
     $artisanRole = new RoleMiddleware([2]);
     $clientRole = new RoleMiddleware([3]);
     $adminRole = new RoleMiddleware([1]);
+
+    $paymentQueryValidation = new QueryValidationMiddleware([
+        'id_commande' => ['type' => 'int', 'min' => 1, 'required' => true],
+    ]);
+
+    $artisanStatsQueryValidation = new QueryValidationMiddleware(
+        [
+            'date_debut' => ['type' => 'date'],
+            'date_fin' => ['type' => 'date'],
+            'id_produit' => ['type' => 'int', 'min' => 1],
+            'id_client' => ['type' => 'int', 'min' => 1],
+        ],
+        [
+            ['type' => 'date_order', 'from' => 'date_debut', 'to' => 'date_fin'],
+        ]
+    );
+
+    $artisanOrdersQueryValidation = new QueryValidationMiddleware(
+        [
+            'date_debut' => ['type' => 'date'],
+            'date_fin' => ['type' => 'date'],
+            'id_produit' => ['type' => 'int', 'min' => 1],
+            'id_client' => ['type' => 'int', 'min' => 1],
+            'id_commande' => ['type' => 'int', 'min' => 1],
+        ],
+        [
+            ['type' => 'date_order', 'from' => 'date_debut', 'to' => 'date_fin'],
+        ]
+    );
+
+    $adminStatsQueryValidation = new QueryValidationMiddleware(
+        [
+            'date_debut' => ['type' => 'date'],
+            'date_fin' => ['type' => 'date'],
+            'id_produit' => ['type' => 'int', 'min' => 1],
+            'id_artisan' => ['type' => 'int', 'min' => 1],
+            'id_client' => ['type' => 'int', 'min' => 1],
+            'nom' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 120],
+        ],
+        [
+            ['type' => 'date_order', 'from' => 'date_debut', 'to' => 'date_fin'],
+        ]
+    );
     $securityConfig = require __DIR__ . '/app.php';
     $rateConfig = (array) ($securityConfig['security']['rate_limit'] ?? []);
     // Middleware anti brute-force specialement cible sur POST /login.
@@ -78,7 +122,7 @@ return function (App $app): void {
     $register('PUT', '/cart/{id_produit}', 'App\\Controllers\\CartController@updateLine');
     $register('DELETE', '/cart/{id_produit}', 'App\\Controllers\\CartController@remove');
 
-    $register('GET', '/payment', 'App\\Controllers\\PaymentController@page', [$auth]);
+    $register('GET', '/payment', 'App\\Controllers\\PaymentController@page', [$auth, $paymentQueryValidation]);
     $register('POST', '/payment/process', 'App\\Controllers\\PaymentController@process', [$auth]);
 
     $register('GET', '/orders', 'App\\Controllers\\OrderController@index', [$clientRole]);
@@ -91,8 +135,8 @@ return function (App $app): void {
 
     $register('GET', '/artisan/products', 'App\\Controllers\\ArtisanController@myProducts', [$artisanRole]);
     $register('GET', '/artisan/dashboard', 'App\\Controllers\\ArtisanController@dashboard', [$artisanRole]);
-    $register('GET', '/artisan/orders', 'App\\Controllers\\ArtisanController@orders', [$artisanRole]);
-    $register('GET', '/artisan/stats', 'App\\Controllers\\ArtisanController@stats', [$artisanRole]);
+    $register('GET', '/artisan/orders', 'App\\Controllers\\ArtisanController@orders', [$artisanRole, $artisanOrdersQueryValidation]);
+    $register('GET', '/artisan/stats', 'App\\Controllers\\ArtisanController@stats', [$artisanRole, $artisanStatsQueryValidation]);
 
     $register('GET', '/admin/users', 'App\\Controllers\\AdminController@users', [$adminRole]);
     $register('GET', '/admin/users/{id}', 'App\\Controllers\\AdminController@showUser', [$adminRole]);
@@ -112,7 +156,7 @@ return function (App $app): void {
     $register('GET', '/admin/products', 'App\\Controllers\\AdminController@products', [$adminRole]);
     $register('PUT', '/admin/products/{id}', 'App\\Controllers\\AdminController@updateProduct', [$adminRole]);
     $register('DELETE', '/admin/products/{id}', 'App\\Controllers\\AdminController@deactivateProduct', [$adminRole]);
-    $register('GET', '/admin/stats', 'App\\Controllers\\AdminController@stats', [$adminRole]);
+    $register('GET', '/admin/stats', 'App\\Controllers\\AdminController@stats', [$adminRole, $adminStatsQueryValidation]);
 
     $register('GET', '/api/pays', 'App\\Controllers\\PaysController@index');
     $register('GET', '/api/pays/{id}', 'App\\Controllers\\PaysController@show');

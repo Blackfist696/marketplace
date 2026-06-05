@@ -139,8 +139,14 @@ if ($clientLogin.Ok) {
 
 # 3) Artisan
 $artisanLogin = Login-WithCandidates -Session $artisan -Candidates @(
-    @{ email = 'artisan@example.com'; password = 'artisan123' },
-    @{ email = 'vendeur@example.com'; password = 'vendeur123' }
+    @{ email = 'miels.artisan@example.com'; password = 'artisan123' },
+    @{ email = 'savons.artisan@example.com'; password = 'artisan123' },
+    @{ email = 'confiseries.artisan@example.com'; password = 'artisan123' },
+    @{ email = 'cosmetiques.artisan@example.com'; password = 'artisan123' },
+    @{ email = 'bougies.artisan@example.com'; password = 'artisan123' },
+    @{ email = 'pollen.artisan@example.com'; password = 'artisan123' },
+    @{ email = 'propolis.artisan@example.com'; password = 'artisan123' },
+    @{ email = 'coffrets.artisan@example.com'; password = 'artisan123' }
 )
 Add-Result -Name 'Artisan -> login' -Ok $artisanLogin.Ok -Detail $(if ($artisanLogin.Ok) { "OK ($($artisanLogin.Email))" } else { "HTTP $($artisanLogin.Status)" })
 
