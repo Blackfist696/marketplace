@@ -15,6 +15,17 @@ return [
         // Rotation simple .1 pilotee par AppLogger.
         'max_file_bytes' => (int) (getenv('APP_LOG_MAX_BYTES') ?: 1048576),
     ],
+    'ai' => [
+        // Endpoint Ollama local sur le serveur de production.
+        'ollama_url' => getenv('OLLAMA_URL') ?: 'http://localhost:11434/api/chat',
+        // Modele par defaut pour le MVP.
+        'model' => getenv('OLLAMA_MODEL') ?: 'mistral',
+        // Timeout reseau (secondes) pour eviter les requetes bloquantes.
+        'connect_timeout' => (int) (getenv('OLLAMA_CONNECT_TIMEOUT') ?: 5),
+        'timeout' => (int) (getenv('OLLAMA_TIMEOUT') ?: 90),
+        // Limite de prompt MVP pour controler cout/latence.
+        'max_prompt_chars' => (int) (getenv('OLLAMA_MAX_PROMPT_CHARS') ?: 4000),
+    ],
     'security' => [
         // Role force a l'inscription (3 = client) pour eviter l'elevation de privilege.
         'default_register_role_id' => (int) (getenv('DEFAULT_REGISTER_ROLE_ID') ?: 3),
