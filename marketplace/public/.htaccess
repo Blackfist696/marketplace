@@ -4,10 +4,10 @@ RewriteEngine On
 # avant toute tentative de fallback SPA ou resolution repertoire.
 RewriteRule ^(api|login|logout|register|profile|products|artisans|artisan|orders|cart|admin|categories|payment|home)(/.*)?$ index.php [QSA,L]
 
-# Keep Angular SPA routes under /app on the frontend entrypoint.
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^app(?:/.*)?$ app/index.html [L]
+# Angular build output is emitted under app/browser, but the app should still
+# be reachable from /app. Rewrite SPA entrypoint and asset paths accordingly.
+RewriteRule ^app/?$ app/browser/index.html [L]
+RewriteRule ^app/(?!browser/)(.*)$ app/browser/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
