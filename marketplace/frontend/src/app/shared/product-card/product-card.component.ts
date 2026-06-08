@@ -13,7 +13,7 @@ import { ToastService } from '../../core/services/toast.service';
     <div class="card overflow-hidden hover:shadow-md transition-shadow flex flex-col">
       <a [routerLink]="['/produit', produit.id_produit]" class="block aspect-square bg-gray-100 overflow-hidden">
         <img *ngIf="produit.image_principale; else placeholder"
-             [src]="produit.image_principale" [alt]="produit.nom"
+             [src]="'/' + produit.image_principale" [alt]="produit.nom"
              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
         <ng-template #placeholder>
           <div class="w-full h-full flex items-center justify-center text-gray-300">
