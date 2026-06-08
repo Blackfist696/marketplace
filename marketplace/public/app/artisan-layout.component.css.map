@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/layouts/artisan-layout/artisan-layout.component.ts"],
+  "sourcesContent": ["\n    .sidebar-link {\n      display: block; padding: 0.5rem 0.75rem; border-radius: 0.5rem;\n      font-size: 0.875rem; transition: background .15s;\n      color: var(--sidebar-foreground);\n    }\n    .sidebar-link:hover { background: var(--sidebar-accent); }\n    .sidebar-active { background: var(--sidebar-accent) !important; color: var(--primary) !important; font-weight: 600; }\n  "],
+  "mappings": ";AACI,CAAA;AACE,WAAA;AAAgB,WAAA,OAAA;AAAyB,iBAAA;AACzC,aAAA;AAAqB,cAAA,WAAA;AACrB,SAAA,IAAA;;AAEF,CALA,YAKA;AAAsB,cAAA,IAAA;;AACtB,CAAA;AAAkB,cAAA,IAAA;AAA8C,SAAA,IAAA;AAAkC,eAAA;;",
+  "names": []
+}

@@ -9,6 +9,34 @@ $requestMethod = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 $spaRoot = __DIR__ . '/app';
 
+// Si un fichier statique existe directement sous `public/`, le servir immédiatement
+if (in_array($requestMethod, ['GET', 'HEAD'], true)) {
+	$publicFile = realpath(__DIR__ . $requestPath);
+	if ($publicFile !== false && str_starts_with($publicFile, realpath(__DIR__) . DIRECTORY_SEPARATOR) && is_file($publicFile)) {
+		$ext = strtolower(pathinfo($publicFile, PATHINFO_EXTENSION));
+		$mime = match ($ext) {
+			'html' => 'text/html; charset=UTF-8',
+			'js', 'mjs' => 'application/javascript; charset=UTF-8',
+			'css' => 'text/css; charset=UTF-8',
+			'json' => 'application/json; charset=UTF-8',
+			'svg' => 'image/svg+xml',
+			'png' => 'image/png',
+			'jpg', 'jpeg' => 'image/jpeg',
+			'webp' => 'image/webp',
+			'ico' => 'image/x-icon',
+			'woff' => 'font/woff',
+			'woff2' => 'font/woff2',
+			default => 'application/octet-stream',
+		};
+
+		header('Content-Type: ' . $mime);
+		if ($requestMethod !== 'HEAD') {
+			readfile($publicFile);
+		}
+		exit;
+	}
+}
+
 if (is_dir($spaRoot) && in_array($requestMethod, ['GET', 'HEAD'], true)) {
 	$pathVariants = [$requestPath];
 

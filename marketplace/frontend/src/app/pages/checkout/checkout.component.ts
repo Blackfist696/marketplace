@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { AddressService } from '../../core/services/address.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Adresse } from '../../core/models/models';
 
@@ -102,16 +103,46 @@ export class CheckoutComponent implements OnInit {
   addr: Partial<Adresse> = { rue: '', code_postal: '' };
   payment = 'card';
   addressId = signal<number | null>(null);
+  savedAddress: Adresse | null = null;
 
   constructor(
     public cart: CartService,
     private orderSvc: OrderService,
     private addrSvc: AddressService,
+    private auth: AuthService,
     private toast: ToastService,
     private router: Router,
   ) {}
 
-  ngOnInit() { this.cart.load().subscribe(); }
+  ngOnInit() {
+    this.cart.load().subscribe();
+    this.loadSavedAddress();
+  }
+
+  private loadSavedAddress() {
+    const addresses = this.auth.currentUserAddresses();
+    if (addresses.length > 0) {
+      this.prefillSavedAddress(addresses[0]);
+      return;
+    }
+
+    this.auth.loadProfile().subscribe(() => {
+      const loadedAddresses = this.auth.currentUserAddresses();
+      if (loadedAddresses.length > 0) {
+        this.prefillSavedAddress(loadedAddresses[0]);
+      }
+    });
+  }
+
+  private prefillSavedAddress(address: Adresse) {
+    this.savedAddress = address;
+    this.addr = {
+      ...this.addr,
+      rue: address.rue,
+      code_postal: address.code_postal,
+      id_ville: address.id_ville,
+    };
+  }
 
   stepClass(n: number) {
     if (this.step() > n) return 'bg-green-500 text-white';
@@ -126,6 +157,15 @@ export class CheckoutComponent implements OnInit {
 
   submitAddress() {
     if (!this.addr.rue || !this.addr.code_postal) { this.toast.error('Remplissez tous les champs'); return; }
+
+    if (this.savedAddress
+      && this.addr.rue === this.savedAddress.rue
+      && this.addr.code_postal === this.savedAddress.code_postal) {
+      this.addressId.set(this.savedAddress.id_adresse);
+      this.step.set(2);
+      return;
+    }
+
     this.saving.set(true);
     this.addrSvc.create(this.addr).subscribe({
       next: res => { this.addressId.set(res?.data?.id_adresse ?? 1); this.saving.set(false); this.step.set(2); },
