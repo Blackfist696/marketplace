@@ -28,7 +28,7 @@ import { AuthService } from '../../core/services/auth.service';
               <div class="card p-4 flex gap-4">
                 <div class="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden shrink-0">
                   @if (line.produit.image_principale) {
-                    <img [src]="line.produit.image_principale" [alt]="line.produit.nom" class="w-full h-full object-cover" />
+                    <img [src]="'/' + line.produit.image_principale" [alt]="line.produit.nom" class="w-full h-full object-cover" />
                   }
                 </div>
                 <div class="flex-1 min-w-0">

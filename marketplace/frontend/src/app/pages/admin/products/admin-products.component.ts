@@ -48,7 +48,7 @@ import { Produit, CATEGORY_LABELS } from '../../../core/models/models';
                     <div class="flex items-center gap-3">
                       <div class="w-9 h-9 rounded-lg bg-gray-100 overflow-hidden shrink-0">
                         @if (p.image_principale) {
-                          <img [src]="p.image_principale" [alt]="p.nom" class="w-full h-full object-cover" />
+                          <img [src]="'/' + p.image_principale" [alt]="p.nom" class="w-full h-full object-cover" />
                         }
                       </div>
                       <div>

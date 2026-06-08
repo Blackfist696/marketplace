@@ -54,7 +54,7 @@ import { Produit, Commande, ArtisanStats, STATUT_LABELS } from '../../../core/mo
             @for (p of topProduits(); track p.id_produit) {
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center text-gray-300">
-                  @if (p.image_principale) { <img [src]="p.image_principale" [alt]="p.nom" class="w-full h-full object-cover" /> }
+                  @if (p.image_principale) { <img [src]="'/' + p.image_principale" [alt]="p.nom" class="w-full h-full object-cover" /> }
                   @else { 📦 }
                 </div>
                 <div class="flex-1 min-w-0">
