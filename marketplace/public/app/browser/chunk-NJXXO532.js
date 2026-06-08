@@ -1,1 +1,0 @@
-function s(r){if(!r)return"";let t=r.trim().replace(/^\/+/,"");let base=document.baseURI||window.location.href;return t.startsWith("assets/products/")?new URL(`../${t}`,base).pathname:t.startsWith("products/")?new URL(`../assets/${t}`,base).pathname:new URL(`../${t}`,base).pathname}export{s as a};

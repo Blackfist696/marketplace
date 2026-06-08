@@ -168,7 +168,11 @@ export class CheckoutComponent implements OnInit {
 
     this.saving.set(true);
     this.addrSvc.create(this.addr).subscribe({
-      next: res => { this.addressId.set(res?.data?.id_adresse ?? 1); this.saving.set(false); this.step.set(2); },
+      next: res => {
+        this.addressId.set(res?.data?.id_adresse ?? res?.data?.id ?? 1);
+        this.saving.set(false);
+        this.step.set(2);
+      },
       error: () => { this.saving.set(false); this.toast.error('Erreur adresse'); },
     });
   }

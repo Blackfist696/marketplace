@@ -30,9 +30,10 @@ class Adresse extends Model
      */
     public static function getByUtilisateurId(int $userId): array
     {
-        $sql = 'SELECT a.*
+        $sql = 'SELECT a.*, v.code_postal, v.nom_ville
                 FROM adresse a
                 INNER JOIN r_utilisateur_adresse rua ON rua.Id_adresse = a.Id_adresse
+                LEFT JOIN ville v ON v.Id_ville = a.id_ville
                 WHERE rua.Id_utilisateur = :user_id';
 
         $stmt = static::getPDO()->prepare($sql);
