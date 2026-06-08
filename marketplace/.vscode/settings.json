@@ -1,3 +1,5 @@
 {
-    "pieces.cloudCapabilities": "Blended"
+    "pieces.cloudCapabilities": "Blended",
+    "typescript.tsdk": "frontend/node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true
 }
