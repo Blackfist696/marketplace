@@ -135,7 +135,7 @@ class UserAddressController extends Controller
         }
 
         $id = RUtilisateurAdresse::link($targetUserId, (int) $data['id_adresse']);
-        $this->respond(201, 'Liaison creee', ['id' => $id]);
+        $this->respond(201, 'Liaison creee', ['id_adresse' => (int) $data['id_adresse']]);
     }
 
     /**

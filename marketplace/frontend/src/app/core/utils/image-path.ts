@@ -4,14 +4,15 @@ export function getProductImageSrc(imagePath?: string): string {
   }
 
   const normalized = imagePath.trim().replace(/^\/+/, '');
+  const base = document.baseURI;
 
   if (normalized.startsWith('assets/products/')) {
-    return '/' + normalized;
+    return new URL(`../${normalized}`, base).pathname;
   }
 
   if (normalized.startsWith('products/')) {
-    return '/assets/' + normalized;
+    return new URL(`../assets/${normalized}`, base).pathname;
   }
 
-  return '/' + normalized;
+  return new URL(`../${normalized}`, base).pathname;
 }
