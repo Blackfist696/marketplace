@@ -265,11 +265,11 @@ try {
                 'ville' => $villeLyon,
             ],
             'products' => [
-                ['nom' => 'Miel de fleurs sauvages', 'description' => 'Miel doux recolte sur des prairies fleuries.', 'prix_ht' => '8.90', 'stock' => 40, 'poids' => '0.25', 'image_principale' => 'products/miels/fleurs-sauvages.jpg', 'image_detail' => 'products/miels/fleurs-sauvages-detail.jpg'],
-                ['nom' => 'Miel d acacia', 'description' => 'Texture fluide et notes legeres pour les petits dejeuners.', 'prix_ht' => '9.40', 'stock' => 32, 'poids' => '0.25', 'image_principale' => 'products/miels/acacia.jpg', 'image_detail' => 'products/miels/acacia-detail.jpg'],
-                ['nom' => 'Miel de foret', 'description' => 'Miel ambré aux aromes boises et soutenus.', 'prix_ht' => '10.20', 'stock' => 28, 'poids' => '0.25', 'image_principale' => 'products/miels/foret.jpg', 'image_detail' => 'products/miels/foret-detail.jpg'],
-                ['nom' => 'Miel de chataignier', 'description' => 'Saveur puissante et finale legerement amere.', 'prix_ht' => '10.80', 'stock' => 24, 'poids' => '0.25', 'image_principale' => 'products/miels/chataignier.jpg', 'image_detail' => 'products/miels/chataignier-detail.jpg'],
-                ['nom' => 'Miel creme du rucher', 'description' => 'Miel foisonne ideal pour les tartines.', 'prix_ht' => '9.80', 'stock' => 30, 'poids' => '0.25', 'image_principale' => 'products/miels/creme.jpg', 'image_detail' => 'products/miels/creme-detail.jpg'],
+                ['nom' => 'Miel de fleurs sauvages', 'description' => 'Miel doux recolte sur des prairies fleuries.', 'prix_ht' => '8.90', 'stock' => 40, 'poids' => '0.25', 'image_principale' => 'assets/products/miels/fleurs-sauvages.jpg', 'image_detail' => 'assets/products/miels/fleurs-sauvages-detail.jpg'],
+                ['nom' => 'Miel d acacia', 'description' => 'Texture fluide et notes legeres pour les petits dejeuners.', 'prix_ht' => '9.40', 'stock' => 32, 'poids' => '0.25', 'image_principale' => 'assets/products/miels/acacia.jpg', 'image_detail' => 'assets/products/miels/acacia-detail.jpg'],
+                ['nom' => 'Miel de foret', 'description' => 'Miel ambré aux aromes boises et soutenus.', 'prix_ht' => '10.20', 'stock' => 28, 'poids' => '0.25', 'image_principale' => 'assets/products/miels/foret.jpg', 'image_detail' => 'assets/products/miels/foret-detail.jpg'],
+                ['nom' => 'Miel de chataignier', 'description' => 'Saveur puissante et finale legerement amere.', 'prix_ht' => '10.80', 'stock' => 24, 'poids' => '0.25', 'image_principale' => 'assets/products/miels/chataignier.jpg', 'image_detail' => 'assets/products/miels/chataignier-detail.jpg'],
+                ['nom' => 'Miel creme du rucher', 'description' => 'Miel foisonne ideal pour les tartines.', 'prix_ht' => '9.80', 'stock' => 30, 'poids' => '0.25', 'image_principale' => 'assets/products/miels/creme.jpg', 'image_detail' => 'assets/products/miels/creme-detail.jpg'],
             ],
         ],
         [
@@ -294,11 +294,11 @@ try {
                 'ville' => $villeBruxelles,
             ],
             'products' => [
-                ['nom' => 'Savon lavande apaisant', 'description' => 'Savon parfume a la lavande avec mousse cremeuse.', 'prix_ht' => '5.90', 'stock' => 60, 'poids' => '0.10', 'image_principale' => 'products/savons/lavande.jpg', 'image_detail' => 'products/savons/lavande-detail.jpg'],
-                ['nom' => 'Savon miel et avoine', 'description' => 'Nettoie en douceur et apaise les peaux sensibles.', 'prix_ht' => '6.20', 'stock' => 48, 'poids' => '0.10', 'image_principale' => 'products/savons/miel-avoine.jpg', 'image_detail' => 'products/savons/miel-avoine-detail.jpg'],
-                ['nom' => 'Savon charbon purifiant', 'description' => 'Formule minerale dediee aux peaux mixtes.', 'prix_ht' => '6.50', 'stock' => 45, 'poids' => '0.10', 'image_principale' => 'products/savons/charbon.jpg', 'image_detail' => 'products/savons/charbon-detail.jpg'],
-                ['nom' => 'Savon agrumes tonique', 'description' => 'Notes fraiches d orange et de citron.', 'prix_ht' => '5.80', 'stock' => 52, 'poids' => '0.10', 'image_principale' => 'products/savons/agrumes.jpg', 'image_detail' => 'products/savons/agrumes-detail.jpg'],
-                ['nom' => 'Savon lait d amande', 'description' => 'Texture onctueuse et parfum legerement gourmand.', 'prix_ht' => '6.40', 'stock' => 40, 'poids' => '0.10', 'image_principale' => 'products/savons/amande.jpg', 'image_detail' => 'products/savons/amande-detail.jpg'],
+                ['nom' => 'Savon lavande apaisant', 'description' => 'Savon parfume a la lavande avec mousse cremeuse.', 'prix_ht' => '5.90', 'stock' => 60, 'poids' => '0.10', 'image_principale' => 'assets/products/savons/lavande.jpg', 'image_detail' => 'assets/products/savons/lavande-detail.jpg'],
+                ['nom' => 'Savon miel et avoine', 'description' => 'Nettoie en douceur et apaise les peaux sensibles.', 'prix_ht' => '6.20', 'stock' => 48, 'poids' => '0.10', 'image_principale' => 'assets/products/savons/miel-avoine.jpg', 'image_detail' => 'assets/products/savons/miel-avoine-detail.jpg'],
+                ['nom' => 'Savon charbon purifiant', 'description' => 'Formule minerale dediee aux peaux mixtes.', 'prix_ht' => '6.50', 'stock' => 45, 'poids' => '0.10', 'image_principale' => 'assets/products/savons/charbon.jpg', 'image_detail' => 'assets/products/savons/charbon-detail.jpg'],
+                ['nom' => 'Savon agrumes tonique', 'description' => 'Notes fraiches d orange et de citron.', 'prix_ht' => '5.80', 'stock' => 52, 'poids' => '0.10', 'image_principale' => 'assets/products/savons/agrumes.jpg', 'image_detail' => 'assets/products/savons/agrumes-detail.jpg'],
+                ['nom' => 'Savon lait d amande', 'description' => 'Texture onctueuse et parfum legerement gourmand.', 'prix_ht' => '6.40', 'stock' => 40, 'poids' => '0.10', 'image_principale' => 'assets/products/savons/amande.jpg', 'image_detail' => 'assets/products/savons/amande-detail.jpg'],
             ],
         ],
         [
@@ -323,11 +323,11 @@ try {
                 'ville' => $villeLyon,
             ],
             'products' => [
-                ['nom' => 'Pates de fruits framboise', 'description' => 'Bonbons moelleux a la framboise et au miel.', 'prix_ht' => '4.90', 'stock' => 55, 'poids' => '0.12', 'image_principale' => 'products/confiseries/pates-fruits.jpg', 'image_detail' => 'products/confiseries/pates-fruits-detail.jpg'],
-                ['nom' => 'Nougat tendre aux amandes', 'description' => 'Nougat souple aux amandes grillees.', 'prix_ht' => '7.10', 'stock' => 35, 'poids' => '0.18', 'image_principale' => 'products/confiseries/nougat.jpg', 'image_detail' => 'products/confiseries/nougat-detail.jpg'],
-                ['nom' => 'Caramels beurre sale', 'description' => 'Caramels fondants cuits au chaudron.', 'prix_ht' => '5.40', 'stock' => 50, 'poids' => '0.14', 'image_principale' => 'products/confiseries/caramels.jpg', 'image_detail' => 'products/confiseries/caramels-detail.jpg'],
-                ['nom' => 'Guimauves vanille miel', 'description' => 'Guimauves legeres parfumees a la vanille.', 'prix_ht' => '4.70', 'stock' => 46, 'poids' => '0.11', 'image_principale' => 'products/confiseries/guimauves.jpg', 'image_detail' => 'products/confiseries/guimauves-detail.jpg'],
-                ['nom' => 'Bonbons miel citron', 'description' => 'Pastilles artisanales aux notes fraiches.', 'prix_ht' => '3.90', 'stock' => 70, 'poids' => '0.09', 'image_principale' => 'products/confiseries/bonbons-miel-citron.jpg', 'image_detail' => 'products/confiseries/bonbons-miel-citron-detail.jpg'],
+                ['nom' => 'Pates de fruits framboise', 'description' => 'Bonbons moelleux a la framboise et au miel.', 'prix_ht' => '4.90', 'stock' => 55, 'poids' => '0.12', 'image_principale' => 'assets/products/confiseries/pates-fruits.jpg', 'image_detail' => 'assets/products/confiseries/pates-fruits-detail.jpg'],
+                ['nom' => 'Nougat tendre aux amandes', 'description' => 'Nougat souple aux amandes grillees.', 'prix_ht' => '7.10', 'stock' => 35, 'poids' => '0.18', 'image_principale' => 'assets/products/confiseries/nougat.jpg', 'image_detail' => 'assets/products/confiseries/nougat-detail.jpg'],
+                ['nom' => 'Caramels beurre sale', 'description' => 'Caramels fondants cuits au chaudron.', 'prix_ht' => '5.40', 'stock' => 50, 'poids' => '0.14', 'image_principale' => 'assets/products/confiseries/caramels.jpg', 'image_detail' => 'assets/products/confiseries/caramels-detail.jpg'],
+                ['nom' => 'Guimauves vanille miel', 'description' => 'Guimauves legeres parfumees a la vanille.', 'prix_ht' => '4.70', 'stock' => 46, 'poids' => '0.11', 'image_principale' => 'assets/products/confiseries/guimauves.jpg', 'image_detail' => 'assets/products/confiseries/guimauves-detail.jpg'],
+                ['nom' => 'Bonbons miel citron', 'description' => 'Pastilles artisanales aux notes fraiches.', 'prix_ht' => '3.90', 'stock' => 70, 'poids' => '0.09', 'image_principale' => 'assets/products/confiseries/bonbons-miel-citron.jpg', 'image_detail' => 'assets/products/confiseries/bonbons-miel-citron-detail.jpg'],
             ],
         ],
         [
@@ -352,11 +352,11 @@ try {
                 'ville' => $villeBruxelles,
             ],
             'products' => [
-                ['nom' => 'Baume a levres miel', 'description' => 'Baume nourrissant enrichi en cire et miel.', 'prix_ht' => '4.20', 'stock' => 90, 'poids' => '0.02', 'image_principale' => 'products/cosmetiques/baume-levres.jpg', 'image_detail' => 'products/cosmetiques/baume-levres-detail.jpg'],
-                ['nom' => 'Creme mains propolis', 'description' => 'Soin reparateur pour les mains seches.', 'prix_ht' => '8.60', 'stock' => 44, 'poids' => '0.08', 'image_principale' => 'products/cosmetiques/creme-mains.jpg', 'image_detail' => 'products/cosmetiques/creme-mains-detail.jpg'],
-                ['nom' => 'Huile visage calendula', 'description' => 'Huile legere pour les peaux sensibles.', 'prix_ht' => '11.40', 'stock' => 30, 'poids' => '0.05', 'image_principale' => 'products/cosmetiques/huile-visage.jpg', 'image_detail' => 'products/cosmetiques/huile-visage-detail.jpg'],
-                ['nom' => 'Gommage sucre et miel', 'description' => 'Exfoliant doux pour le corps.', 'prix_ht' => '9.80', 'stock' => 26, 'poids' => '0.16', 'image_principale' => 'products/cosmetiques/gommage.jpg', 'image_detail' => 'products/cosmetiques/gommage-detail.jpg'],
-                ['nom' => 'Masque argile blanche', 'description' => 'Masque purifiant et apaisant pour le visage.', 'prix_ht' => '7.90', 'stock' => 34, 'poids' => '0.09', 'image_principale' => 'products/cosmetiques/masque.jpg', 'image_detail' => 'products/cosmetiques/masque-detail.jpg'],
+                ['nom' => 'Baume a levres miel', 'description' => 'Baume nourrissant enrichi en cire et miel.', 'prix_ht' => '4.20', 'stock' => 90, 'poids' => '0.02', 'image_principale' => 'assets/products/cosmetiques/baume-levres.jpg', 'image_detail' => 'assets/products/cosmetiques/baume-levres-detail.jpg'],
+                ['nom' => 'Creme mains propolis', 'description' => 'Soin reparateur pour les mains seches.', 'prix_ht' => '8.60', 'stock' => 44, 'poids' => '0.08', 'image_principale' => 'assets/products/cosmetiques/creme-mains.jpg', 'image_detail' => 'assets/products/cosmetiques/creme-mains-detail.jpg'],
+                ['nom' => 'Huile visage calendula', 'description' => 'Huile legere pour les peaux sensibles.', 'prix_ht' => '11.40', 'stock' => 30, 'poids' => '0.05', 'image_principale' => 'assets/products/cosmetiques/huile-visage.jpg', 'image_detail' => 'assets/products/cosmetiques/huile-visage-detail.jpg'],
+                ['nom' => 'Gommage sucre et miel', 'description' => 'Exfoliant doux pour le corps.', 'prix_ht' => '9.80', 'stock' => 26, 'poids' => '0.16', 'image_principale' => 'assets/products/cosmetiques/gommage.jpg', 'image_detail' => 'assets/products/cosmetiques/gommage-detail.jpg'],
+                ['nom' => 'Masque argile blanche', 'description' => 'Masque purifiant et apaisant pour le visage.', 'prix_ht' => '7.90', 'stock' => 34, 'poids' => '0.09', 'image_principale' => 'assets/products/cosmetiques/masque.jpg', 'image_detail' => 'assets/products/cosmetiques/masque-detail.jpg'],
             ],
         ],
         [
@@ -381,11 +381,11 @@ try {
                 'ville' => $villeLyon,
             ],
             'products' => [
-                ['nom' => 'Bougie miel dore', 'description' => 'Bougie chaleureuse a la cire d abeille.', 'prix_ht' => '12.50', 'stock' => 22, 'poids' => '0.30', 'image_principale' => 'products/bougies/miel-dore.jpg', 'image_detail' => 'products/bougies/miel-dore-detail.jpg'],
-                ['nom' => 'Bougie fleur d oranger', 'description' => 'Parfum floral et diffusion reguliere.', 'prix_ht' => '13.20', 'stock' => 20, 'poids' => '0.30', 'image_principale' => 'products/bougies/fleur-oranger.jpg', 'image_detail' => 'products/bougies/fleur-oranger-detail.jpg'],
-                ['nom' => 'Bougie pain d epices', 'description' => 'Notes gourmandes et epicees pour l hiver.', 'prix_ht' => '13.80', 'stock' => 18, 'poids' => '0.30', 'image_principale' => 'products/bougies/pain-epices.jpg', 'image_detail' => 'products/bougies/pain-epices-detail.jpg'],
-                ['nom' => 'Bougie verveine', 'description' => 'Ambiance fraiche et vegetale.', 'prix_ht' => '11.90', 'stock' => 25, 'poids' => '0.28', 'image_principale' => 'products/bougies/verveine.jpg', 'image_detail' => 'products/bougies/verveine-detail.jpg'],
-                ['nom' => 'Bougie bois ambré', 'description' => 'Sillage boise pour les interieurs cosy.', 'prix_ht' => '14.10', 'stock' => 16, 'poids' => '0.32', 'image_principale' => 'products/bougies/bois-ambre.jpg', 'image_detail' => 'products/bougies/bois-ambre-detail.jpg'],
+                ['nom' => 'Bougie miel dore', 'description' => 'Bougie chaleureuse a la cire d abeille.', 'prix_ht' => '12.50', 'stock' => 22, 'poids' => '0.30', 'image_principale' => 'assets/products/bougies/miel-dore.jpg', 'image_detail' => 'assets/products/bougies/miel-dore-detail.jpg'],
+                ['nom' => 'Bougie fleur d oranger', 'description' => 'Parfum floral et diffusion reguliere.', 'prix_ht' => '13.20', 'stock' => 20, 'poids' => '0.30', 'image_principale' => 'assets/products/bougies/fleur-oranger.jpg', 'image_detail' => 'assets/products/bougies/fleur-oranger-detail.jpg'],
+                ['nom' => 'Bougie pain d epices', 'description' => 'Notes gourmandes et epicees pour l hiver.', 'prix_ht' => '13.80', 'stock' => 18, 'poids' => '0.30', 'image_principale' => 'assets/products/bougies/pain-epices.jpg', 'image_detail' => 'assets/products/bougies/pain-epices-detail.jpg'],
+                ['nom' => 'Bougie verveine', 'description' => 'Ambiance fraiche et vegetale.', 'prix_ht' => '11.90', 'stock' => 25, 'poids' => '0.28', 'image_principale' => 'assets/products/bougies/verveine.jpg', 'image_detail' => 'assets/products/bougies/verveine-detail.jpg'],
+                ['nom' => 'Bougie bois ambré', 'description' => 'Sillage boise pour les interieurs cosy.', 'prix_ht' => '14.10', 'stock' => 16, 'poids' => '0.32', 'image_principale' => 'assets/products/bougies/bois-ambre.jpg', 'image_detail' => 'assets/products/bougies/bois-ambre-detail.jpg'],
             ],
         ],
         [
@@ -410,11 +410,11 @@ try {
                 'ville' => $villeBruxelles,
             ],
             'products' => [
-                ['nom' => 'Pollen multifleurs', 'description' => 'Pollen sec aux notes florales variees.', 'prix_ht' => '7.50', 'stock' => 38, 'poids' => '0.12', 'image_principale' => 'products/pollen/multifleurs.jpg', 'image_detail' => 'products/pollen/multifleurs-detail.jpg'],
-                ['nom' => 'Pollen frais congele', 'description' => 'Pollen preserve a froid pour garder ses aromes.', 'prix_ht' => '9.10', 'stock' => 20, 'poids' => '0.15', 'image_principale' => 'products/pollen/frais.jpg', 'image_detail' => 'products/pollen/frais-detail.jpg'],
-                ['nom' => 'Pollen ciste', 'description' => 'Origine mediterraneenne et texture croquante.', 'prix_ht' => '8.80', 'stock' => 24, 'poids' => '0.12', 'image_principale' => 'products/pollen/ciste.jpg', 'image_detail' => 'products/pollen/ciste-detail.jpg'],
-                ['nom' => 'Pollen aubepine', 'description' => 'Saveur douce et legumes secs en note finale.', 'prix_ht' => '8.40', 'stock' => 26, 'poids' => '0.12', 'image_principale' => 'products/pollen/aubepine.jpg', 'image_detail' => 'products/pollen/aubepine-detail.jpg'],
-                ['nom' => 'Pollen printemps', 'description' => 'Melange saisonnier recolte au debut de saison.', 'prix_ht' => '7.90', 'stock' => 30, 'poids' => '0.12', 'image_principale' => 'products/pollen/printemps.jpg', 'image_detail' => 'products/pollen/printemps-detail.jpg'],
+                ['nom' => 'Pollen multifleurs', 'description' => 'Pollen sec aux notes florales variees.', 'prix_ht' => '7.50', 'stock' => 38, 'poids' => '0.12', 'image_principale' => 'assets/products/pollen/multifleurs.jpg', 'image_detail' => 'assets/products/pollen/multifleurs-detail.jpg'],
+                ['nom' => 'Pollen frais congele', 'description' => 'Pollen preserve a froid pour garder ses aromes.', 'prix_ht' => '9.10', 'stock' => 20, 'poids' => '0.15', 'image_principale' => 'assets/products/pollen/frais.jpg', 'image_detail' => 'assets/products/pollen/frais-detail.jpg'],
+                ['nom' => 'Pollen ciste', 'description' => 'Origine mediterraneenne et texture croquante.', 'prix_ht' => '8.80', 'stock' => 24, 'poids' => '0.12', 'image_principale' => 'assets/products/pollen/ciste.jpg', 'image_detail' => 'assets/products/pollen/ciste-detail.jpg'],
+                ['nom' => 'Pollen aubepine', 'description' => 'Saveur douce et legumes secs en note finale.', 'prix_ht' => '8.40', 'stock' => 26, 'poids' => '0.12', 'image_principale' => 'assets/products/pollen/aubepine.jpg', 'image_detail' => 'assets/products/pollen/aubepine-detail.jpg'],
+                ['nom' => 'Pollen printemps', 'description' => 'Melange saisonnier recolte au debut de saison.', 'prix_ht' => '7.90', 'stock' => 30, 'poids' => '0.12', 'image_principale' => 'assets/products/pollen/printemps.jpg', 'image_detail' => 'assets/products/pollen/printemps-detail.jpg'],
             ],
         ],
         [
@@ -439,11 +439,11 @@ try {
                 'ville' => $villeLyon,
             ],
             'products' => [
-                ['nom' => 'Spray gorge propolis', 'description' => 'Spray concentre au gout doux et menthe.', 'prix_ht' => '8.30', 'stock' => 42, 'poids' => '0.04', 'image_principale' => 'products/propolis/spray-gorge.jpg', 'image_detail' => 'products/propolis/spray-gorge-detail.jpg'],
-                ['nom' => 'Teinture mere propolis', 'description' => 'Extrait liquide prepare en petite serie.', 'prix_ht' => '10.90', 'stock' => 28, 'poids' => '0.05', 'image_principale' => 'products/propolis/teinture-mere.jpg', 'image_detail' => 'products/propolis/teinture-mere-detail.jpg'],
-                ['nom' => 'Pastilles propolis miel', 'description' => 'Pastilles fondantes pour une pause reconfortante.', 'prix_ht' => '5.60', 'stock' => 54, 'poids' => '0.07', 'image_principale' => 'products/propolis/pastilles.jpg', 'image_detail' => 'products/propolis/pastilles-detail.jpg'],
-                ['nom' => 'Baume propolis intense', 'description' => 'Baume polyvalent a appliquer localement.', 'prix_ht' => '7.40', 'stock' => 36, 'poids' => '0.03', 'image_principale' => 'products/propolis/baume.jpg', 'image_detail' => 'products/propolis/baume-detail.jpg'],
-                ['nom' => 'Solution propolis brute', 'description' => 'Preparation artisanale a forte teneur en propolis.', 'prix_ht' => '11.70', 'stock' => 20, 'poids' => '0.05', 'image_principale' => 'products/propolis/solution-brute.jpg', 'image_detail' => 'products/propolis/solution-brute-detail.jpg'],
+                ['nom' => 'Spray gorge propolis', 'description' => 'Spray concentre au gout doux et menthe.', 'prix_ht' => '8.30', 'stock' => 42, 'poids' => '0.04', 'image_principale' => 'assets/products/propolis/spray-gorge.jpg', 'image_detail' => 'assets/products/propolis/spray-gorge-detail.jpg'],
+                ['nom' => 'Teinture mere propolis', 'description' => 'Extrait liquide prepare en petite serie.', 'prix_ht' => '10.90', 'stock' => 28, 'poids' => '0.05', 'image_principale' => 'assets/products/propolis/teinture-mere.jpg', 'image_detail' => 'assets/products/propolis/teinture-mere-detail.jpg'],
+                ['nom' => 'Pastilles propolis miel', 'description' => 'Pastilles fondantes pour une pause reconfortante.', 'prix_ht' => '5.60', 'stock' => 54, 'poids' => '0.07', 'image_principale' => 'assets/products/propolis/pastilles.jpg', 'image_detail' => 'assets/products/propolis/pastilles-detail.jpg'],
+                ['nom' => 'Baume propolis intense', 'description' => 'Baume polyvalent a appliquer localement.', 'prix_ht' => '7.40', 'stock' => 36, 'poids' => '0.03', 'image_principale' => 'assets/products/propolis/baume.jpg', 'image_detail' => 'assets/products/propolis/baume-detail.jpg'],
+                ['nom' => 'Solution propolis brute', 'description' => 'Preparation artisanale a forte teneur en propolis.', 'prix_ht' => '11.70', 'stock' => 20, 'poids' => '0.05', 'image_principale' => 'assets/products/propolis/solution-brute.jpg', 'image_detail' => 'assets/products/propolis/solution-brute-detail.jpg'],
             ],
         ],
         [
@@ -468,11 +468,11 @@ try {
                 'ville' => $villeBruxelles,
             ],
             'products' => [
-                ['nom' => 'Coffret douceur du matin', 'description' => 'Selection petit dejeuner avec miel et tisane.', 'prix_ht' => '24.90', 'stock' => 14, 'poids' => '1.20', 'image_principale' => 'products/coffrets/douceur-matin.jpg', 'image_detail' => 'products/coffrets/douceur-matin-detail.jpg'],
-                ['nom' => 'Coffret bain relaxant', 'description' => 'Savon, baume et bougie pour une pause detente.', 'prix_ht' => '29.50', 'stock' => 12, 'poids' => '1.35', 'image_principale' => 'products/coffrets/bain-relaxant.jpg', 'image_detail' => 'products/coffrets/bain-relaxant-detail.jpg'],
-                ['nom' => 'Coffret gourmand au miel', 'description' => 'Miels et confiseries artisanales en coffret cadeau.', 'prix_ht' => '27.80', 'stock' => 16, 'poids' => '1.40', 'image_principale' => 'products/coffrets/gourmand.jpg', 'image_detail' => 'products/coffrets/gourmand-detail.jpg'],
-                ['nom' => 'Coffret bien etre propolis', 'description' => 'Routine bien etre avec propolis, pollen et infusion.', 'prix_ht' => '31.20', 'stock' => 10, 'poids' => '1.10', 'image_principale' => 'products/coffrets/bien-etre.jpg', 'image_detail' => 'products/coffrets/bien-etre-detail.jpg'],
-                ['nom' => 'Coffret maison parfumee', 'description' => 'Bougie, spray et douceurs pour offrir.', 'prix_ht' => '33.40', 'stock' => 8, 'poids' => '1.50', 'image_principale' => 'products/coffrets/maison-parfumee.jpg', 'image_detail' => 'products/coffrets/maison-parfumee-detail.jpg'],
+                ['nom' => 'Coffret douceur du matin', 'description' => 'Selection petit dejeuner avec miel et tisane.', 'prix_ht' => '24.90', 'stock' => 14, 'poids' => '1.20', 'image_principale' => 'assets/products/coffrets/douceur-matin.jpg', 'image_detail' => 'assets/products/coffrets/douceur-matin-detail.jpg'],
+                ['nom' => 'Coffret bain relaxant', 'description' => 'Savon, baume et bougie pour une pause detente.', 'prix_ht' => '29.50', 'stock' => 12, 'poids' => '1.35', 'image_principale' => 'assets/products/coffrets/bain-relaxant.jpg', 'image_detail' => 'assets/products/coffrets/bain-relaxant-detail.jpg'],
+                ['nom' => 'Coffret gourmand au miel', 'description' => 'Miels et confiseries artisanales en coffret cadeau.', 'prix_ht' => '27.80', 'stock' => 16, 'poids' => '1.40', 'image_principale' => 'assets/products/coffrets/gourmand.jpg', 'image_detail' => 'assets/products/coffrets/gourmand-detail.jpg'],
+                ['nom' => 'Coffret bien etre propolis', 'description' => 'Routine bien etre avec propolis, pollen et infusion.', 'prix_ht' => '31.20', 'stock' => 10, 'poids' => '1.10', 'image_principale' => 'assets/products/coffrets/bien-etre.jpg', 'image_detail' => 'assets/products/coffrets/bien-etre-detail.jpg'],
+                ['nom' => 'Coffret maison parfumee', 'description' => 'Bougie, spray et douceurs pour offrir.', 'prix_ht' => '33.40', 'stock' => 8, 'poids' => '1.50', 'image_principale' => 'assets/products/coffrets/maison-parfumee.jpg', 'image_detail' => 'assets/products/coffrets/maison-parfumee-detail.jpg'],
             ],
         ],
     ];
@@ -673,3 +673,4 @@ try {
     echo 'Error: ' . $e->getMessage() . "\n";
     exit(1);
 }
+
