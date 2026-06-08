@@ -108,9 +108,9 @@ export class ArtisanStatsComponent implements OnInit {
     });
     this.orderSvc.getArtisanOrders().subscribe(os => {
       this.orders.set(os);
-      const total = os.reduce((s,o) => s + o.total_ttc, 0);
-      this.totalRevenue.set(total.toFixed(2));
-      this.avgBasket.set(os.length ? (total/os.length).toFixed(2) : '0.00');
+      const total = os.reduce((s, o) => s + Number(o.total_ttc || 0), 0);
+      this.totalRevenue.set(Number.isFinite(total) ? total.toFixed(2) : '0.00');
+      this.avgBasket.set(os.length ? (total / os.length).toFixed(2) : '0.00');
       const counts: Record<string,number> = {};
       os.forEach(o => { counts[o.statut] = (counts[o.statut] ?? 0) + 1; });
       this.statutStats.set(Object.entries(STATUT_LABELS).map(([statut, label]) => ({

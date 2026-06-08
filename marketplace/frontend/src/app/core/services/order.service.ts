@@ -10,14 +10,23 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
+  private mapOrder(order: any): Commande {
+    return {
+      ...order,
+      total_ht: Number(order.total_ht) || 0,
+      total_tva: Number(order.total_tva) || 0,
+      total_ttc: Number(order.total_ttc) || 0,
+    };
+  }
+
   getClientOrders(): Observable<Commande[]> {
     return this.http.get<any>(`${this.base}/orders`, { withCredentials: true })
-      .pipe(map(r => r.data ?? []));
+      .pipe(map(r => (r.data ?? []).map((order: any) => this.mapOrder(order))));
   }
 
   getArtisanOrders(): Observable<Commande[]> {
     return this.http.get<any>(`${this.base}/artisan/orders`, { withCredentials: true })
-      .pipe(map(r => r.data ?? []));
+      .pipe(map(r => (r.data ?? []).map((order: any) => this.mapOrder(order))));
   }
 
   getAdminOrders(): Observable<Commande[]> {
