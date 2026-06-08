@@ -100,8 +100,8 @@ export class ArtisanDashboardComponent implements OnInit {
     });
     this.orderSvc.getArtisanOrders().subscribe(os => {
       this.orders.set(os);
-      const ca = os.reduce((s,o) => s + o.total_ttc, 0);
-      this.caEstime.set(ca.toFixed(2));
+      const ca = os.reduce((s, o) => s + Number(o.total_ttc || 0), 0);
+      this.caEstime.set(Number.isFinite(ca) ? ca.toFixed(2) : '0.00');
     });
   }
 
