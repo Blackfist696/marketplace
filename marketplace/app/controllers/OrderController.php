@@ -8,6 +8,9 @@ require_once __DIR__ . '/../models/ProduitModel.php';
 
 use App\Models\Commande;
 use App\Models\LigneCommande;
+use App\Models\Paiement;
+use App\Security\Auth\AuthContext;
+use App\Security\Authorization\OwnershipGuard;
 use App\Models\Produit;
 use Throwable;
 
@@ -72,6 +75,60 @@ class OrderController extends Controller
         }
 
         $this->respond(200, 'Commande', $order);
+    }
+
+    /**
+     * Supprime une commande non payee.
+     */
+    public function destroy(int $id): void
+    {
+        $auth = AuthContext::current();
+        if ($auth === null) {
+            $this->respond(401, 'Authentification requise');
+            return;
+        }
+
+        $order = Commande::getById($id);
+        if ($order === null) {
+            $this->respond(404, 'Commande introuvable');
+            return;
+        }
+
+        if (!OwnershipGuard::canDeleteCommande($id, $auth)) {
+            $this->respond(403, 'Suppression interdite: commande non payee ou acces refuse');
+            return;
+        }
+
+        $payments = Paiement::getBy('id_commande', $id);
+        if (!empty($payments)) {
+            $this->respond(403, 'Suppression interdite: commande liee a un paiement');
+            return;
+        }
+
+        $pdo = Commande::getPDO();
+        $pdo->beginTransaction();
+
+        try {
+            foreach (LigneCommande::getBy('id_commande', $id) as $line) {
+                LigneCommande::deleteRecord((int) ($line['id_ligne_commande'] ?? 0));
+            }
+
+            $ok = Commande::deleteRecord($id);
+            if (!$ok) {
+                throw new \RuntimeException('Echec de suppression de la commande');
+            }
+
+            $pdo->commit();
+        } catch (Throwable $throwable) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            $this->respond(500, 'Echec de suppression de la commande');
+            return;
+        }
+
+        $this->respond(200, 'Commande supprimee');
     }
 
     /**

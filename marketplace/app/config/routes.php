@@ -43,6 +43,7 @@ return function (App $app): void {
     $artisanRole = new RoleMiddleware([2]);
     $clientRole = new RoleMiddleware([3]);
     $adminRole = new RoleMiddleware([1]);
+    $clientOrAdminRole = new RoleMiddleware([1, 3]);
 
     $paymentQueryValidation = new QueryValidationMiddleware([
         'id_commande' => ['type' => 'int', 'min' => 1, 'required' => true],
@@ -128,6 +129,7 @@ return function (App $app): void {
     $register('GET', '/orders', 'App\\Controllers\\OrderController@index', [$clientRole]);
     $register('GET', '/orders/{id}', 'App\\Controllers\\OrderController@show', [$clientRole]);
     $register('POST', '/orders', 'App\\Controllers\\OrderController@store', [$clientRole]);
+    $register('DELETE', '/orders/{id}', 'App\\Controllers\\OrderController@destroy', [$clientOrAdminRole]);
 
     $register('GET', '/profile', 'App\\Controllers\\ProfileController@show', [$auth]);
     $register('PUT', '/profile', 'App\\Controllers\\ProfileController@update', [$auth]);

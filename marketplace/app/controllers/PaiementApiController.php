@@ -133,12 +133,6 @@ class PaiementApiController extends Controller
             return;
         }
 
-        if (!OwnershipGuard::canAccessPaiement($item, $auth)) {
-            $this->respond(403, 'Acces interdit');
-            return;
-        }
-
-        $ok = Paiement::deleteRecord($id);
-        $this->respond($ok ? 200 : 400, $ok ? 'Paiement supprime' : 'Echec de suppression');
+        $this->respond(403, 'Suppression de paiement interdite');
     }
 }
