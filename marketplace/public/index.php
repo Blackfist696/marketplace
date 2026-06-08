@@ -7,7 +7,7 @@
 
 $requestMethod = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 $requestPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
-$spaRoot = __DIR__ . '/app';
+$spaRoot = __DIR__ . '/app/browser';
 
 // Si un fichier statique existe directement sous `public/`, le servir immédiatement
 if (in_array($requestMethod, ['GET', 'HEAD'], true)) {
