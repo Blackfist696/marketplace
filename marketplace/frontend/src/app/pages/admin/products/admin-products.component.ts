@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../core/services/product.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { getProductImageSrc } from '../../../core/utils/image-path';
 import { Produit, CATEGORY_LABELS } from '../../../core/models/models';
 
 @Component({
@@ -48,7 +49,7 @@ import { Produit, CATEGORY_LABELS } from '../../../core/models/models';
                     <div class="flex items-center gap-3">
                       <div class="w-9 h-9 rounded-lg bg-gray-100 overflow-hidden shrink-0">
                         @if (p.image_principale) {
-                          <img [src]="'/' + p.image_principale" [alt]="p.nom" class="w-full h-full object-cover" />
+                          <img [src]="getProductImageSrc(p.image_principale)" [alt]="p.nom" class="w-full h-full object-cover" />
                         }
                       </div>
                       <div>
@@ -81,6 +82,8 @@ import { Produit, CATEGORY_LABELS } from '../../../core/models/models';
   `,
 })
 export class AdminProductsComponent implements OnInit {
+  readonly getProductImageSrc = getProductImageSrc;
+
   produits        = signal<Produit[]>([]);
   loading         = signal(true);
   search          = '';

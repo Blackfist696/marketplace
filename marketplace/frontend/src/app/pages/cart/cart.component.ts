@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
+import { getProductImageSrc } from '../../core/utils/image-path';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -28,7 +29,7 @@ import { AuthService } from '../../core/services/auth.service';
               <div class="card p-4 flex gap-4">
                 <div class="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden shrink-0">
                   @if (line.produit.image_principale) {
-                    <img [src]="'/' + line.produit.image_principale" [alt]="line.produit.nom" class="w-full h-full object-cover" />
+                    <img [src]="getProductImageSrc(line.produit.image_principale)" [alt]="line.produit.nom" class="w-full h-full object-cover" />
                   }
                 </div>
                 <div class="flex-1 min-w-0">
@@ -79,6 +80,8 @@ import { AuthService } from '../../core/services/auth.service';
   `,
 })
 export class CartComponent implements OnInit {
+  readonly getProductImageSrc = getProductImageSrc;
+
   constructor(public cart: CartService, private auth: AuthService, private router: Router) {}
 
   ngOnInit() { this.cart.load().subscribe(); }
