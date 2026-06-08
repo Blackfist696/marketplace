@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../core/services/product.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { getProductImageSrc } from '../../../core/utils/image-path';
 import { Produit, CATEGORY_LABELS } from '../../../core/models/models';
 
 @Component({
@@ -54,7 +55,7 @@ import { Produit, CATEGORY_LABELS } from '../../../core/models/models';
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                       <div class="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden shrink-0">
-                        @if (p.image_principale) { <img [src]="'/' + p.image_principale" [alt]="p.nom" class="w-full h-full object-cover" /> }
+                        @if (p.image_principale) { <img [src]="getProductImageSrc(p.image_principale)" [alt]="p.nom" class="w-full h-full object-cover" /> }
                       </div>
                       <span class="font-medium truncate max-w-[180px]">{{ p.nom }}</span>
                     </div>
@@ -122,6 +123,8 @@ import { Produit, CATEGORY_LABELS } from '../../../core/models/models';
   `,
 })
 export class ArtisanProductsComponent implements OnInit {
+  readonly getProductImageSrc = getProductImageSrc;
+
   produits  = signal<Produit[]>([]);
   saving    = signal(false);
   search    = '';

@@ -5,6 +5,7 @@ import { ProductService } from '../../core/services/product.service';
 import { AvisService } from '../../core/services/avis.service';
 import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../core/services/toast.service';
+import { getProductImageSrc } from '../../core/utils/image-path';
 import { ProductCardComponent } from '../../shared/product-card/product-card.component';
 import { Produit, Avis } from '../../core/models/models';
 
@@ -31,7 +32,7 @@ import { Produit, Avis } from '../../core/models/models';
           <div>
             <div class="aspect-square rounded-2xl bg-gray-100 overflow-hidden mb-4">
               @if (produit()!.image_principale) {
-                <img [src]="'/' + produit()!.image_principale" [alt]="produit()!.nom" class="w-full h-full object-cover" />
+                <img [src]="getProductImageSrc(produit()!.image_principale)" [alt]="produit()!.nom" class="w-full h-full object-cover" />
               } @else {
                 <div class="w-full h-full flex items-center justify-center text-gray-300 text-8xl">📦</div>
               }
@@ -130,6 +131,7 @@ export class ProductDetailComponent implements OnInit {
   similar = signal<Produit[]>([]);
   loading = signal(true);
   qty     = 1;
+  readonly getProductImageSrc = getProductImageSrc;
   activeTab = 'description';
   tabs = [
     { id: 'description', label: 'Description' },
