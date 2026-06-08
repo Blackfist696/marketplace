@@ -149,6 +149,11 @@ class LigneCommandeController extends Controller
             return;
         }
 
+        if (!OwnershipGuard::canDeleteLigneCommande($item, $auth)) {
+            $this->respond(403, 'Suppression interdite: la commande est payee ou acces refuse');
+            return;
+        }
+
         $ok = LigneCommande::deleteRecord($id);
         $this->respond($ok ? 200 : 400, $ok ? 'Ligne de commande supprimee' : 'Echec de suppression');
     }

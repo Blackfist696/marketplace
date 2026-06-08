@@ -1,0 +1,1 @@
+{"timestamp":"2026-06-08T14:43:24+00:00","level":"WARNING","channel":"security","message":"Jeton CSRF invalide ou manquant","context":{"status":419,"method":"POST","uri":"/cart","user_id":3,"ip":"127.0.0.1"}}
