@@ -1,7 +1,11 @@
 RewriteEngine On
+RewriteBase /project02/
 
 # Homepage should open the Angular frontend build.
-RewriteRule ^$ /project02/public/app/ [R=302,L]
+RewriteRule ^$ public/app/ [R=302,L]
+
+# Serve static product image requests from the public assets folder.
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
 
 # Force les endpoints backend connus a passer par le front controller,
 # meme si l'hebergeur ou Apache tente une resolution repertoire/DirectorySlash.
