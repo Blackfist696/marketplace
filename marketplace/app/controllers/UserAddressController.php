@@ -3,8 +3,12 @@ namespace App\Controllers;
 
 require_once __DIR__ . '/Controller.php';
 require_once __DIR__ . '/../models/RUtilisateurAdresseModel.php';
+require_once __DIR__ . '/../models/AdresseModel.php';
+require_once __DIR__ . '/../models/VilleModel.php';
 
+use App\Models\Adresse;
 use App\Models\RUtilisateurAdresse;
+use App\Models\Ville;
 
 /**
  * API de gestion des liaisons utilisateur-adresse.
@@ -26,7 +30,7 @@ class UserAddressController extends Controller
             return;
         }
 
-        $this->respond(200, 'Mes adresses', RUtilisateurAdresse::getByUtilisateurId($sessionUser['user_id']));
+        $this->respond(200, 'Mes adresses', Adresse::getByUtilisateurId($sessionUser['user_id']));
     }
 
     /**
@@ -76,9 +80,44 @@ class UserAddressController extends Controller
         }
 
         $data = $_POST;
+
         if (empty($data['id_adresse'])) {
-            $this->respond(400, 'id_adresse est requis');
-            return;
+            if (empty($data['rue'])) {
+                $this->respond(400, 'Rue est requise pour creer une adresse');
+                return;
+            }
+
+            if (!empty($data['id_ville'])) {
+                $idVille = (int) $data['id_ville'];
+            } elseif (!empty($data['code_postal'])) {
+                $villes = Ville::getBy('code_postal', $data['code_postal']);
+                if (empty($villes)) {
+                    $this->respond(400, 'Code postal invalide ou ville introuvable');
+                    return;
+                }
+                $idVille = (int) $villes[0]['id_ville'];
+            } else {
+                $this->respond(400, 'id_ville ou code_postal est requis pour creer une adresse');
+                return;
+            }
+
+            $addressPayload = [
+                'rue' => $data['rue'],
+                'id_ville' => $idVille,
+                'type_adresse' => $data['type_adresse'] ?? 'livraison',
+                'principale' => 1,
+            ];
+
+            if (!empty($data['complement'])) {
+                $addressPayload['complement'] = $data['complement'];
+            }
+
+            try {
+                $data['id_adresse'] = Adresse::createRecord($addressPayload);
+            } catch (\Exception $exception) {
+                $this->respond(400, 'Impossible de creer l adresse: ' . $exception->getMessage());
+                return;
+            }
         }
 
         if ($sessionUser['role_id'] === 1) {

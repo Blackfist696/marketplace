@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/utils/image-path.ts"],
+  "sourcesContent": ["export function getProductImageSrc(imagePath?: string): string {\r\n  if (!imagePath) {\r\n    return '';\r\n  }\r\n\r\n  const normalized = imagePath.trim().replace(/^\\/+/, '');\r\n\r\n  if (normalized.startsWith('assets/products/')) {\r\n    return '/' + normalized;\r\n  }\r\n\r\n  if (normalized.startsWith('products/')) {\r\n    return '/assets/' + normalized;\r\n  }\r\n\r\n  return '/' + normalized;\r\n}\r\n"],
+  "mappings": ";AAAM,SAAU,mBAAmB,WAAkB;AACnD,MAAI,CAAC,WAAW;AACd,WAAO;EACT;AAEA,QAAM,aAAa,UAAU,KAAI,EAAG,QAAQ,QAAQ,EAAE;AAEtD,MAAI,WAAW,WAAW,kBAAkB,GAAG;AAC7C,WAAO,MAAM;EACf;AAEA,MAAI,WAAW,WAAW,WAAW,GAAG;AACtC,WAAO,aAAa;EACtB;AAEA,SAAO,MAAM;AACf;",
+  "names": []
+}
