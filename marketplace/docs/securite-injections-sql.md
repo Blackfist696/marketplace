@@ -1,135 +1,343 @@
 # Protection contre les injections SQL
 
-Ce document décrit les mesures mises en place dans l’application pour limiter les risques d’attaques par injection SQL et renforcer la sécurité des interactions avec la base de données.
+Ce document explique, de façon simple et concrète, comment le projet protège ses échanges avec la base de données contre les attaques par injection SQL.
 
-## Objectif
+## En une phrase
 
-## Mise a jour fonctionnelle recente
+Une injection SQL, c’est quand une personne malveillante fait passer du code SQL dans une donnée saisie par l’utilisateur, afin de modifier la requête attendue par l’application.
 
-Les protections documentees ici couvrent aussi le nouveau flux de consultation produit :
-- la page detail produit envoie une requete de suivi vers [app/controllers/StatistiqueArtisanController.php](../app/controllers/StatistiqueArtisanController.php)
-- le controleur utilise les validateurs de [app/models/validators/StatistiqueArtisanValidator.php](../app/models/validators/StatistiqueArtisanValidator.php)
-- le stockage final passe par [app/models/Model.php](../app/models/Model.php) avec whitelist et requetes preparees
+L’objectif ici est simple : empêcher cette donnée de devenir une instruction SQL.
 
-Les injections SQL surviennent lorsqu’un attaquant injecte du SQL malveillant via une entrée utilisateur, par exemple dans un champ de formulaire, un paramètre d’URL ou une requête HTTP. L’objectif de cette protection est de garantir que les données saisies par l’utilisateur ne puissent pas modifier la logique SQL attendue.
+---
 
-## Mesures principales mises en place
+## Ce qui a été fait dans le projet
 
-### 1. Validation stricte des données
+Les protections décrites ici couvrent aussi le nouveau flux de consultation produit :
+- la page détail produit envoie un suivi vers [app/controllers/StatistiqueArtisanController.php](../app/controllers/StatistiqueArtisanController.php)
+- le contrôleur utilise les validateurs de [app/models/validators/StatistiqueArtisanValidator.php](../app/models/validators/StatistiqueArtisanValidator.php)
+- l’enregistrement final passe par [app/models/Model.php](../app/models/Model.php), où les données sont filtrées, validées, nettoyées et envoyées via des requêtes préparées
 
-Avant toute insertion ou mise à jour, les données sont validées via des validateurs spécifiques à chaque modèle.
+---
 
-Parcours du code :
-1. Une requête HTTP arrive dans un contrôleur, par exemple dans [app/controllers/StatistiqueArtisanController.php](../app/controllers/StatistiqueArtisanController.php).
-2. Les données sont transmises au modèle correspondant.
-3. Le modèle appelle la logique de validation centralisée dans [app/models/Model.php](../app/models/Model.php).
-4. Le validateur dédié est utilisé, par exemple [app/models/validators/StatistiqueArtisanValidator.php](../app/models/validators/StatistiqueArtisanValidator.php).
+## Le principe général
 
-Exemples de protections :
-- vérification des champs obligatoires
-- validation du type des données
-- contrôle des formats attendus
-- vérification des valeurs numériques
-- vérification des adresses IP lorsqu’elles sont utilisées
+Le flux de sécurité ressemble à ceci :
 
-Cette approche empêche l’envoi de données incohérentes ou mal formées qui pourraient compromettre la requête SQL.
+```text
+Utilisateur -> Contrôleur -> Validateur -> Modèle -> Requête préparée -> Base de données
+      |               |             |              |                    |
+   Donnée brute   Vérifie       Filtre       Sépare SQL/valeur      Exécution
+```
 
-### 2. Whitelist des champs autorisés
+Chaque étape a un rôle précis :
+- le contrôleur reçoit la donnée,
+- le validateur vérifie qu’elle est correcte,
+- le modèle la filtre et la nettoie,
+- la requête SQL est ensuite exécutée de façon séparée de la valeur transmise.
 
-Les modèles n’acceptent que les colonnes explicitement autorisées pour chaque opération CRUD.
+---
 
-Parcours du code :
-1. Le contrôleur envoie les données au modèle via une méthode de création ou de mise à jour.
-2. Le modèle applique un filtrage strict dans [app/models/Model.php](../app/models/Model.php).
-3. Seuls les champs déclarés dans les modèles, comme [app/models/StatistiqueArtisanModel.php](../app/models/StatistiqueArtisanModel.php), sont conservés.
+## 1. Validation des données entrantes
 
-En pratique :
-- seul un ensemble défini de colonnes peut être utilisé pour une insertion ou une mise à jour
-- aucune colonne non prévue ne peut être injectée implicitement
+Avant toute insertion ou mise à jour, les données sont vérifiées.
 
-Cela limite fortement les surfaces d’attaque et évite toute modification non contrôlée des requêtes.
+### Ce que cela signifie
+Si une donnée attendue est absente, vide, mal formée ou de mauvais type, elle est rejetée.
 
-### 3. Utilisation de requêtes préparées
+### Exemples de contrôles
+- champ obligatoire présent
+- identifiant numérique
+- adresse IP valide
+- champ non vide après nettoyage
 
-Les interactions avec la base de données passent par des requêtes préparées avec des paramètres liés.
+### Dans le code
+- Fichier concerné : [app/models/validators/StatistiqueArtisanValidator.php](../app/models/validators/StatistiqueArtisanValidator.php)
 
-Parcours du code :
-1. Le modèle appelle la couche d’accès à la base de données depuis [app/models/Model.php](../app/models/Model.php).
-2. Les valeurs sont liées à la requête via `bindValue` ou `execute` avec des paramètres.
-3. La requête SQL est construite avec des placeholders, puis exécutée sans interpolation directe des entrées utilisateur.
+```php
+public function validate(array $data): ValidationResult
+{
+    $this->result = new ValidationResult();
 
-Avantages :
-- séparation nette entre la requête SQL et les valeurs transmises
-- impossibilité pour une valeur utilisateur de changer la structure de la requête
-- protection contre les attaques par injection SQL même si la saisie contient des caractères spéciaux tels que `'`, `"`, `;`, ou `--`
+    $this->validateRequired($data, ['date_consultation', 'ip_adress', 'id_produit', 'id_artisan']);
+    $this->validateNumeric('id_artisan', $data);
+    $this->validateNumeric('id_produit', $data);
 
-### 4. Sanitize des données entrantes
+    if (isset($data['ip_adress']) && filter_var($data['ip_adress'], FILTER_VALIDATE_IP) === false) {
+        $this->result->addError('ip_adress', 'L adresse IP est invalide.');
+    }
 
-Les données reçues sont nettoyées avant traitement.
+    return $this->result;
+}
+```
 
-Parcours du code :
-1. Les données entrantes traversent le contrôleur puis le modèle.
-2. La sanitation est appliquée dans [app/models/Model.php](../app/models/Model.php) via la méthode `sanitizeData()`.
-3. Les valeurs sont nettoyées avant insertion, mise à jour ou comparaison.
+- Fichier concerné : [app/models/validators/AbstractValidator.php](../app/models/validators/AbstractValidator.php)
 
-Les opérations de nettoyage incluent :
+```php
+protected function validateRequired(array $data, array $fields): void
+{
+    foreach ($fields as $field) {
+        if (!isset($data[$field]) || trim((string) $data[$field]) === '') {
+            $this->result->addError($field, sprintf('Le champ "%s" est requis.', $field));
+        }
+    }
+}
+```
+
+### Pourquoi c’est utile
+Cela empêche de transmettre des données incohérentes qui pourraient perturber la logique SQL ou provoquer des erreurs métier.
+
+---
+
+## 2. Whitelist des champs autorisés
+
+Le modèle n’accepte que les colonnes explicitement autorisées pour l’opération demandée.
+
+### En pratique
+Si le code prévoit d’écrire dans trois champs, seule cette liste est acceptée. Les autres champs sont ignorés.
+
+### Dans le code
+- Fichier concerné : [app/models/Model.php](../app/models/Model.php)
+
+```php
+public function fill(array $attributes): self
+{
+    $attributes = static::sanitizeData($attributes);
+
+    foreach (static::$fields as $field) {
+        if (array_key_exists($field, $attributes)) {
+            $this->attributes[$field] = $attributes[$field];
+        }
+    }
+
+    return $this;
+}
+```
+
+### Effet concret
+Une donnée parasite ne peut pas “forcer” l’écriture dans une colonne non prévue.
+
+---
+
+## 3. Requêtes préparées
+
+C’est l’une des protections les plus importantes.
+
+### Principe
+La requête SQL est construite avec des espaces réservés, puis les valeurs sont envoyées séparément.
+
+### Exemple mental
+Au lieu de faire :
+
+```text
+SELECT * FROM produits WHERE nom = 'valeur fournie par l'utilisateur'
+```
+
+On fait plutôt :
+
+```text
+SELECT * FROM produits WHERE nom = :nom
+```
+
+Puis la valeur est transmise de façon distincte.
+
+### Dans le code
+- Fichier concerné : [app/models/Model.php](../app/models/Model.php)
+
+```php
+$sql = sprintf(
+    'INSERT INTO %s (%s) VALUES (%s)',
+    static::$table,
+    implode(', ', $columns),
+    implode(', ', $placeholders)
+);
+
+$stmt = static::getPDO()->prepare($sql);
+foreach ($fields as $column => $value) {
+    $stmt->bindValue(':' . $column, $value);
+}
+
+$stmt->execute();
+```
+
+### Pourquoi c’est essentiel
+La valeur envoyée ne peut plus modifier la structure de la requête SQL.
+
+---
+
+## 4. Nettoyage des données (sanitize)
+
+Avant traitement, les données sont nettoyées.
+
+### Ce qui est fait
 - suppression des balises HTML potentiellement dangereuses
 - suppression des espaces en début et fin de chaîne
-- normalisation des valeurs avant insertion ou comparaison
+- normalisation simple des valeurs
 
-Cette mesure réduit les risques liés à des entrées malveillantes et améliore la robustesse des données stockées.
+### Dans le code
+- Fichier concerné : [app/models/Model.php](../app/models/Model.php)
 
-### 5. Contrôle des colonnes autorisées dans les requêtes dynamiques
+```php
+protected static function sanitizeData(array $data): array
+{
+    return array_map(static fn($value) => static::sanitizeValue($value), $data);
+}
 
-Pour certaines opérations de recherche ou de filtrage, seules les colonnes explicitement autorisées peuvent être utilisées.
+protected static function sanitizeValue($value)
+{
+    if (is_string($value)) {
+        return trim(strip_tags($value));
+    }
 
-Parcours du code :
-1. La méthode `where()` dans [app/models/Model.php](../app/models/Model.php) vérifie que la colonne demandée est bien autorisée.
-2. La liste des colonnes acceptées est définie par le modèle concerné, par exemple [app/models/StatistiqueArtisanModel.php](../app/models/StatistiqueArtisanModel.php).
+    if (is_array($value)) {
+        return array_map(static fn($item) => static::sanitizeValue($item), $value);
+    }
 
-Cela empêche l’utilisation de noms de colonnes arbitraires fournis par une source externe.
+    return $value;
+}
+```
 
-### 6. Gestion des erreurs sans fuite d’information
+### Pourquoi c’est utile
+Même si une donnée semble anodine, elle est nettoyée pour éviter les comportements non attendus.
 
-Les erreurs SQL ne sont pas exposées de manière brute à l’utilisateur final.
+---
 
-Parcours du code :
-1. Les contrôleurs, par exemple [app/controllers/StatistiqueArtisanController.php](../app/controllers/StatistiqueArtisanController.php), intercepte les exceptions levées par les modèles.
-2. Les erreurs sont transformées en réponses HTTP propres et contrôlées.
-3. Les traces techniques sont enregistrées dans les logs applicatifs, notamment [app/logs/app-error.log](../app/logs/app-error.log) et [app/logs/php-error.log](../app/logs/php-error.log).
+## 5. Contrôle des colonnes dans les requêtes dynamiques
 
-En pratique :
-- les exceptions sont interceptées
-- des réponses HTTP adaptées sont renvoyées
-- les détails sensibles sont journalisés côté serveur uniquement
+Pour les recherches ou les filtres, le modèle vérifie aussi que la colonne demandée est bien autorisée.
 
-Cette pratique réduit les risques de divulgation d’informations sur la structure interne de la base.
+### Dans le code
+- Fichier concerné : [app/models/Model.php](../app/models/Model.php)
 
-## Points importants à retenir
+```php
+public static function where(string $column, $value): array
+{
+    if ($column !== static::$primaryKey && !in_array($column, static::$fields, true)) {
+        throw new InvalidArgumentException(sprintf('La colonne "%s" n\'est pas autorisée.', $column));
+    }
 
-Même si plusieurs protections sont mises en place, la sécurité de la base de données repose surtout sur la combinaison de plusieurs mécanismes :
-- validation
-- préparation des requêtes
-- sanitization
-- contrôle strict des champs
-- journalisation et gestion des erreurs
+    $value = static::sanitizeValue($value);
+    $sql = sprintf('SELECT * FROM %s WHERE %s = :value', static::$table, $column);
+    $stmt = static::getPDO()->prepare($sql);
+    $stmt->execute(['value' => $value]);
 
-## Bonnes pratiques supplémentaires
+    return $stmt->fetchAll();
+}
+```
 
-Pour renforcer encore la sécurité, il est recommandé de :
-- maintenir les dépendances à jour
-- limiter les droits de la base de données au strict minimum
-- utiliser des comptes dédiés pour chaque environnement
-- éviter les constructions SQL en chaîne
-- auditer régulièrement les modèles et les contrôleurs
+### Effet concret
+Un nom de colonne inventé fourni par une source externe ne peut pas être utilisé pour contourner la logique.
 
-## Conclusion
+---
 
-L’application s’appuie sur une approche défensive basée sur :
-- des requêtes préparées
-- une validation rigoureuse
-- une whitelist des champs
-- un nettoyage des données
-- une gestion centralisée des erreurs
+## 6. Gestion des erreurs sans fuite d’information
 
-Ces mesures réduisent fortement le risque d’injection SQL et améliorent la sécurité globale du système.
+Les erreurs sont interceptées et transformées en réponses propres.
+
+### Ce qui se passe
+- une exception métier peut devenir une réponse HTTP 422 avec une liste d’erreurs,
+- une erreur technique est journalisée côté serveur,
+- les traces sensibles ne sont pas renvoyées brutement au navigateur.
+
+### Dans le code
+- Fichier concerné : [app/controllers/StatistiqueArtisanController.php](../app/controllers/StatistiqueArtisanController.php)
+
+```php
+try {
+    $id = StatistiqueArtisan::createRecord($data);
+    $this->respond(201, 'Statistique artisan creee', ['id_statistique' => $id]);
+} catch (\App\Models\Validators\ValidationException $exception) {
+    $this->respond(422, 'Donnees de consultation invalides', ['errors' => $exception->getErrors()]);
+} catch (\PDOException $exception) {
+    $this->respond(500, 'Erreur de base de donnees lors de l enregistrement de la consultation', ['error' => $exception->getMessage()]);
+}
+```
+
+- Journaux concernés : [app/logs/app-error.log](../app/logs/app-error.log) et [app/logs/php-error.log](../app/logs/php-error.log)
+
+### Pourquoi c’est important
+Cela évite de divulguer des détails internes sur la base ou sur le fonctionnement technique du système.
+
+---
+
+## Schéma simple du flux de protection
+
+```text
+[Formulaire / API / URL]
+          │
+          ▼
+[Contrôleur]
+          │
+          ▼
+[Validation métier]
+          │
+          ▼
+[Whitelist des champs]
+          │
+          ▼
+[Sanitize / nettoyage]
+          │
+          ▼
+[Requête préparée PDO]
+          │
+          ▼
+[Base de données]
+```
+
+Chaque bloc empêche une faille possible :
+- validation = on refuse les mauvaises données,
+- whitelist = on n’écrit que ce qui est prévu,
+- sanitize = on nettoie les entrées,
+- requête préparée = on sépare la requête de la valeur.
+
+---
+
+## Exemple concret : le flux de consultation produit
+
+Le flux récent de consultation produit suit cette logique :
+
+```text
+Page produit
+   │
+   ▼
+StatistiqueArtisanController
+   │
+   ▼
+StatistiqueArtisanValidator
+   │
+   ▼
+Model::create / update / where
+   │
+   ▼
+Requête préparée PDO
+   │
+   ▼
+Base de données
+```
+
+Ce parcours montre que la donnée reçue n’est pas simplement “collée” au SQL : elle passe par plusieurs protections avant l’écriture.
+
+---
+
+## Résumé simple
+
+Les protections mises en place reposent sur 5 piliers :
+1. valider les données,
+2. ne garder que les champs autorisés,
+3. utiliser des requêtes préparées,
+4. nettoyer les entrées,
+5. gérer les erreurs sans exposer les détails techniques.
+
+Cela réduit fortement le risque d’injection SQL et rend le système plus robuste.
+
+---
+
+## Bonnes pratiques à poursuivre
+
+Pour garder ce niveau de sécurité, il est recommandé de :
+- maintenir les dépendances à jour,
+- limiter les droits de la base de données au strict minimum,
+- utiliser des comptes dédiés par environnement,
+- éviter toute construction SQL manuelle à partir de données externes,
+- auditer régulièrement les nouveaux contrôleurs et modèles.
+
+Une version HTML plus graphique est disponible dans [securite-injections-sql.html](securite-injections-sql.html).

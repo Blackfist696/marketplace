@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sécurité SQL - Marketplace</title>
+  <style>
+    :root {
+      --bg: #f4f8ff;
+      --card: #ffffff;
+      --line: #dbe7ff;
+      --text: #15304f;
+      --muted: #58708f;
+      --accent: #2563eb;
+      --accent-2: #0f766e;
+      --danger: #b42318;
+      --ok: #087443;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(180deg, #f7faff 0%, #eef5ff 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 18px 48px; }
+    .hero {
+      background: linear-gradient(135deg, #0f172a, #2563eb);
+      color: white;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 18px 40px rgba(37, 99, 235, 0.25);
+    }
+    .hero h1 { margin: 0 0 10px; font-size: 1.8rem; }
+    .hero p { margin: 0; color: #dbeafe; max-width: 900px; }
+    .badge { display: inline-block; padding: 6px 10px; background: rgba(255,255,255,0.16); border-radius: 999px; margin-bottom: 12px; font-size: 0.9rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 20px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); }
+    .card h2 { margin-top: 0; font-size: 1.08rem; color: var(--accent); }
+    .card p, .card li { color: var(--muted); }
+    .diagram {
+      margin: 18px 0 8px;
+      padding: 18px;
+      background: #f8fbff;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+    }
+    .flow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
+    .box {
+      background: white; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+      min-width: 140px; text-align: center; font-weight: 600; color: var(--text);
+    }
+    .arrow { color: var(--accent); font-weight: 700; }
+    .pill { display: inline-block; padding: 5px 10px; border-radius: 999px; font-weight: 700; font-size: 0.84rem; margin: 4px 6px 4px 0; }
+    .pill-ok { background: #e8f8ef; color: var(--ok); }
+    .pill-warn { background: #fff5eb; color: #b25e00; }
+    .pill-danger { background: #fdecec; color: var(--danger); }
+    .two-col { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; margin-top: 16px; }
+    .mini-list { padding-left: 18px; margin: 6px 0 0; }
+    .footer { font-size: 0.94rem; color: var(--muted); margin-top: 18px; }
+    @media (max-width: 800px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <span class="badge">Sécurité applicative • SQL</span>
+      <h1>Protection contre les injections SQL</h1>
+      <p>Ce document explique simplement les protections mises en place pour empêcher qu’une donnée saisie par un utilisateur ne devienne une instruction SQL malveillante.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Le problème</h2>
+        <p>Une injection SQL survient quand une valeur saisie par l’utilisateur est interprétée comme du code SQL par la base de données.</p>
+        <p>Le but des protections ici est de séparer clairement :</p>
+        <ul class="mini-list">
+          <li>la requête SQL attendue</li>
+          <li>les valeurs transmises à cette requête</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Ce qui a été mis en place</h2>
+        <ul class="mini-list">
+          <li>validation des champs attendus</li>
+          <li>whitelist des colonnes autorisées</li>
+          <li>requêtes préparées PDO</li>
+          <li>nettoyage des données entrantes</li>
+          <li>gestion d’erreurs contrôlée</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Impact fonctionnel</h2>
+        <p>Ces mécanismes couvrent aussi le flux de consultation produit, notamment la sauvegarde des statistiques artisan.</p>
+        <span class="pill pill-ok">Validation</span>
+        <span class="pill pill-ok">Whitelisting</span>
+        <span class="pill pill-ok">Requêtes préparées</span>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top: 18px;">
+      <h2>Schéma de protection</h2>
+      <div class="diagram">
+        <div class="flow">
+          <div class="box">Donnée utilisateur</div>
+          <div class="arrow">→</div>
+          <div class="box">Contrôleur</div>
+          <div class="arrow">→</div>
+          <div class="box">Validation</div>
+          <div class="arrow">→</div>
+          <div class="box">Whitelist</div>
+          <div class="arrow">→</div>
+          <div class="box">Requête préparée</div>
+          <div class="arrow">→</div>
+          <div class="box">Base de données</div>
+        </div>
+      </div>
+      <p>Chaque étape ajoute une barrière : on vérifie, on filtre, on nettoie, puis on exécute la requête avec des valeurs séparées du SQL.</p>
+    </section>
+
+    <div class="two-col">
+      <section class="card">
+        <h2>Les protections principales</h2>
+        <ol class="mini-list">
+          <li><strong>Validation stricte</strong> : les champs obligatoires, numériques ou au bon format sont contrôlés avant écriture.</li>
+          <li><strong>Whitelist des champs</strong> : seuls les champs autorisés du modèle sont pris en compte.</li>
+          <li><strong>Requêtes préparées</strong> : la requête SQL et les valeurs sont envoyées séparément via PDO.</li>
+          <li><strong>Sanitize</strong> : les données sont nettoyées avant traitement ou enregistrement.</li>
+          <li><strong>Contrôle des colonnes dynamiques</strong> : une colonne non prévue est refusée lors d’un filtre ou d’une recherche.</li>
+          <li><strong>Gestion d’erreurs maîtrisée</strong> : les erreurs techniques ne sont pas exposées brutement à l’utilisateur.</li>
+        </ol>
+        <div style="margin-top: 12px;">
+          <h3 style="margin: 0 0 8px; font-size: 0.98rem; color: var(--accent);">Extraits de code</h3>
+          <p><strong>Validation</strong> — fichier concerné : <code>app/models/validators/StatistiqueArtisanValidator.php</code></p>
+          <pre style="white-space: pre-wrap; background: #f8fbff; padding: 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 0.86rem;"><code>public function validate(array $data): ValidationResult
+{
+    $this->result = new ValidationResult();
+    $this->validateRequired($data, ['date_consultation', 'ip_adress', 'id_produit', 'id_artisan']);
+    $this->validateNumeric('id_artisan', $data);
+    $this->validateNumeric('id_produit', $data);
+
+    if (isset($data['ip_adress']) && filter_var($data['ip_adress'], FILTER_VALIDATE_IP) === false) {
+        $this->result->addError('ip_adress', 'L adresse IP est invalide.');
+    }
+
+    return $this->result;
+}</code></pre>
+          <p><strong>Whitelist / sanitize</strong> — fichier concerné : <code>app/models/Model.php</code></p>
+          <pre style="white-space: pre-wrap; background: #f8fbff; padding: 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 0.86rem;"><code>protected static function sanitizeData(array $data): array
+{
+    return array_map(static fn($value) => static::sanitizeValue($value), $data);
+}
+
+public function fill(array $attributes): self
+{
+    $attributes = static::sanitizeData($attributes);
+    foreach (static::$fields as $field) {
+        if (array_key_exists($field, $attributes)) {
+            $this->attributes[$field] = $attributes[$field];
+        }
+    }
+    return $this;
+}</code></pre>
+          <p><strong>Requête préparée</strong> — fichier concerné : <code>app/models/Model.php</code></p>
+          <pre style="white-space: pre-wrap; background: #f8fbff; padding: 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 0.86rem;"><code>$stmt = static::getPDO()->prepare($sql);
+foreach ($fields as $column => $value) {
+    $stmt->bindValue(':' . $column, $value);
+}
+$stmt->execute();</code></pre>
+          <p><strong>Gestion d’erreurs</strong> — fichier concerné : <code>app/controllers/StatistiqueArtisanController.php</code></p>
+          <pre style="white-space: pre-wrap; background: #f8fbff; padding: 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 0.86rem;"><code>try {
+    $id = StatistiqueArtisan::createRecord($data);
+    $this->respond(201, 'Statistique artisan creee', ['id_statistique' => $id]);
+} catch (\App\Models\Validators\ValidationException $exception) {
+    $this->respond(422, 'Donnees de consultation invalides', ['errors' => $exception->getErrors()]);
+}</code></pre>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Ce qui est concret dans le code</h2>
+        <ul class="mini-list">
+          <li><strong>Validateur métier</strong> : [app/models/validators/StatistiqueArtisanValidator.php](../app/models/validators/StatistiqueArtisanValidator.php)</li>
+          <li><strong>Logique centrale du modèle</strong> : [app/models/Model.php](../app/models/Model.php)</li>
+          <li><strong>Contrôleur du flux</strong> : [app/controllers/StatistiqueArtisanController.php](../app/controllers/StatistiqueArtisanController.php)</li>
+          <li><strong>Journalisation</strong> : [app/logs/app-error.log](../app/logs/app-error.log) et [app/logs/php-error.log](../app/logs/php-error.log)</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top: 16px;">
+      <h2>Flux concret du nouveau parcours</h2>
+      <div class="diagram">
+        <div class="flow">
+          <div class="box">Page produit</div>
+          <div class="arrow">→</div>
+          <div class="box">Contrôleur</div>
+          <div class="arrow">→</div>
+          <div class="box">Validateur</div>
+          <div class="arrow">→</div>
+          <div class="box">Modèle</div>
+          <div class="arrow">→</div>
+          <div class="box">Base</div>
+        </div>
+      </div>
+      <p>Le flux récent montre que la donnée reçue n’est pas simplement “collée” à la requête SQL : elle passe d’abord par plusieurs garde-fous.</p>
+    </section>
+
+    <section class="card" style="margin-top: 16px;">
+      <h2>Résumé simple</h2>
+      <p>Le principe de sécurité est très simple : on ne laisse jamais une valeur utilisateur dicter la structure d’une requête SQL.</p>
+      <span class="pill pill-ok">Séparé</span>
+      <span class="pill pill-ok">Validé</span>
+      <span class="pill pill-ok">Filtré</span>
+      <span class="pill pill-ok">Préparé</span>
+      <p class="footer">Version HTML graphique de la documentation. La version Markdown est disponible dans [securite-injections-sql.md](securite-injections-sql.md).</p>
+    </section>
+  </main>
+</body>
+</html>
