@@ -48,7 +48,7 @@ class UserAddressController extends Controller
             return;
         }
 
-        $this->respond(200, 'Adresses de l utilisateur', RUtilisateurAdresse::getByUtilisateurId($idUtilisateur));
+        $this->respond(200, 'Adresses de l utilisateur', Adresse::getByUtilisateurId($idUtilisateur));
     }
 
     /**
