@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, OnInit, PLATFORM_ID, signal, computed } from '@angular/core';
+import { CommonModule, isPlatformServer } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
@@ -154,12 +154,22 @@ export class CatalogueComponent implements OnInit {
   paginated  = computed(() => this.filtered().slice((this.page() - 1) * this.PER_PAGE, this.page() * this.PER_PAGE));
   pageRange  = computed(() => Array.from({ length: Math.min(this.totalPages(), 5) }, (_, i) => i + 1));
 
-  constructor(private productSvc: ProductService, private route: ActivatedRoute) {}
+  constructor(
+    private productSvc: ProductService,
+    private route: ActivatedRoute,
+    @Inject(PLATFORM_ID) private platformId: Object,
+  ) {}
 
   ngOnInit() {
     this.route.queryParams.subscribe(p => {
       if (p['category']) this.selectedCategory.set(p['category']);
     });
+
+    if (isPlatformServer(this.platformId)) {
+      this.loading.set(false);
+      return;
+    }
+
     this.productSvc.getCategories().subscribe(cats => this.categories.set(cats));
     this.productSvc.getAll().subscribe(ps => { this.all.set(ps); this.loading.set(false); });
   }
