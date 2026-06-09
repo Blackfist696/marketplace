@@ -30,6 +30,9 @@ import { AuthService } from '../../core/services/auth.service';
           </a>
         </nav>
         <div class="px-3 py-4 border-t" style="border-color:var(--sidebar-border)">
+          <a routerLink="/profil" class="sidebar-link text-amber-400 hover:text-amber-300 mb-1">
+            👤 {{ auth.getDisplayName() }}
+          </a>
           <button (click)="logout()" class="sidebar-link w-full text-left text-red-400 hover:text-red-300">
             🚪 Déconnexion
           </button>
