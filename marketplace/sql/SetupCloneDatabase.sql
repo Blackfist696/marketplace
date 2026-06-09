@@ -176,7 +176,6 @@ CREATE TABLE statistique_artisan(
    id_produit VARCHAR(50) NOT NULL,
    Id_artisan INT NOT NULL,
    PRIMARY KEY(Id_statistique),
-   UNIQUE(Id_artisan),
    FOREIGN KEY(Id_artisan) REFERENCES artisan(Id_artisan)
 );
 
