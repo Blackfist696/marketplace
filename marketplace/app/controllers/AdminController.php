@@ -95,27 +95,43 @@ class AdminController extends Controller
 
     private function syncUserAddress(int $userId, array $data): void
     {
-        if (empty($data['rue']) && empty($data['ville']) && empty($data['nom_ville']) && empty($data['code_postal'])) {
+        $addressFieldKeys = ['rue', 'complement', 'type_adresse', 'ville', 'nom_ville', 'code_postal', 'pays', 'nom_pays', 'id_ville'];
+        $hasAddressInput = false;
+        foreach ($addressFieldKeys as $key) {
+            if (array_key_exists($key, $data)) {
+                $hasAddressInput = true;
+                break;
+            }
+        }
+
+        if (!$hasAddressInput) {
             return;
         }
 
+        $links = RUtilisateurAdresse::getByUtilisateurId($userId);
+        $addressId = !empty($links) ? (int) ($links[0]['id_adresse'] ?? 0) : 0;
+        $existingAddress = $addressId > 0 ? Adresse::getById($addressId) : null;
+
         $addressPayload = [
-            'rue' => trim((string) ($data['rue'] ?? '')),
-            'complement' => trim((string) ($data['complement'] ?? '')),
-            'type_adresse' => trim((string) ($data['type_adresse'] ?? 'livraison')),
+            'rue' => trim((string) ($data['rue'] ?? $existingAddress['rue'] ?? '')),
+            'complement' => trim((string) ($data['complement'] ?? $existingAddress['complement'] ?? '')),
+            'type_adresse' => trim((string) ($data['type_adresse'] ?? $existingAddress['type_adresse'] ?? 'livraison')),
             'principale' => 1,
         ];
 
         $idVille = $this->resolveVilleId($data);
         if ($idVille !== null) {
             $addressPayload['id_ville'] = $idVille;
+        } elseif (!empty($existingAddress['id_ville'])) {
+            $addressPayload['id_ville'] = (int) $existingAddress['id_ville'];
         }
-
-        $links = RUtilisateurAdresse::getByUtilisateurId($userId);
-        $addressId = !empty($links) ? (int) ($links[0]['id_adresse'] ?? 0) : 0;
 
         if ($addressId > 0) {
             Adresse::updateRecord($addressId, $addressPayload);
+            return;
+        }
+
+        if (trim((string) $addressPayload['rue']) === '') {
             return;
         }
 
