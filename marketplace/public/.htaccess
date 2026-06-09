@@ -6,7 +6,7 @@ RewriteRule ^(api|login|logout|register|profile|products|artisans|artisan|orders
 
 # Angular build output is emitted under app/browser, but the app should still
 # be reachable from /app. Rewrite SPA entrypoint and asset paths accordingly.
-RewriteRule ^app/?$ app/browser/index.html [L]
+RewriteRule ^app/?$ app/browser/index.csr.html [L]
 RewriteRule ^app/(?!browser/)(.*)$ app/browser/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-f

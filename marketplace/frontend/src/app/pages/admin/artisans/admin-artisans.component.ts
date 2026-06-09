@@ -87,7 +87,11 @@ import { Artisan, Produit } from '../../../core/models/models';
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Type d’adresse</label>
-              <input [(ngModel)]="address.type_adresse" name="artisanAddressType" class="w-full border rounded-lg px-3 py-2 text-sm" />
+              <select [(ngModel)]="address.type_adresse" name="artisanAddressType" class="w-full border rounded-lg px-3 py-2 text-sm">
+                @for (option of addressTypeOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Nom de boutique</label>
@@ -228,6 +232,7 @@ export class AdminArtisansComponent implements OnInit {
   editingId: number | null = null;
   form: any = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', nom_boutique: '', description: '', numero_tva: '', iban: '', commission: 0, valide: true };
   address: any = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'atelier' };
+  addressTypeOptions = ['livraison', 'facturation', 'atelier', 'bureau', 'siège social'];
 
   pendingCount = signal(0);
 

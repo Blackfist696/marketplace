@@ -81,7 +81,11 @@ import { Utilisateur } from '../../../core/models/models';
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Type d’adresse</label>
-              <input [(ngModel)]="address.type_adresse" name="adminAddressType" class="w-full border rounded-lg px-3 py-2 text-sm" />
+              <select [(ngModel)]="address.type_adresse" name="adminAddressType" class="w-full border rounded-lg px-3 py-2 text-sm">
+                @for (option of addressTypeOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
             </div>
             <div class="flex items-center gap-2 pt-6">
               <input type="checkbox" [(ngModel)]="form.actif" class="w-4 h-4" />
@@ -185,6 +189,7 @@ export class AdminAdministratorsComponent implements OnInit {
   editingId: number | null = null;
   form: any = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', actif: 1 };
   address: any = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'bureau' };
+  addressTypeOptions = ['livraison', 'facturation', 'atelier', 'bureau', 'siège social'];
 
   get filtered(): Utilisateur[] {
     return this.administrators().filter(admin => {
