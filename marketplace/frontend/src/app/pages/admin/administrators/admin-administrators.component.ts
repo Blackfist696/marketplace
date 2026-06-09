@@ -11,7 +11,10 @@ import { Utilisateur } from '../../../core/models/models';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="p-6 md:p-8 max-w-6xl">
-      <h1 class="font-serif text-2xl font-bold mb-6">Gestion des administrateurs</h1>
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <h1 class="font-serif text-2xl font-bold">Gestion des administrateurs</h1>
+        <button (click)="openCreate()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-sm">+ Ajouter un administrateur</button>
+      </div>
 
       <div class="flex flex-wrap gap-3 mb-6">
         <div class="relative flex-1 min-w-[220px]">
@@ -28,6 +31,45 @@ import { Utilisateur } from '../../../core/models/models';
           }
         </div>
       </div>
+
+      @if (showForm) {
+        <div class="card p-5 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold">{{ editingId ? 'Modifier l’administrateur' : 'Ajouter un administrateur' }}</h2>
+            <button (click)="cancelForm()" class="text-sm text-gray-500 hover:text-gray-700">✕ Fermer</button>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Prénom</label>
+              <input [(ngModel)]="form.prenom" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Nom</label>
+              <input [(ngModel)]="form.nom" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Email</label>
+              <input [(ngModel)]="form.email" type="email" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Téléphone</label>
+              <input [(ngModel)]="form.telephone" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Mot de passe</label>
+              <input [(ngModel)]="form.mot_de_passe" type="password" class="w-full border rounded-lg px-3 py-2 text-sm" [placeholder]="editingId ? 'Laisser vide pour conserver' : 'Requis'" />
+            </div>
+            <div class="flex items-center gap-2 pt-6">
+              <input type="checkbox" [(ngModel)]="form.actif" class="w-4 h-4" />
+              <label class="text-sm">Compte actif</label>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 mt-4">
+            <button (click)="cancelForm()" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Annuler</button>
+            <button (click)="submitForm()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-sm">Enregistrer</button>
+          </div>
+        </div>
+      }
 
       <div class="card overflow-hidden">
         <div class="overflow-x-auto">
@@ -61,6 +103,7 @@ import { Utilisateur } from '../../../core/models/models';
                   <td class="px-4 py-3 text-right">
                     <div class="flex justify-end gap-2 flex-wrap">
                       <button (click)="openPanel(admin)" class="text-xs border border-gray-300 text-gray-600 hover:bg-gray-50 px-2 py-1 rounded-lg">ℹ️ Détails</button>
+                      <button (click)="openEdit(admin)" class="text-xs border border-blue-300 text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg">✏️ Modifier</button>
                       @if (admin.actif) {
                         <button (click)="toggleStatus(admin, false)" class="text-xs border border-red-300 text-red-500 hover:bg-red-50 px-2 py-1 rounded-lg">Désactiver</button>
                       } @else {
@@ -114,6 +157,9 @@ export class AdminAdministratorsComponent implements OnInit {
   search = '';
   filterStatus = 'all';
   selectedAdminId = signal<number | null>(null);
+  showForm = false;
+  editingId: number | null = null;
+  form: any = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', actif: 1 };
 
   get filtered(): Utilisateur[] {
     return this.administrators().filter(admin => {
@@ -140,6 +186,51 @@ export class AdminAdministratorsComponent implements OnInit {
         this.loading.set(false);
         this.toast.error('Impossible de charger les administrateurs');
       },
+    });
+  }
+
+  openCreate() {
+    this.editingId = null;
+    this.showForm = true;
+    this.form = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', actif: 1 };
+  }
+
+  openEdit(admin: Utilisateur) {
+    this.editingId = admin.id_utilisateur;
+    this.showForm = true;
+    this.form = { prenom: admin.prenom, nom: admin.nom, email: admin.email, telephone: admin.telephone || '', mot_de_passe: '', actif: !!admin.actif };
+  }
+
+  cancelForm() {
+    this.showForm = false;
+    this.editingId = null;
+    this.form = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', actif: 1 };
+  }
+
+  submitForm() {
+    const payload: any = {
+      prenom: this.form.prenom,
+      nom: this.form.nom,
+      email: this.form.email,
+      telephone: this.form.telephone,
+      actif: this.form.actif ? 1 : 0,
+    };
+
+    if (this.form.mot_de_passe) {
+      payload.mot_de_passe = this.form.mot_de_passe;
+    }
+
+    const request = this.editingId !== null
+      ? this.adminSvc.updateUser(this.editingId, payload)
+      : this.adminSvc.createUser({ ...payload, id_role: 1 });
+
+    request.subscribe({
+      next: () => {
+        this.cancelForm();
+        this.ngOnInit();
+        this.toast.success(this.editingId ? 'Administrateur modifié' : 'Administrateur ajouté');
+      },
+      error: () => this.toast.error('Erreur lors de la sauvegarde'),
     });
   }
 

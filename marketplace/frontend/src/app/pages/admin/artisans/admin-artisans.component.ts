@@ -13,7 +13,10 @@ import { Artisan, Produit } from '../../../core/models/models';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="p-6 md:p-8 max-w-6xl">
-      <h1 class="font-serif text-2xl font-bold mb-6">Gestion des Artisans</h1>
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <h1 class="font-serif text-2xl font-bold">Gestion des Artisans</h1>
+        <button (click)="openCreate()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-sm">+ Ajouter un artisan</button>
+      </div>
 
       <div class="flex flex-wrap gap-3 mb-6">
         <div class="relative flex-1 min-w-[200px]">
@@ -33,6 +36,65 @@ import { Artisan, Produit } from '../../../core/models/models';
           }
         </div>
       </div>
+
+      @if (showForm) {
+        <div class="card p-5 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold">{{ editingId ? 'Modifier l’artisan' : 'Ajouter un artisan' }}</h2>
+            <button (click)="cancelForm()" class="text-sm text-gray-500 hover:text-gray-700">✕ Fermer</button>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Prénom</label>
+              <input [(ngModel)]="form.prenom" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Nom</label>
+              <input [(ngModel)]="form.nom" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Email</label>
+              <input [(ngModel)]="form.email" type="email" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Téléphone</label>
+              <input [(ngModel)]="form.telephone" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Mot de passe</label>
+              <input [(ngModel)]="form.mot_de_passe" type="password" class="w-full border rounded-lg px-3 py-2 text-sm" [placeholder]="editingId ? 'Laisser vide pour conserver' : 'Requis'" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Nom de boutique</label>
+              <input [(ngModel)]="form.nom_boutique" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Description</label>
+              <input [(ngModel)]="form.description" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">N° TVA</label>
+              <input [(ngModel)]="form.numero_tva" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">IBAN</label>
+              <input [(ngModel)]="form.iban" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Commission (%)</label>
+              <input [(ngModel)]="form.commission" type="number" step="0.01" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div class="flex items-center gap-2 pt-6">
+              <input type="checkbox" [(ngModel)]="form.valide" class="w-4 h-4" />
+              <label class="text-sm">Artisan validé</label>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 mt-4">
+            <button (click)="cancelForm()" class="border border-gray-300 px-3 py-2 rounded-lg text-sm">Annuler</button>
+            <button (click)="submitForm()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-sm">Enregistrer</button>
+          </div>
+        </div>
+      }
 
       <div class="card overflow-hidden">
         <div class="overflow-x-auto">
@@ -65,6 +127,7 @@ import { Artisan, Produit } from '../../../core/models/models';
                     <div class="flex justify-end gap-2 flex-wrap">
                       <button (click)="openPanel(a, 'products')" class="text-xs border border-amber-300 text-amber-600 hover:bg-amber-50 px-2 py-1 rounded-lg">📦 Produits</button>
                       <button (click)="openPanel(a, 'details')" class="text-xs border border-gray-300 text-gray-600 hover:bg-gray-50 px-2 py-1 rounded-lg">ℹ️ Détails</button>
+                      <button (click)="openEdit(a)" class="text-xs border border-blue-300 text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg">✏️ Modifier</button>
                       @if (!a.valide) {
                         <button (click)="activate(a, true)" class="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg">✓ Valider</button>
                         <button (click)="activate(a, false)" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg">✗ Refuser</button>
@@ -136,6 +199,9 @@ export class AdminArtisansComponent implements OnInit {
   filterStatus = 'all';
   selectedArtisanId = signal<number | null>(null);
   selectedTab = signal<'products' | 'details' | null>(null);
+  showForm = false;
+  editingId: number | null = null;
+  form: any = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', nom_boutique: '', description: '', numero_tva: '', iban: '', commission: 0, valide: true };
 
   pendingCount = signal(0);
 
@@ -167,6 +233,73 @@ export class AdminArtisansComponent implements OnInit {
       this.products.set(products);
       this.pendingCount.set(artisans.filter(a => !a.valide).length);
       this.loading.set(false);
+    });
+  }
+
+  openCreate() {
+    this.editingId = null;
+    this.showForm = true;
+    this.form = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', nom_boutique: '', description: '', numero_tva: '', iban: '', commission: 0, valide: true };
+  }
+
+  openEdit(artisan: Artisan) {
+    this.editingId = artisan.id_artisan;
+    this.showForm = true;
+    this.form = {
+      prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '',
+      nom_boutique: artisan.nom_boutique,
+      description: artisan.description || '',
+      numero_tva: artisan.numero_tva || '',
+      iban: artisan.iban || '',
+      commission: artisan.commission ?? 0,
+      valide: !!artisan.valide,
+    };
+  }
+
+  cancelForm() {
+    this.showForm = false;
+    this.editingId = null;
+    this.form = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', nom_boutique: '', description: '', numero_tva: '', iban: '', commission: 0, valide: true };
+  }
+
+  submitForm() {
+    const payload: any = {
+      nom_boutique: this.form.nom_boutique,
+      description: this.form.description,
+      numero_tva: this.form.numero_tva,
+      iban: this.form.iban,
+      commission: this.form.commission,
+      valide: this.form.valide ? 1 : 0,
+    };
+
+    if (this.editingId !== null) {
+      this.artisanSvc.adminUpdate(this.editingId, payload).subscribe({
+        next: () => {
+          this.cancelForm();
+          this.ngOnInit();
+          this.toast.success('Artisan modifié');
+        },
+        error: () => this.toast.error('Erreur lors de la sauvegarde'),
+      });
+      return;
+    }
+
+    const userData = {
+      prenom: this.form.prenom,
+      nom: this.form.nom,
+      email: this.form.email,
+      telephone: this.form.telephone,
+      mot_de_passe: this.form.mot_de_passe,
+      ...payload,
+    };
+
+    this.artisanSvc.create(userData).subscribe({
+      next: () => {
+        this.cancelForm();
+        this.ngOnInit();
+        this.toast.success('Artisan ajouté');
+      },
+      error: () => this.toast.error('Erreur lors de la sauvegarde'),
     });
   }
 
