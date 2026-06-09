@@ -4,6 +4,7 @@ namespace App\Controllers;
 require_once __DIR__ . '/Controller.php';
 require_once __DIR__ . '/../models/StatistiqueArtisanModel.php';
 require_once __DIR__ . '/../models/ArtisanModel.php';
+require_once __DIR__ . '/../models/validators/ValidationException.php';
 
 use App\Models\Artisan;
 use App\Models\StatistiqueArtisan;
@@ -100,8 +101,16 @@ class StatistiqueArtisanController extends Controller
             $data['id_utilisateur'] = (int) $_SESSION['user_id'];
         }
 
-        $id = StatistiqueArtisan::createRecord($data);
-        $this->respond(201, 'Statistique artisan creee', ['id_statistique' => $id]);
+        try {
+            $id = StatistiqueArtisan::createRecord($data);
+            $this->respond(201, 'Statistique artisan creee', ['id_statistique' => $id]);
+        } catch (\App\Models\Validators\ValidationException $exception) {
+            $this->respond(422, 'Donnees de consultation invalides', ['errors' => $exception->getErrors()]);
+        } catch (\PDOException $exception) {
+            $this->respond(500, 'Erreur de base de donnees lors de l enregistrement de la consultation', ['error' => $exception->getMessage()]);
+        } catch (\Throwable $exception) {
+            $this->respond(500, 'Erreur interne lors de l enregistrement de la consultation', ['error' => $exception->getMessage()]);
+        }
     }
 
     /**
