@@ -197,8 +197,7 @@ return function (App $app): void {
     $register('GET', '/api/user-addresses', 'App\\Controllers\\UserAddressController@index', [$auth]);
     $register('GET', '/api/utilisateurs/{id_utilisateur}/adresses', 'App\\Controllers\\UserAddressController@indexByUtilisateur', [$auth]);
     $register('GET', '/api/adresses/{id_adresse}/utilisateurs', 'App\\Controllers\\UserAddressController@indexByAdresse', [$adminRole]);
-    $register('POST', '/api/user-addresses', 'App\\Controllers\\UserAddressController@store', [$auth]);
-    $register('DELETE', '/api/user-addresses/{id_utilisateur}/{id_adresse}', 'App\\Controllers\\UserAddressController@destroy', [$auth]);
+    $register('POST', '/api/user-addresses', 'App\\Controllers\\UserAddressController@store', [$auth]);    $register('PUT', '/api/user-addresses/{id_utilisateur}/{id_adresse}', 'App\Controllers\UserAddressController@update', [$auth]);    $register('DELETE', '/api/user-addresses/{id_utilisateur}/{id_adresse}', 'App\\Controllers\\UserAddressController@destroy', [$auth]);
 
     $register('GET', '/api/lignes-commandes', 'App\\Controllers\\LigneCommandeController@index', [$auth]);
     $register('GET', '/api/lignes-commandes/{id}', 'App\\Controllers\\LigneCommandeController@show', [$auth]);

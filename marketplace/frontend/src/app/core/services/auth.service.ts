@@ -65,4 +65,54 @@ export class AuthService {
       })
     );
   }
+
+  getDisplayName(): string {
+    const user = this.currentUser();
+    const prenom = user?.prenom?.trim();
+    if (prenom) {
+      return prenom;
+    }
+
+    const nom = user?.nom?.trim();
+    if (nom) {
+      return nom;
+    }
+
+    return 'Profil';
+  }
+
+  updateProfile(data: Record<string, string>): Observable<any> {
+    const body = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        body.append(key, value);
+      }
+    });
+
+    return this.http.put<any>(`${this.base}/profile`, body, { withCredentials: true }).pipe(
+      switchMap(() => this.loadProfile()),
+      catchError(() => of(null))
+    );
+  }
+
+  saveAddress(data: Record<string, any>): Observable<any> {
+    const body = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        body.append(key, String(value));
+      }
+    });
+
+    if (data['id_adresse']) {
+      return this.http.put<any>(`${this.base}/api/user-addresses/${this.currentUser()?.id_utilisateur}/${data['id_adresse']}`, body, { withCredentials: true }).pipe(
+        switchMap(() => this.loadProfile()),
+        catchError(() => of(null))
+      );
+    }
+
+    return this.http.post<any>(`${this.base}/api/user-addresses`, body, { withCredentials: true }).pipe(
+      switchMap(() => this.loadProfile()),
+      catchError(() => of(null))
+    );
+  }
 }

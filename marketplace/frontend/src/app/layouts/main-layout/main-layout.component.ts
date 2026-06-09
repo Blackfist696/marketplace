@@ -39,6 +39,9 @@ import { CartService } from '../../core/services/cart.service';
 
             @if (auth.isLoggedIn()) {
               <!-- Menu utilisateur -->
+              <a routerLink="/profil" class="text-sm text-gray-600 hover:text-amber-600 whitespace-nowrap">
+                Bonjour {{ auth.getDisplayName() }}
+              </a>
               @if (auth.isArtisan()) {
                 <a routerLink="/artisan/dashboard" class="text-sm text-gray-600 hover:text-amber-600">Mon espace</a>
               }

@@ -16,6 +16,7 @@ export const routes: Routes = [
       { path: 'catalogue',    loadComponent: () => import('./pages/catalogue/catalogue.component').then(m => m.CatalogueComponent) },
       { path: 'produit/:id',  loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent) },
       { path: 'panier',       loadComponent: () => import('./pages/cart/cart.component').then(m => m.CartComponent) },
+      { path: 'profil',       loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
       { path: 'commande',     loadComponent: () => import('./pages/checkout/checkout.component').then(m => m.CheckoutComponent), canActivate: [authGuard] },
       { path: 'boutique/:id', loadComponent: () => import('./pages/artisan-shop/artisan-shop.component').then(m => m.ArtisanShopComponent) },
     ],

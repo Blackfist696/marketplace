@@ -139,6 +139,63 @@ class UserAddressController extends Controller
     }
 
     /**
+     * Met a jour une adresse existante pour l'utilisateur courant.
+     */
+    public function update(int $idUtilisateur, int $idAdresse): void
+    {
+        $sessionUser = $this->requireSessionUser();
+        if ($sessionUser === false) {
+            return;
+        }
+
+        if ($sessionUser['role_id'] !== 1 && $sessionUser['user_id'] !== $idUtilisateur) {
+            $this->respond(403, 'Acces interdit');
+            return;
+        }
+
+        $address = Adresse::getById($idAdresse);
+        if ($address === null) {
+            $this->respond(404, 'Adresse introuvable');
+            return;
+        }
+
+        $data = $_POST;
+        $payload = [
+            'rue' => $data['rue'] ?? $address['rue'] ?? '',
+            'type_adresse' => $data['type_adresse'] ?? $address['type_adresse'] ?? 'livraison',
+            'principale' => $data['principale'] ?? $address['principale'] ?? 1,
+            'id_ville' => $data['id_ville'] ?? $address['id_ville'] ?? null,
+        ];
+
+        if (!empty($data['code_postal'])) {
+            $villes = Ville::getBy('code_postal', $data['code_postal']);
+            if (empty($villes)) {
+                $this->respond(400, 'Code postal invalide ou ville introuvable');
+                return;
+            }
+            $payload['id_ville'] = (int) $villes[0]['id_ville'];
+        }
+
+        if (!empty($data['complement'])) {
+            $payload['complement'] = $data['complement'];
+        } elseif (array_key_exists('complement', $address)) {
+            $payload['complement'] = $address['complement'];
+        }
+
+        if (empty($payload['rue']) || empty($payload['type_adresse']) || empty($payload['id_ville'])) {
+            $this->respond(400, 'Rue, type d adresse et ville sont requis');
+            return;
+        }
+
+        try {
+            Adresse::updateRecord($idAdresse, $payload);
+            $this->respond(200, 'Adresse mise a jour', ['id_adresse' => $idAdresse]);
+        } catch (\Exception $exception) {
+            $this->respond(400, 'Impossible de mettre a jour l adresse: ' . $exception->getMessage());
+        }
+    }
+
+    /**
      * Supprime une liaison utilisateur-adresse.
      */
     public function destroy(int $idUtilisateur, int $idAdresse): void
