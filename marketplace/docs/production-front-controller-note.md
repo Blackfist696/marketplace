@@ -59,6 +59,15 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
 ```
 
+## Deploiement du frontend Angular
+
+Le frontend Angular est produit dans le dossier `public/app` et doit etre copie dans le dossier de production correspondant au point d'entree PHP.
+
+En pratique :
+1. Generer le build Angular avec `npm run build` depuis `frontend/`.
+2. Copier le contenu de `public/app` vers le dossier equivalent sur le serveur de production.
+3. S'assurer que le backend PHP continue d'etre servi par `public/index.php` et que la base path `/project02` est preservee.
+
 ## Verification rapide post-deploiement
 
 1. `GET /` retourne bien la reponse attendue.
