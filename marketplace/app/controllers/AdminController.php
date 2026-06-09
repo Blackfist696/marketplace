@@ -19,6 +19,22 @@ use App\Models\Categorie;
  */
 class AdminController extends Controller
 {
+    private function readRequestData(): array
+    {
+        if (!empty($_POST)) {
+            return $_POST;
+        }
+
+        $raw = file_get_contents('php://input');
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+
+        $data = [];
+        parse_str($raw, $data);
+        return $data;
+    }
+
     // ── Utilisateurs ─────────────────────────────────────────────────────────
 
     public function users(): void
@@ -35,11 +51,40 @@ class AdminController extends Controller
         $this->respond(200, 'Utilisateur', $user);
     }
 
+    public function createUser(): void
+    {
+        if (!$this->requireAdmin()) { return; }
+
+        $data = $this->readRequestData();
+        if (empty($data['email']) || empty($data['mot_de_passe'])) {
+            $this->respond(400, 'Email et mot de passe requis');
+            return;
+        }
+
+        $existing = Utilisateur::getBy('email', $data['email']);
+        if (!empty($existing)) {
+            $this->respond(409, 'Cet email est deja utilise');
+            return;
+        }
+
+        $data['mot_de_passe'] = password_hash((string) $data['mot_de_passe'], PASSWORD_BCRYPT);
+        $data['actif'] = isset($data['actif']) ? (int) $data['actif'] : 1;
+        $data['id_role'] = isset($data['id_role']) ? (int) $data['id_role'] : 3;
+        $data['date_inscription'] = date('Y-m-d H:i:s');
+
+        $id = Utilisateur::createRecord($data);
+        $this->respond(201, 'Utilisateur cree', ['id_utilisateur' => $id]);
+    }
+
     public function updateUser(int $id): void
     {
         if (!$this->requireAdmin()) { return; }
-        $data = $_POST;
-        unset($data['mot_de_passe']);
+        $data = $this->readRequestData();
+        if (isset($data['mot_de_passe']) && $data['mot_de_passe'] !== '') {
+            $data['mot_de_passe'] = password_hash((string) $data['mot_de_passe'], PASSWORD_BCRYPT);
+        } else {
+            unset($data['mot_de_passe']);
+        }
         $success = Utilisateur::updateRecord($id, $data);
         $this->respond($success ? 200 : 400, $success ? 'Utilisateur mis a jour' : 'Echec');
     }
@@ -70,10 +115,55 @@ class AdminController extends Controller
         $this->respond(200, 'Artisan', $artisan);
     }
 
+    public function createArtisan(): void
+    {
+        if (!$this->requireAdmin()) { return; }
+
+        $data = $this->readRequestData();
+        if (empty($data['email']) || empty($data['mot_de_passe']) || empty($data['nom_boutique'])) {
+            $this->respond(400, 'Email, mot de passe et nom de boutique requis');
+            return;
+        }
+
+        $existing = Utilisateur::getBy('email', $data['email']);
+        if (!empty($existing)) {
+            $this->respond(409, 'Cet email est deja utilise');
+            return;
+        }
+
+        $userData = [
+            'email' => (string) ($data['email'] ?? ''),
+            'mot_de_passe' => password_hash((string) ($data['mot_de_passe'] ?? ''), PASSWORD_BCRYPT),
+            'nom' => (string) ($data['nom'] ?? ''),
+            'prenom' => (string) ($data['prenom'] ?? ''),
+            'telephone' => (string) ($data['telephone'] ?? ''),
+            'id_role' => 2,
+            'date_inscription' => date('Y-m-d H:i:s'),
+            'actif' => 1,
+        ];
+        $userId = Utilisateur::createRecord($userData);
+
+        $artisanData = [
+            'id_utilisateur' => $userId,
+            'nom_boutique' => (string) ($data['nom_boutique'] ?? ''),
+            'description' => (string) ($data['description'] ?? ''),
+            'numero_tva' => (string) ($data['numero_tva'] ?? ''),
+            'iban' => (string) ($data['iban'] ?? ''),
+            'commission' => isset($data['commission']) ? (float) $data['commission'] : 0,
+            'valide' => isset($data['valide']) ? (int) $data['valide'] : 1,
+            'date_validation' => date('Y-m-d H:i:s'),
+            'logo' => (string) ($data['logo'] ?? ''),
+        ];
+
+        $artisanId = Artisan::createRecord($artisanData);
+        $this->respond(201, 'Artisan cree', ['id_artisan' => $artisanId]);
+    }
+
     public function updateArtisan(int $id): void
     {
         if (!$this->requireAdmin()) { return; }
-        $success = Artisan::updateRecord($id, $_POST);
+        $data = $this->readRequestData();
+        $success = Artisan::updateRecord($id, $data);
         $this->respond($success ? 200 : 400, $success ? 'Artisan mis a jour' : 'Echec');
     }
 

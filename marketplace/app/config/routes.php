@@ -141,10 +141,12 @@ return function (App $app): void {
     $register('GET', '/artisan/stats', 'App\\Controllers\\ArtisanController@stats', [$artisanRole, $artisanStatsQueryValidation]);
 
     $register('GET', '/admin/users', 'App\\Controllers\\AdminController@users', [$adminRole]);
+    $register('POST', '/admin/users', 'App\\Controllers\\AdminController@createUser', [$adminRole]);
     $register('GET', '/admin/users/{id}', 'App\\Controllers\\AdminController@showUser', [$adminRole]);
     $register('PUT', '/admin/users/{id}', 'App\\Controllers\\AdminController@updateUser', [$adminRole]);
     $register('DELETE', '/admin/users/{id}', 'App\\Controllers\\AdminController@deactivateUser', [$adminRole]);
     $register('GET', '/admin/artisans', 'App\\Controllers\\AdminController@artisans', [$adminRole]);
+    $register('POST', '/admin/artisans', 'App\\Controllers\\AdminController@createArtisan', [$adminRole]);
     $register('GET', '/admin/artisans/{id}', 'App\\Controllers\\AdminController@showArtisan', [$adminRole]);
     $register('PUT', '/admin/artisans/{id}', 'App\\Controllers\\AdminController@updateArtisan', [$adminRole]);
     $register('DELETE', '/admin/artisans/{id}', 'App\\Controllers\\AdminController@deactivateArtisan', [$adminRole]);

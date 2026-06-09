@@ -30,6 +30,12 @@ export class ArtisanService {
       .pipe(map(r => r.data ?? []));
   }
 
+  create(data: Record<string, any>): Observable<any> {
+    const form = new FormData();
+    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, String(v)); });
+    return this.http.post<any>(`${this.base}/admin/artisans`, form, { withCredentials: true });
+  }
+
   adminUpdate(id: number, data: Partial<Artisan>): Observable<any> {
     const form = new FormData();
     Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, String(v)); });
