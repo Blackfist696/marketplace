@@ -22,6 +22,9 @@ import { AuthService } from '../../core/services/auth.service';
           <a routerLink="/admin/artisans" routerLinkActive="sidebar-active" class="sidebar-link">
             🏪 Artisans
           </a>
+          <a routerLink="/admin/clients" routerLinkActive="sidebar-active" class="sidebar-link">
+            👥 Clients
+          </a>
           <a routerLink="/admin/commandes" routerLinkActive="sidebar-active" class="sidebar-link">
             🛒 Commandes
           </a>

@@ -1,9 +1,11 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { ArtisanService } from '../../../core/services/artisan.service';
+import { ProductService } from '../../../core/services/product.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { Artisan } from '../../../core/models/models';
+import { Artisan, Produit } from '../../../core/models/models';
 
 @Component({
   selector: 'app-admin-artisans',
@@ -60,12 +62,16 @@ import { Artisan } from '../../../core/models/models';
                     </span>
                   </td>
                   <td class="px-4 py-3 text-right">
-                    @if (!a.valide) {
-                      <button (click)="activate(a, true)"  class="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg mr-1">✓ Valider</button>
-                      <button (click)="activate(a, false)" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg">✗ Refuser</button>
-                    } @else {
-                      <button (click)="activate(a, false)" class="text-xs border border-red-300 text-red-500 hover:bg-red-50 px-2 py-1 rounded-lg">Désactiver</button>
-                    }
+                    <div class="flex justify-end gap-2 flex-wrap">
+                      <button (click)="openPanel(a, 'products')" class="text-xs border border-amber-300 text-amber-600 hover:bg-amber-50 px-2 py-1 rounded-lg">📦 Produits</button>
+                      <button (click)="openPanel(a, 'details')" class="text-xs border border-gray-300 text-gray-600 hover:bg-gray-50 px-2 py-1 rounded-lg">ℹ️ Détails</button>
+                      @if (!a.valide) {
+                        <button (click)="activate(a, true)" class="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg">✓ Valider</button>
+                        <button (click)="activate(a, false)" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg">✗ Refuser</button>
+                      } @else {
+                        <button (click)="activate(a, false)" class="text-xs border border-red-300 text-red-500 hover:bg-red-50 px-2 py-1 rounded-lg">Désactiver</button>
+                      }
+                    </div>
                   </td>
                 </tr>
               }
@@ -76,14 +82,60 @@ import { Artisan } from '../../../core/models/models';
           </table>
         </div>
       </div>
+
+      @if (selectedArtisan) {
+        <div class="mt-6 card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold">{{ selectedTab() === 'products' ? 'Produits de l’artisan' : 'Informations artisan' }}</h2>
+            <button (click)="closePanel()" class="text-sm text-gray-500 hover:text-gray-700">✕ Fermer</button>
+          </div>
+
+          @if (selectedTab() === 'products') {
+            @if (artisanProducts.length === 0) {
+              <p class="text-sm text-gray-500">Aucun produit pour cet artisan.</p>
+            } @else {
+              <div class="space-y-2">
+                @for (product of artisanProducts; track product.id_produit) {
+                  <div class="border rounded-lg p-3 text-sm">
+                    <div class="font-medium">{{ product.nom }}</div>
+                    <div class="text-gray-600">{{ product.prix_ht }} € • Stock : {{ product.stock }}</div>
+                  </div>
+                }
+              </div>
+            }
+          } @else {
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+              <div class="border rounded-lg p-3">
+                <div class="text-gray-500 mb-1">Boutique</div>
+                <div class="font-medium">{{ selectedArtisan!.nom_boutique }}</div>
+              </div>
+              <div class="border rounded-lg p-3">
+                <div class="text-gray-500 mb-1">N° TVA</div>
+                <div class="font-medium">{{ selectedArtisan!.numero_tva || '—' }}</div>
+              </div>
+              <div class="border rounded-lg p-3">
+                <div class="text-gray-500 mb-1">Commission</div>
+                <div class="font-medium">{{ selectedArtisan!.commission ?? '—' }}</div>
+              </div>
+              <div class="border rounded-lg p-3">
+                <div class="text-gray-500 mb-1">Statut</div>
+                <div class="font-medium">{{ selectedArtisan!.valide ? 'Actif' : 'En attente' }}</div>
+              </div>
+            </div>
+          }
+        </div>
+      }
     </div>
   `,
 })
 export class AdminArtisansComponent implements OnInit {
   artisans    = signal<Artisan[]>([]);
+  products    = signal<Produit[]>([]);
   loading     = signal(true);
   search      = '';
   filterStatus = 'all';
+  selectedArtisanId = signal<number | null>(null);
+  selectedTab = signal<'products' | 'details' | null>(null);
 
   pendingCount = signal(0);
 
@@ -96,14 +148,36 @@ export class AdminArtisansComponent implements OnInit {
     });
   }
 
-  constructor(private artisanSvc: ArtisanService, private toast: ToastService) {}
+  get selectedArtisan(): Artisan | null {
+    return this.artisans().find(a => a.id_artisan === this.selectedArtisanId()) ?? null;
+  }
+
+  get artisanProducts(): Produit[] {
+    return this.products().filter(p => p.id_artisan === this.selectedArtisanId());
+  }
+
+  constructor(private artisanSvc: ArtisanService, private productSvc: ProductService, private toast: ToastService) {}
 
   ngOnInit() {
-    this.artisanSvc.adminGetAll().subscribe(as => {
-      this.artisans.set(as);
-      this.pendingCount.set(as.filter(a => !a.valide).length);
+    forkJoin({
+      artisans: this.artisanSvc.adminGetAll(),
+      products: this.productSvc.adminGetAll(),
+    }).subscribe(({ artisans, products }) => {
+      this.artisans.set(artisans);
+      this.products.set(products);
+      this.pendingCount.set(artisans.filter(a => !a.valide).length);
       this.loading.set(false);
     });
+  }
+
+  openPanel(artisan: Artisan, tab: 'products' | 'details') {
+    this.selectedArtisanId.set(artisan.id_artisan);
+    this.selectedTab.set(tab);
+  }
+
+  closePanel() {
+    this.selectedArtisanId.set(null);
+    this.selectedTab.set(null);
   }
 
   activate(a: Artisan, activer: boolean) {
