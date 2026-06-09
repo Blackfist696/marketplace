@@ -1,7 +1,23 @@
 # Plan implementation SEO - Marketplace
 
-Date: 2026-06-05
+Date: 2026-06-10
 Contexte: architecture SPA + API avec front servi sous /project02/public/app en production (contrainte hebergeur).
+
+## Mise à jour 2026-06-10 — statut réel
+
+Le plan SEO a été mis en œuvre de façon concrète sur la branche courante.
+
+### Ce qui est maintenant livré
+- métadonnées SEO par route : title, description, canonical, Open Graph et Twitter Card ;
+- prerendering Angular des routes publiques principales : accueil, catalogue, connexion, inscription ;
+- fichiers de référencement de base : robots.txt et sitemap.xml ;
+- protection des composants au moment du build SSR afin d’éviter les erreurs de rendu ;
+- génération HTML statique validée via la commande de build, avec sortie dans [public/app](../public/app).
+
+### Impact fonctionnel
+- les pages publiques sont plus lisibles par les moteurs de recherche ;
+- les parcours métier privés restent conservés en SPA ;
+- les pages dynamiques sensibles (produits, boutiques, panier, admin) restent traitées de façon adaptée pour éviter les rendus cassés.
 
 ## Objectif
 
