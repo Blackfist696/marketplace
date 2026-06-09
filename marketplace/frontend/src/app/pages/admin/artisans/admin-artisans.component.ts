@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { AdminService } from '../../../core/services/admin.service';
 import { ArtisanService } from '../../../core/services/artisan.service';
 import { ProductService } from '../../../core/services/product.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -63,6 +64,30 @@ import { Artisan, Produit } from '../../../core/models/models';
             <div>
               <label class="block text-sm font-medium mb-1">Mot de passe</label>
               <input [(ngModel)]="form.mot_de_passe" type="password" class="w-full border rounded-lg px-3 py-2 text-sm" [placeholder]="editingId ? 'Laisser vide pour conserver' : 'Requis'" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Rue</label>
+              <input [(ngModel)]="address.rue" name="artisanAddressRue" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Complément</label>
+              <input [(ngModel)]="address.complement" name="artisanAddressComplement" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Code postal</label>
+              <input [(ngModel)]="address.code_postal" name="artisanAddressCodePostal" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Ville</label>
+              <input [(ngModel)]="address.nom_ville" name="artisanAddressVille" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Pays</label>
+              <input [(ngModel)]="address.nom_pays" name="artisanAddressPays" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Type d’adresse</label>
+              <input [(ngModel)]="address.type_adresse" name="artisanAddressType" class="w-full border rounded-lg px-3 py-2 text-sm" />
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Nom de boutique</label>
@@ -202,6 +227,7 @@ export class AdminArtisansComponent implements OnInit {
   showForm = false;
   editingId: number | null = null;
   form: any = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', nom_boutique: '', description: '', numero_tva: '', iban: '', commission: 0, valide: true };
+  address: any = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'atelier' };
 
   pendingCount = signal(0);
 
@@ -222,7 +248,7 @@ export class AdminArtisansComponent implements OnInit {
     return this.products().filter(p => p.id_artisan === this.selectedArtisanId());
   }
 
-  constructor(private artisanSvc: ArtisanService, private productSvc: ProductService, private toast: ToastService) {}
+  constructor(private adminSvc: AdminService, private artisanSvc: ArtisanService, private productSvc: ProductService, private toast: ToastService) {}
 
   ngOnInit() {
     forkJoin({
@@ -240,6 +266,7 @@ export class AdminArtisansComponent implements OnInit {
     this.editingId = null;
     this.showForm = true;
     this.form = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', nom_boutique: '', description: '', numero_tva: '', iban: '', commission: 0, valide: true };
+    this.address = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'atelier' };
   }
 
   openEdit(artisan: Artisan) {
@@ -254,12 +281,34 @@ export class AdminArtisansComponent implements OnInit {
       commission: artisan.commission ?? 0,
       valide: !!artisan.valide,
     };
+    this.address = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'atelier' };
+    this.loadAddress(artisan.id_utilisateur);
   }
 
   cancelForm() {
     this.showForm = false;
     this.editingId = null;
     this.form = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', nom_boutique: '', description: '', numero_tva: '', iban: '', commission: 0, valide: true };
+    this.address = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'atelier' };
+  }
+
+  private loadAddress(userId: number) {
+    this.adminSvc.getUserAddresses(userId).subscribe({
+      next: addresses => {
+        const current = Array.isArray(addresses) && addresses.length > 0 ? addresses[0] : null;
+        this.address = {
+          rue: current?.rue ?? '',
+          complement: current?.complement ?? '',
+          code_postal: current?.code_postal ?? '',
+          nom_ville: current?.nom_ville ?? '',
+          nom_pays: current?.nom_pays ?? '',
+          type_adresse: current?.type_adresse ?? 'atelier',
+        };
+      },
+      error: () => {
+        this.address = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'atelier' };
+      },
+    });
   }
 
   submitForm() {
@@ -270,6 +319,12 @@ export class AdminArtisansComponent implements OnInit {
       iban: this.form.iban,
       commission: this.form.commission,
       valide: this.form.valide ? 1 : 0,
+      rue: this.address.rue,
+      complement: this.address.complement,
+      code_postal: this.address.code_postal,
+      ville: this.address.nom_ville,
+      pays: this.address.nom_pays,
+      type_adresse: this.address.type_adresse,
     };
 
     if (this.editingId !== null) {

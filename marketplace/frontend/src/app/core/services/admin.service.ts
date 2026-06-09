@@ -26,6 +26,11 @@ export class AdminService {
       .pipe(map(r => r.data ?? []));
   }
 
+  getUserAddresses(userId: number): Observable<any[]> {
+    return this.http.get<any>(`${this.base}/api/utilisateurs/${userId}/adresses`, { withCredentials: true })
+      .pipe(map(r => Array.isArray(r?.data) ? r.data : []));
+  }
+
   createUser(data: Record<string, any>): Observable<any> {
     const form = new FormData();
     Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, String(v)); });

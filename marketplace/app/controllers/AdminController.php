@@ -7,12 +7,20 @@ require_once __DIR__ . '/../models/ArtisanModel.php';
 require_once __DIR__ . '/../models/ProduitModel.php';
 require_once __DIR__ . '/../models/CommandeModel.php';
 require_once __DIR__ . '/../models/CategorieModel.php';
+require_once __DIR__ . '/../models/AdresseModel.php';
+require_once __DIR__ . '/../models/RUtilisateurAdresseModel.php';
+require_once __DIR__ . '/../models/VilleModel.php';
+require_once __DIR__ . '/../models/PaysModel.php';
 
 use App\Models\Utilisateur;
 use App\Models\Artisan;
 use App\Models\Produit;
 use App\Models\Commande;
 use App\Models\Categorie;
+use App\Models\Adresse;
+use App\Models\RUtilisateurAdresse;
+use App\Models\Ville;
+use App\Models\Pays;
 
 /**
  * Controller administration (role admin requis, regles 7 et 8).
@@ -33,6 +41,86 @@ class AdminController extends Controller
         $data = [];
         parse_str($raw, $data);
         return $data;
+    }
+
+    private function resolveVilleId(array $data): ?int
+    {
+        if (!empty($data['id_ville'])) {
+            return (int) $data['id_ville'];
+        }
+
+        $nomVille = trim((string) ($data['ville'] ?? $data['nom_ville'] ?? ''));
+        if ($nomVille !== '') {
+            $villes = Ville::getBy('nom_ville', $nomVille);
+            if (!empty($villes)) {
+                return (int) $villes[0]['id_ville'];
+            }
+        }
+
+        if (!empty($data['code_postal'])) {
+            $villes = Ville::getBy('code_postal', trim((string) $data['code_postal']));
+            if (!empty($villes)) {
+                return (int) $villes[0]['id_ville'];
+            }
+        }
+
+        if ($nomVille === '') {
+            return null;
+        }
+
+        $nomPays = trim((string) ($data['pays'] ?? $data['nom_pays'] ?? ''));
+        $idPays = null;
+        if ($nomPays !== '') {
+            $pays = Pays::getBy('nom_pays', $nomPays);
+            if (!empty($pays)) {
+                $idPays = (int) $pays[0]['id_pays'];
+            } else {
+                $idPays = Pays::createRecord([
+                    'nom_pays' => $nomPays,
+                    'code_iso' => strtoupper(substr($nomPays, 0, 2)),
+                ]);
+            }
+        }
+
+        $cityData = ['nom_ville' => $nomVille];
+        if (!empty($data['code_postal'])) {
+            $cityData['code_postal'] = trim((string) $data['code_postal']);
+        }
+        if ($idPays !== null) {
+            $cityData['id_pays'] = $idPays;
+        }
+
+        return Ville::createRecord($cityData);
+    }
+
+    private function syncUserAddress(int $userId, array $data): void
+    {
+        if (empty($data['rue']) && empty($data['ville']) && empty($data['nom_ville']) && empty($data['code_postal'])) {
+            return;
+        }
+
+        $addressPayload = [
+            'rue' => trim((string) ($data['rue'] ?? '')),
+            'complement' => trim((string) ($data['complement'] ?? '')),
+            'type_adresse' => trim((string) ($data['type_adresse'] ?? 'livraison')),
+            'principale' => 1,
+        ];
+
+        $idVille = $this->resolveVilleId($data);
+        if ($idVille !== null) {
+            $addressPayload['id_ville'] = $idVille;
+        }
+
+        $links = RUtilisateurAdresse::getByUtilisateurId($userId);
+        $addressId = !empty($links) ? (int) ($links[0]['id_adresse'] ?? 0) : 0;
+
+        if ($addressId > 0) {
+            Adresse::updateRecord($addressId, $addressPayload);
+            return;
+        }
+
+        $newAddressId = Adresse::createRecord($addressPayload);
+        RUtilisateurAdresse::link($userId, $newAddressId);
     }
 
     // ── Utilisateurs ─────────────────────────────────────────────────────────
@@ -73,6 +161,7 @@ class AdminController extends Controller
         $data['date_inscription'] = date('Y-m-d H:i:s');
 
         $id = Utilisateur::createRecord($data);
+        $this->syncUserAddress($id, $data);
         $this->respond(201, 'Utilisateur cree', ['id_utilisateur' => $id]);
     }
 
@@ -86,6 +175,7 @@ class AdminController extends Controller
             unset($data['mot_de_passe']);
         }
         $success = Utilisateur::updateRecord($id, $data);
+        $this->syncUserAddress($id, $data);
         $this->respond($success ? 200 : 400, $success ? 'Utilisateur mis a jour' : 'Echec');
     }
 
@@ -156,6 +246,7 @@ class AdminController extends Controller
         ];
 
         $artisanId = Artisan::createRecord($artisanData);
+        $this->syncUserAddress($userId, $data);
         $this->respond(201, 'Artisan cree', ['id_artisan' => $artisanId]);
     }
 
@@ -164,6 +255,10 @@ class AdminController extends Controller
         if (!$this->requireAdmin()) { return; }
         $data = $this->readRequestData();
         $success = Artisan::updateRecord($id, $data);
+        $artisan = Artisan::getById($id);
+        if ($success && $artisan !== null && !empty($artisan['id_utilisateur'])) {
+            $this->syncUserAddress((int) $artisan['id_utilisateur'], $data);
+        }
         $this->respond($success ? 200 : 400, $success ? 'Artisan mis a jour' : 'Echec');
     }
 

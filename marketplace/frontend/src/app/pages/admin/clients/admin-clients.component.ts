@@ -60,6 +60,30 @@ import { Commande, Utilisateur } from '../../../core/models/models';
               <label class="block text-sm font-medium mb-1">Mot de passe</label>
               <input [(ngModel)]="form.mot_de_passe" type="password" class="w-full border rounded-lg px-3 py-2 text-sm" [placeholder]="editingId ? 'Laisser vide pour conserver' : 'Requis'" />
             </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Rue</label>
+              <input [(ngModel)]="address.rue" name="clientAddressRue" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Complément</label>
+              <input [(ngModel)]="address.complement" name="clientAddressComplement" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Code postal</label>
+              <input [(ngModel)]="address.code_postal" name="clientAddressCodePostal" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Ville</label>
+              <input [(ngModel)]="address.nom_ville" name="clientAddressVille" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Pays</label>
+              <input [(ngModel)]="address.nom_pays" name="clientAddressPays" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Type d’adresse</label>
+              <input [(ngModel)]="address.type_adresse" name="clientAddressType" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
             <div class="flex items-center gap-2 pt-6">
               <input type="checkbox" [(ngModel)]="form.actif" class="w-4 h-4" />
               <label class="text-sm">Compte actif</label>
@@ -183,6 +207,7 @@ export class AdminClientsComponent implements OnInit {
   showForm = false;
   editingId: number | null = null;
   form: any = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', actif: 1 };
+  address: any = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'livraison' };
 
   get filtered(): Utilisateur[] {
     return this.clients().filter(c => {
@@ -218,18 +243,41 @@ export class AdminClientsComponent implements OnInit {
     this.editingId = null;
     this.showForm = true;
     this.form = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', actif: 1 };
+    this.address = { rue: '', complement: '', code_postal: '', type_adresse: 'livraison' };
   }
 
   openEdit(client: Utilisateur) {
     this.editingId = client.id_utilisateur;
     this.showForm = true;
     this.form = { prenom: client.prenom, nom: client.nom, email: client.email, telephone: client.telephone || '', mot_de_passe: '', actif: !!client.actif };
+    this.address = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'livraison' };
+    this.loadAddress(client.id_utilisateur);
   }
 
   cancelForm() {
     this.showForm = false;
     this.editingId = null;
     this.form = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', actif: 1 };
+    this.address = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'livraison' };
+  }
+
+  private loadAddress(userId: number) {
+    this.adminSvc.getUserAddresses(userId).subscribe({
+      next: addresses => {
+        const current = Array.isArray(addresses) && addresses.length > 0 ? addresses[0] : null;
+        this.address = {
+          rue: current?.rue ?? '',
+          complement: current?.complement ?? '',
+          code_postal: current?.code_postal ?? '',
+          nom_ville: current?.nom_ville ?? '',
+          nom_pays: current?.nom_pays ?? '',
+          type_adresse: current?.type_adresse ?? 'livraison',
+        };
+      },
+      error: () => {
+        this.address = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'livraison' };
+      },
+    });
   }
 
   submitForm() {
@@ -239,6 +287,12 @@ export class AdminClientsComponent implements OnInit {
       email: this.form.email,
       telephone: this.form.telephone,
       actif: this.form.actif ? 1 : 0,
+      rue: this.address.rue,
+      complement: this.address.complement,
+      code_postal: this.address.code_postal,
+      type_adresse: this.address.type_adresse,
+      ville: this.address.nom_ville,
+      pays: this.address.nom_pays,
     };
 
     if (this.form.mot_de_passe) {
