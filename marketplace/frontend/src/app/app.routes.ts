@@ -82,6 +82,7 @@ export const routes: Routes = [
       { path: '',          redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', loadComponent: () => import('./pages/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent) },
       { path: 'artisans',  loadComponent: () => import('./pages/admin/artisans/admin-artisans.component').then(m => m.AdminArtisansComponent) },
+      { path: 'clients',   loadComponent: () => import('./pages/admin/clients/admin-clients.component').then(m => m.AdminClientsComponent) },
       { path: 'commandes', loadComponent: () => import('./pages/admin/orders/admin-orders.component').then(m => m.AdminOrdersComponent) },
       { path: 'produits',  loadComponent: () => import('./pages/admin/products/admin-products.component').then(m => m.AdminProductsComponent) },
     ],
