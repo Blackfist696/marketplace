@@ -39,6 +39,15 @@ export interface Produit {
   date_creation?: string;
 }
 
+export interface ProductConsultationStat {
+  id_statistique: number;
+  id_utilisateur?: number;
+  date_consultation: string;
+  ip_adress: string;
+  id_produit: number;
+  id_artisan: number;
+}
+
 export interface Commande {
   id_commande: number;
   reference: string;

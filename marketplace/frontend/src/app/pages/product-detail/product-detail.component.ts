@@ -4,6 +4,8 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { AvisService } from '../../core/services/avis.service';
 import { CartService } from '../../core/services/cart.service';
+import { ConsultProductsService } from '../../core/services/consult-products.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { getProductImageSrc } from '../../core/utils/image-path';
 import { ProductCardComponent } from '../../shared/product-card/product-card.component';
@@ -144,6 +146,8 @@ export class ProductDetailComponent implements OnInit {
     private productSvc: ProductService,
     private avisSvc: AvisService,
     private cart: CartService,
+    private consultProductsSvc: ConsultProductsService,
+    private auth: AuthService,
     private toast: ToastService,
   ) {}
 
@@ -154,6 +158,7 @@ export class ProductDetailComponent implements OnInit {
         next: prod => {
           this.produit.set(prod);
           this.loading.set(false);
+          this.recordConsultation(prod);
           this.avisSvc.getByProduit(id).subscribe(a => this.avis.set(a.filter(x => x.statut === 'approved')));
           this.productSvc.getAll().subscribe(all =>
             this.similar.set(all.filter(x => x.actif && x.id_produit !== id).slice(0, 3))
@@ -162,6 +167,14 @@ export class ProductDetailComponent implements OnInit {
         error: () => this.loading.set(false),
       });
     });
+  }
+
+  private recordConsultation(produit: Produit) {
+    this.consultProductsSvc.recordConsultation({
+      id_produit: produit.id_produit,
+      id_artisan: produit.id_artisan,
+      id_utilisateur: this.auth.currentUser()?.id_utilisateur,
+    }).subscribe({ next: () => {}, error: () => {} });
   }
 
   addToCart() {

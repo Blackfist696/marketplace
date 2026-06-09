@@ -210,7 +210,8 @@ return function (App $app): void {
     $register('GET', '/api/statistiques-artisans', 'App\\Controllers\\StatistiqueArtisanController@index', [$adminRole]);
     $register('GET', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@show', [$adminRole]);
     $register('GET', '/api/artisans/{id_artisan}/statistiques', 'App\\Controllers\\StatistiqueArtisanController@indexByArtisan', [$artisanRole]);
-    $register('POST', '/api/statistiques-artisans', 'App\\Controllers\\StatistiqueArtisanController@store', [$adminRole]);
+    $register('GET', '/api/artisan/consultations', 'App\\Controllers\\StatistiqueArtisanController@indexCurrentArtisan', [$artisanRole]);
+    $register('POST', '/api/statistiques-artisans', 'App\\Controllers\\StatistiqueArtisanController@store');
     $register('PUT', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@update', [$adminRole]);
     $register('DELETE', '/api/statistiques-artisans/{id}', 'App\\Controllers\\StatistiqueArtisanController@destroy', [$adminRole]);
 };
