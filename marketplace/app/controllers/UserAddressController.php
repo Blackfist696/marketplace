@@ -79,7 +79,7 @@ class UserAddressController extends Controller
             return;
         }
 
-        $data = $_POST;
+        $data = $this->readRequestData();
 
         if (empty($data['id_adresse'])) {
             if (empty($data['rue'])) {
@@ -159,7 +159,7 @@ class UserAddressController extends Controller
             return;
         }
 
-        $data = $_POST;
+        $data = $this->readRequestData();
         $payload = [
             'rue' => $data['rue'] ?? $address['rue'] ?? '',
             'type_adresse' => $data['type_adresse'] ?? $address['type_adresse'] ?? 'livraison',

@@ -22,6 +22,31 @@ abstract class Controller
      * @param string $message Message descriptif.
      * @param array $data Données supplémentaires à renvoyer.
      */
+    protected function readRequestData(): array
+    {
+        if (!empty($_POST) && is_array($_POST)) {
+            return $_POST;
+        }
+
+        $raw = file_get_contents('php://input');
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+
+        $contentType = strtolower((string) ($_SERVER['CONTENT_TYPE'] ?? ''));
+        if (strpos($contentType, 'application/json') !== false) {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        $data = [];
+        parse_str($raw, $data);
+
+        return is_array($data) ? $data : [];
+    }
+
     protected function respond(int $status = 200, string $message = '', array $data = []): void
     {
         // Contrat JSON minimal commun a tous les controleurs.

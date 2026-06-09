@@ -212,7 +212,7 @@ export class AdminClientsComponent implements OnInit {
   editingId: number | null = null;
   form: any = { prenom: '', nom: '', email: '', telephone: '', mot_de_passe: '', actif: 1 };
   address: any = { rue: '', complement: '', code_postal: '', nom_ville: '', nom_pays: '', type_adresse: 'livraison' };
-  addressTypeOptions = ['livraison', 'facturation', 'atelier', 'bureau', 'siège social'];
+  addressTypeOptions = ['livraison', 'facturation'];
 
   get filtered(): Utilisateur[] {
     return this.clients().filter(c => {
@@ -308,11 +308,13 @@ export class AdminClientsComponent implements OnInit {
       ? this.adminSvc.updateUser(this.editingId, payload)
       : this.adminSvc.createUser({ ...payload, id_role: 3 });
 
+    const isEditing = this.editingId !== null;
+
     request.subscribe({
       next: () => {
         this.cancelForm();
         this.ngOnInit();
-        this.toast.success(this.editingId ? 'Client modifié' : 'Client ajouté');
+        this.toast.success(isEditing ? 'Client modifié' : 'Client ajouté');
       },
       error: () => this.toast.error('Erreur lors de la sauvegarde'),
     });
