@@ -5,20 +5,58 @@ import { roleGuard } from './core/guards/role.guard';
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
-  { path: 'login',    loadComponent: () => import('./pages/auth/login/login.component').then(m => m.LoginComponent) },
-  { path: 'register', loadComponent: () => import('./pages/auth/register/register.component').then(m => m.RegisterComponent) },
+  {
+    path: 'login',
+    loadComponent: () => import('./pages/auth/login/login.component').then(m => m.LoginComponent),
+    data: { title: 'Connexion', description: 'Connectez-vous à votre espace Marketplace pour gérer votre profil, vos commandes et vos produits.' },
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./pages/auth/register/register.component').then(m => m.RegisterComponent),
+    data: { title: 'Inscription', description: 'Créez votre compte Marketplace pour découvrir des produits artisanaux et suivre vos achats.' },
+  },
 
   {
     path: '',
     loadComponent: () => import('./layouts/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
     children: [
-      { path: 'home',         loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) },
-      { path: 'catalogue',    loadComponent: () => import('./pages/catalogue/catalogue.component').then(m => m.CatalogueComponent) },
-      { path: 'produit/:id',  loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent) },
-      { path: 'panier',       loadComponent: () => import('./pages/cart/cart.component').then(m => m.CartComponent) },
-      { path: 'profil',       loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
-      { path: 'commande',     loadComponent: () => import('./pages/checkout/checkout.component').then(m => m.CheckoutComponent), canActivate: [authGuard] },
-      { path: 'boutique/:id', loadComponent: () => import('./pages/artisan-shop/artisan-shop.component').then(m => m.ArtisanShopComponent) },
+      {
+        path: 'home',
+        loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
+        data: { title: 'Accueil', description: 'Découvrez notre marketplace de produits artisanaux, sélectionnés pour leur qualité et leur authenticité.' },
+      },
+      {
+        path: 'catalogue',
+        loadComponent: () => import('./pages/catalogue/catalogue.component').then(m => m.CatalogueComponent),
+        data: { title: 'Catalogue', description: 'Parcourez le catalogue Marketplace et trouvez des produits artisanaux adaptés à vos besoins.' },
+      },
+      {
+        path: 'produit/:id',
+        loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent),
+        data: { title: 'Produit', description: 'Consultez les détails du produit, ses caractéristiques et les informations de l’artisan.' },
+      },
+      {
+        path: 'panier',
+        loadComponent: () => import('./pages/cart/cart.component').then(m => m.CartComponent),
+        data: { title: 'Panier', description: 'Vérifiez votre panier et finalisez votre commande sur Marketplace.' },
+      },
+      {
+        path: 'profil',
+        loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
+        canActivate: [authGuard],
+        data: { title: 'Profil', description: 'Gérez vos informations personnelles, votre adresse et vos préférences depuis votre profil Marketplace.' },
+      },
+      {
+        path: 'commande',
+        loadComponent: () => import('./pages/checkout/checkout.component').then(m => m.CheckoutComponent),
+        canActivate: [authGuard],
+        data: { title: 'Commande', description: 'Finalisez votre commande rapidement et en toute sécurité sur Marketplace.' },
+      },
+      {
+        path: 'boutique/:id',
+        loadComponent: () => import('./pages/artisan-shop/artisan-shop.component').then(m => m.ArtisanShopComponent),
+        data: { title: 'Boutique', description: 'Découvrez la boutique d’un artisan et ses produits phares sur Marketplace.' },
+      },
     ],
   },
 

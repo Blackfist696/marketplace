@@ -115,14 +115,29 @@ if (is_dir($spaRoot) && in_array($requestMethod, ['GET', 'HEAD'], true)) {
 		}
 
 		$safeRelative = ltrim($relative, '/');
-		$assetPath = realpath($spaRoot . '/' . $safeRelative);
 		$spaRealRoot = realpath($spaRoot);
+		$candidatePaths = [];
 
-		if ($assetPath !== false && $spaRealRoot !== false && str_starts_with($assetPath, $spaRealRoot . DIRECTORY_SEPARATOR) && is_file($assetPath)) {
-			$serveFile($assetPath, $requestMethod);
+		if ($safeRelative !== '') {
+			$candidatePaths[] = $spaRoot . '/' . $safeRelative;
+			$candidatePaths[] = $spaRoot . '/project02/public/app/' . $safeRelative;
+			$candidatePaths[] = $spaRoot . '/project02/public/app/' . $safeRelative . '/index.html';
+			$candidatePaths[] = $spaRoot . '/' . $safeRelative . '/index.html';
 		}
 
-		$serveFile($spaRoot . '/index.html', $requestMethod);
+		$candidatePaths[] = $spaRoot . '/index.html';
+		$candidatePaths[] = $spaRoot . '/index.csr.html';
+		$candidatePaths[] = $spaRoot . '/project02/public/app/index.html';
+		$candidatePaths[] = $spaRoot . '/project02/public/app/home/index.html';
+
+		foreach ($candidatePaths as $candidatePath) {
+			$assetPath = realpath($candidatePath);
+			if ($assetPath !== false && $spaRealRoot !== false && str_starts_with($assetPath, $spaRealRoot . DIRECTORY_SEPARATOR) && is_file($assetPath)) {
+				$serveFile($assetPath, $requestMethod);
+			}
+		}
+
+		$serveFile($spaRoot . '/index.csr.html', $requestMethod);
 	}
 
 	foreach ($pathVariants as $candidatePath) {
