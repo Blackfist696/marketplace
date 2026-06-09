@@ -83,6 +83,7 @@ export const routes: Routes = [
       { path: 'dashboard', loadComponent: () => import('./pages/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent) },
       { path: 'artisans',  loadComponent: () => import('./pages/admin/artisans/admin-artisans.component').then(m => m.AdminArtisansComponent) },
       { path: 'clients',   loadComponent: () => import('./pages/admin/clients/admin-clients.component').then(m => m.AdminClientsComponent) },
+      { path: 'administrateurs', loadComponent: () => import('./pages/admin/administrators/admin-administrators.component').then(m => m.AdminAdministratorsComponent) },
       { path: 'commandes', loadComponent: () => import('./pages/admin/orders/admin-orders.component').then(m => m.AdminOrdersComponent) },
       { path: 'produits',  loadComponent: () => import('./pages/admin/products/admin-products.component').then(m => m.AdminProductsComponent) },
     ],
