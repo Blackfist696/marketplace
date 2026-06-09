@@ -255,6 +255,17 @@
     </section>
 
     <section class="card">
+      <h2>Exemple de flux recent : consultation produit</h2>
+      <div class="scenario-ok">
+        <p><strong>Scenario:</strong> ouverture d'un produit depuis la page detail.</p>
+        <p>1. Le frontend appelle <span class="mono">POST /api/statistiques-artisans</span> depuis la page produit.</p>
+        <p>2. Le routeur backend aiguillera vers <span class="mono">StatistiqueArtisanController@store</span>.</p>
+        <p>3. Le controleur valide les donnees, puis le modele passe par la couche commune de persistence dans <span class="mono">app/models/Model.php</span>.</p>
+        <p>4. L'artisan peut ensuite consulter ces donnees via <span class="mono">GET /api/artisan/consultations</span> sur la page <span class="mono">Consultation produits</span>.</p>
+      </div>
+    </section>
+
+    <section class="card">
       <h2>Qui fait quoi dans les middlewares</h2>
       <table class="compact-table" aria-label="Roles des middlewares">
         <thead>

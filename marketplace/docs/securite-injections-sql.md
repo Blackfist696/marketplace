@@ -4,6 +4,13 @@ Ce document décrit les mesures mises en place dans l’application pour limiter
 
 ## Objectif
 
+## Mise a jour fonctionnelle recente
+
+Les protections documentees ici couvrent aussi le nouveau flux de consultation produit :
+- la page detail produit envoie une requete de suivi vers [app/controllers/StatistiqueArtisanController.php](../app/controllers/StatistiqueArtisanController.php)
+- le controleur utilise les validateurs de [app/models/validators/StatistiqueArtisanValidator.php](../app/models/validators/StatistiqueArtisanValidator.php)
+- le stockage final passe par [app/models/Model.php](../app/models/Model.php) avec whitelist et requetes preparees
+
 Les injections SQL surviennent lorsqu’un attaquant injecte du SQL malveillant via une entrée utilisateur, par exemple dans un champ de formulaire, un paramètre d’URL ou une requête HTTP. L’objectif de cette protection est de garantir que les données saisies par l’utilisateur ne puissent pas modifier la logique SQL attendue.
 
 ## Mesures principales mises en place

@@ -30,6 +30,14 @@ Objectif principal:
 - docs/
   - documentation technique et plans de migration
 
+## Evolutions recentes (juin 2026)
+
+- Le frontend Angular est maintenant compile vers [public/app](public/app) afin d'etre servi par le front controller PHP de production.
+- La consultation des produits est enregistree automatiquement depuis la page detail produit via l'API `POST /api/statistiques-artisans`.
+- Une nouvelle vue artisan `Consultation produits` affiche les statistiques sous [frontend/src/app/pages/artisan/stats/artisan-product-consultations.component.ts](frontend/src/app/pages/artisan/stats/artisan-product-consultations.component.ts) et consomme l'endpoint `GET /api/artisan/consultations`.
+- La securite SQL a ete renforcee dans [app/models/Model.php](app/models/Model.php), [app/models/validators/StatistiqueArtisanValidator.php](app/models/validators/StatistiqueArtisanValidator.php) et [app/controllers/StatistiqueArtisanController.php](app/controllers/StatistiqueArtisanController.php).
+- La contrainte SQL unique sur `Id_artisan` a ete retiree dans les scripts de creation pour permettre plusieurs consultations par artisan.
+
 ## Separation des responsabilites
 
 ### Backend (PHP/Slim)
