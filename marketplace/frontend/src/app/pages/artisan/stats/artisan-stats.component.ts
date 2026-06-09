@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
 import { OrderService } from '../../../core/services/order.service';
 import { KpiCardComponent } from '../../../shared/kpi-card/kpi-card.component';
@@ -8,10 +9,13 @@ import { Produit, Commande, STATUT_LABELS } from '../../../core/models/models';
 @Component({
   selector: 'app-artisan-stats',
   standalone: true,
-  imports: [CommonModule, KpiCardComponent],
+  imports: [CommonModule, RouterLink, KpiCardComponent],
   template: `
     <div class="p-6 md:p-8 max-w-6xl">
-      <h1 class="font-serif text-2xl font-bold mb-6">Mes statistiques</h1>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h1 class="font-serif text-2xl font-bold">Mes statistiques</h1>
+        <a routerLink="/artisan/stats/consultation-produits" class="text-amber-600 hover:underline text-sm">Consultation produits</a>
+      </div>
 
       <!-- KPIs -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

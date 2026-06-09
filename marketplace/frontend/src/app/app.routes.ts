@@ -31,6 +31,7 @@ export const routes: Routes = [
       { path: 'produits',  loadComponent: () => import('./pages/artisan/products/artisan-products.component').then(m => m.ArtisanProductsComponent) },
       { path: 'commandes', loadComponent: () => import('./pages/artisan/orders/artisan-orders.component').then(m => m.ArtisanOrdersComponent) },
       { path: 'stats',     loadComponent: () => import('./pages/artisan/stats/artisan-stats.component').then(m => m.ArtisanStatsComponent) },
+      { path: 'stats/consultation-produits', loadComponent: () => import('./pages/artisan/stats/artisan-product-consultations.component').then(m => m.ArtisanProductConsultationsComponent) },
     ],
   },
 

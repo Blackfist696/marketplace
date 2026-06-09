@@ -79,12 +79,12 @@ class StatistiqueArtisanController extends Controller
     }
 
     /**
-     * Cree une statistique artisan (admin uniquement).
+     * Cree une statistique artisan.
      */
     public function store(): void
     {
-        if (!$this->requireAdmin()) {
-            return;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
 
         $data = $_POST;
@@ -92,8 +92,41 @@ class StatistiqueArtisanController extends Controller
             $data['date_consultation'] = date('Y-m-d H:i:s');
         }
 
+        if (empty($data['ip_adress']) && !empty($_SERVER['REMOTE_ADDR'])) {
+            $data['ip_adress'] = $_SERVER['REMOTE_ADDR'];
+        }
+
+        if (!empty($_SESSION['user_id'])) {
+            $data['id_utilisateur'] = (int) $_SESSION['user_id'];
+        }
+
         $id = StatistiqueArtisan::createRecord($data);
         $this->respond(201, 'Statistique artisan creee', ['id_statistique' => $id]);
+    }
+
+    /**
+     * Liste les consultations du produit pour l'artisan connecte.
+     */
+    public function indexCurrentArtisan(): void
+    {
+        $sessionUser = $this->requireSessionUser();
+        if ($sessionUser === false) {
+            return;
+        }
+
+        if ($sessionUser['role_id'] !== 2) {
+            $this->respond(403, 'Acces interdit');
+            return;
+        }
+
+        $artisans = Artisan::getBy('id_utilisateur', $sessionUser['user_id']);
+        if (empty($artisans)) {
+            $this->respond(404, 'Profil artisan introuvable');
+            return;
+        }
+
+        $artisanId = (int) $artisans[0]['id_artisan'];
+        $this->respond(200, 'Consultations produit', StatistiqueArtisan::getBy('id_artisan', $artisanId));
     }
 
     /**
