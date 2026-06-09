@@ -82,35 +82,44 @@ export class AuthService {
   }
 
   updateProfile(data: Record<string, string>): Observable<any> {
-    const body = new FormData();
+    const body = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '') {
-        body.append(key, value);
+        body.set(key, value);
       }
     });
 
-    return this.http.put<any>(`${this.base}/profile`, body, { withCredentials: true }).pipe(
+    return this.http.put<any>(`${this.base}/profile`, body.toString(), {
+      withCredentials: true,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    }).pipe(
       switchMap(() => this.loadProfile()),
       catchError(() => of(null))
     );
   }
 
   saveAddress(data: Record<string, any>): Observable<any> {
-    const body = new FormData();
+    const body = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '') {
-        body.append(key, String(value));
+        body.set(key, String(value));
       }
     });
 
     if (data['id_adresse']) {
-      return this.http.put<any>(`${this.base}/api/user-addresses/${this.currentUser()?.id_utilisateur}/${data['id_adresse']}`, body, { withCredentials: true }).pipe(
+      return this.http.put<any>(`${this.base}/api/user-addresses/${this.currentUser()?.id_utilisateur}/${data['id_adresse']}`, body.toString(), {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      }).pipe(
         switchMap(() => this.loadProfile()),
         catchError(() => of(null))
       );
     }
 
-    return this.http.post<any>(`${this.base}/api/user-addresses`, body, { withCredentials: true }).pipe(
+    return this.http.post<any>(`${this.base}/api/user-addresses`, body.toString(), {
+      withCredentials: true,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    }).pipe(
       switchMap(() => this.loadProfile()),
       catchError(() => of(null))
     );

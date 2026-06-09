@@ -283,11 +283,13 @@ export class AdminAdministratorsComponent implements OnInit {
       ? this.adminSvc.updateUser(this.editingId, payload)
       : this.adminSvc.createUser({ ...payload, id_role: 1 });
 
+    const isEditing = this.editingId !== null;
+
     request.subscribe({
       next: () => {
         this.cancelForm();
         this.ngOnInit();
-        this.toast.success(this.editingId ? 'Administrateur modifié' : 'Administrateur ajouté');
+        this.toast.success(isEditing ? 'Administrateur modifié' : 'Administrateur ajouté');
       },
       error: () => this.toast.error('Erreur lors de la sauvegarde'),
     });

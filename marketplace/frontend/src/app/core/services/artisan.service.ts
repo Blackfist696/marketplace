@@ -31,15 +31,21 @@ export class ArtisanService {
   }
 
   create(data: Record<string, any>): Observable<any> {
-    const form = new FormData();
-    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, String(v)); });
-    return this.http.post<any>(`${this.base}/admin/artisans`, form, { withCredentials: true });
+    const body = new URLSearchParams();
+    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) body.set(k, String(v)); });
+    return this.http.post<any>(`${this.base}/admin/artisans`, body.toString(), {
+      withCredentials: true,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
   }
 
-  adminUpdate(id: number, data: Partial<Artisan>): Observable<any> {
-    const form = new FormData();
-    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, String(v)); });
-    return this.http.put<any>(`${this.base}/admin/artisans/${id}`, form, { withCredentials: true });
+  adminUpdate(id: number, data: Record<string, any>): Observable<any> {
+    const body = new URLSearchParams();
+    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) body.set(k, String(v)); });
+    return this.http.put<any>(`${this.base}/admin/artisans/${id}`, body.toString(), {
+      withCredentials: true,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
   }
 
   adminDeactivate(id: number): Observable<any> {

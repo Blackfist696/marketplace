@@ -32,15 +32,21 @@ export class AdminService {
   }
 
   createUser(data: Record<string, any>): Observable<any> {
-    const form = new FormData();
-    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, String(v)); });
-    return this.http.post<any>(`${this.base}/admin/users`, form, { withCredentials: true });
+    const body = new URLSearchParams();
+    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) body.set(k, String(v)); });
+    return this.http.post<any>(`${this.base}/admin/users`, body.toString(), {
+      withCredentials: true,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
   }
 
   updateUser(id: number, data: Partial<Utilisateur>): Observable<any> {
-    const form = new FormData();
-    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, String(v)); });
-    return this.http.put<any>(`${this.base}/admin/users/${id}`, form, { withCredentials: true });
+    const body = new URLSearchParams();
+    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) body.set(k, String(v)); });
+    return this.http.put<any>(`${this.base}/admin/users/${id}`, body.toString(), {
+      withCredentials: true,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
   }
 
   deactivateUser(id: number): Observable<any> {

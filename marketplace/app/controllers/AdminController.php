@@ -12,6 +12,7 @@ require_once __DIR__ . '/../models/RUtilisateurAdresseModel.php';
 require_once __DIR__ . '/../models/VilleModel.php';
 require_once __DIR__ . '/../models/PaysModel.php';
 
+use App\Core\AppLogger;
 use App\Models\Utilisateur;
 use App\Models\Artisan;
 use App\Models\Produit;
@@ -27,20 +28,16 @@ use App\Models\Pays;
  */
 class AdminController extends Controller
 {
-    private function readRequestData(): array
+    private function buildModelPayload(array $data, array $allowedFields): array
     {
-        if (!empty($_POST)) {
-            return $_POST;
+        $payload = [];
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $payload[$field] = $data[$field];
+            }
         }
 
-        $raw = file_get_contents('php://input');
-        if ($raw === false || $raw === '') {
-            return [];
-        }
-
-        $data = [];
-        parse_str($raw, $data);
-        return $data;
+        return $payload;
     }
 
     private function resolveVilleId(array $data): ?int
@@ -108,35 +105,42 @@ class AdminController extends Controller
             return;
         }
 
-        $links = RUtilisateurAdresse::getByUtilisateurId($userId);
-        $addressId = !empty($links) ? (int) ($links[0]['id_adresse'] ?? 0) : 0;
-        $existingAddress = $addressId > 0 ? Adresse::getById($addressId) : null;
+        try {
+            $links = RUtilisateurAdresse::getByUtilisateurId($userId);
+            $addressId = !empty($links) ? (int) ($links[0]['id_adresse'] ?? 0) : 0;
+            $existingAddress = $addressId > 0 ? Adresse::getById($addressId) : null;
 
-        $addressPayload = [
-            'rue' => trim((string) ($data['rue'] ?? $existingAddress['rue'] ?? '')),
-            'complement' => trim((string) ($data['complement'] ?? $existingAddress['complement'] ?? '')),
-            'type_adresse' => trim((string) ($data['type_adresse'] ?? $existingAddress['type_adresse'] ?? 'livraison')),
-            'principale' => 1,
-        ];
+            $addressPayload = [
+                'rue' => trim((string) ($data['rue'] ?? $existingAddress['rue'] ?? '')),
+                'complement' => trim((string) ($data['complement'] ?? $existingAddress['complement'] ?? '')),
+                'type_adresse' => trim((string) ($data['type_adresse'] ?? $existingAddress['type_adresse'] ?? 'livraison')),
+                'principale' => 1,
+            ];
 
-        $idVille = $this->resolveVilleId($data);
-        if ($idVille !== null) {
-            $addressPayload['id_ville'] = $idVille;
-        } elseif (!empty($existingAddress['id_ville'])) {
-            $addressPayload['id_ville'] = (int) $existingAddress['id_ville'];
+            $idVille = $this->resolveVilleId($data);
+            if ($idVille !== null) {
+                $addressPayload['id_ville'] = $idVille;
+            } elseif (!empty($existingAddress['id_ville'])) {
+                $addressPayload['id_ville'] = (int) $existingAddress['id_ville'];
+            }
+
+            if ($addressId > 0) {
+                Adresse::updateRecord($addressId, $addressPayload);
+                return;
+            }
+
+            if (trim((string) $addressPayload['rue']) === '') {
+                return;
+            }
+
+            $newAddressId = Adresse::createRecord($addressPayload);
+            RUtilisateurAdresse::link($userId, $newAddressId);
+        } catch (\Throwable $e) {
+            AppLogger::logException('app-error', $e, [
+                'user_id' => $userId,
+                'operation' => 'syncUserAddress',
+            ]);
         }
-
-        if ($addressId > 0) {
-            Adresse::updateRecord($addressId, $addressPayload);
-            return;
-        }
-
-        if (trim((string) $addressPayload['rue']) === '') {
-            return;
-        }
-
-        $newAddressId = Adresse::createRecord($addressPayload);
-        RUtilisateurAdresse::link($userId, $newAddressId);
     }
 
     // ── Utilisateurs ─────────────────────────────────────────────────────────
@@ -185,12 +189,27 @@ class AdminController extends Controller
     {
         if (!$this->requireAdmin()) { return; }
         $data = $this->readRequestData();
+        $userPayload = $this->buildModelPayload($data, ['email', 'mot_de_passe', 'nom', 'prenom', 'telephone', 'id_role', 'actif']);
+
         if (isset($data['mot_de_passe']) && $data['mot_de_passe'] !== '') {
-            $data['mot_de_passe'] = password_hash((string) $data['mot_de_passe'], PASSWORD_BCRYPT);
-        } else {
-            unset($data['mot_de_passe']);
+            $userPayload['mot_de_passe'] = password_hash((string) $data['mot_de_passe'], PASSWORD_BCRYPT);
+        } elseif (array_key_exists('mot_de_passe', $data)) {
+            unset($userPayload['mot_de_passe']);
         }
-        $success = Utilisateur::updateRecord($id, $data);
+
+        $success = true;
+        if (!empty($userPayload)) {
+            try {
+                $success = Utilisateur::updateRecord($id, $userPayload);
+            } catch (\Throwable $e) {
+                AppLogger::logException('app-error', $e, [
+                    'user_id' => $id,
+                    'operation' => 'updateUser',
+                ]);
+                $success = false;
+            }
+        }
+
         $this->syncUserAddress($id, $data);
         $this->respond($success ? 200 : 400, $success ? 'Utilisateur mis a jour' : 'Echec');
     }
@@ -270,9 +289,23 @@ class AdminController extends Controller
     {
         if (!$this->requireAdmin()) { return; }
         $data = $this->readRequestData();
-        $success = Artisan::updateRecord($id, $data);
+        $artisanPayload = $this->buildModelPayload($data, ['id_utilisateur', 'nom_boutique', 'description', 'numero_tva', 'iban', 'commission', 'valide', 'date_validation', 'logo']);
+
+        $success = true;
+        if (!empty($artisanPayload)) {
+            try {
+                $success = Artisan::updateRecord($id, $artisanPayload);
+            } catch (\Throwable $e) {
+                AppLogger::logException('app-error', $e, [
+                    'user_id' => $id,
+                    'operation' => 'updateArtisan',
+                ]);
+                $success = false;
+            }
+        }
+
         $artisan = Artisan::getById($id);
-        if ($success && $artisan !== null && !empty($artisan['id_utilisateur'])) {
+        if ($artisan !== null && !empty($artisan['id_utilisateur'])) {
             $this->syncUserAddress((int) $artisan['id_utilisateur'], $data);
         }
         $this->respond($success ? 200 : 400, $success ? 'Artisan mis a jour' : 'Echec');

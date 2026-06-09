@@ -20,10 +20,11 @@ class AdresseValidator extends AbstractValidator
         $this->validateRequired($data, [
             'rue',
             'type_adresse',
-            'id_ville',
         ]);
 
-        $this->validateNumeric('id_ville', $data);
+        if (array_key_exists('id_ville', $data) && $data['id_ville'] !== '' && $data['id_ville'] !== null) {
+            $this->validateNumeric('id_ville', $data);
+        }
 
         if (isset($data['principale']) && $data['principale'] !== '' && !in_array($data['principale'], [0, 1, '0', '1', true, false], true)) {
             $this->result->addError('principale', 'Le champ principale doit être 0 ou 1.');
