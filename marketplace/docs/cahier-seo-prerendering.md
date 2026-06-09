@@ -12,7 +12,17 @@ L’objectif est de permettre à des personnes non techniques de comprendre :
 
 ---
 
-## 2. Contexte du besoin
+## 2. Mise à jour d’implémentation — 10 juin 2026
+
+L’implémentation SEO et prerendering est désormais effective sur le projet. Les principaux gains livrés sont les suivants :
+- pages publiques pré-rendues au build pour l’accueil, le catalogue, la connexion et l’inscription ;
+- métadonnées SEO injectées dynamiquement selon la route ;
+- structure de référencement de base disponible via robots.txt et sitemap.xml ;
+- generation HTML statique validée dans le dossier de publication [../public/app](../public/app).
+
+Cette mise à jour complète la phase de préparation SEO et pose les bases d’un référencement plus robuste pour la production.
+
+## 3. Contexte du besoin
 
 Le projet Marketplace est une application Angular moderne, dont la partie publique doit être visible par les moteurs de recherche comme Google, Bing ou Yahoo.
 

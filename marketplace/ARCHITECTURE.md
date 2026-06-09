@@ -37,6 +37,8 @@ Objectif principal:
 - Une nouvelle vue artisan `Consultation produits` affiche les statistiques sous [frontend/src/app/pages/artisan/stats/artisan-product-consultations.component.ts](frontend/src/app/pages/artisan/stats/artisan-product-consultations.component.ts) et consomme l'endpoint `GET /api/artisan/consultations`.
 - La securite SQL a ete renforcee dans [app/models/Model.php](app/models/Model.php), [app/models/validators/StatistiqueArtisanValidator.php](app/models/validators/StatistiqueArtisanValidator.php) et [app/controllers/StatistiqueArtisanController.php](app/controllers/StatistiqueArtisanController.php).
 - La contrainte SQL unique sur `Id_artisan` a ete retiree dans les scripts de creation pour permettre plusieurs consultations par artisan.
+- Le SEO et le prerendering sont maintenant operationnels pour les pages publiques principales (accueil, catalogue, connexion, inscription) avec generation HTML statique au build et metadonnees SEO route par route.
+- Les flux de mise a jour d'adresses depuis le profil utilisateur et depuis l'administration utilisent maintenant des payloads compatibles avec la couche PHP, garantissant la persistance correcte du type d'adresse dans la base.
 
 ## Separation des responsabilites
 
