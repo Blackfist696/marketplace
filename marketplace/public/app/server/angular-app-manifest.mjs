@@ -121,7 +121,7 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-ZNH7BZPI.js"
+      "chunk-YPNADP2E.js"
     ],
     "redirectTo": "/project02/public/app/admin/dashboard",
     "route": "/project02/public/app/admin"
@@ -129,35 +129,42 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-ZNH7BZPI.js"
+      "chunk-YPNADP2E.js"
     ],
     "route": "/project02/public/app/admin/dashboard"
   },
   {
     "renderMode": 0,
     "preload": [
-      "chunk-ZNH7BZPI.js"
+      "chunk-YPNADP2E.js"
     ],
     "route": "/project02/public/app/admin/artisans"
   },
   {
     "renderMode": 0,
     "preload": [
-      "chunk-ZNH7BZPI.js"
+      "chunk-YPNADP2E.js"
     ],
     "route": "/project02/public/app/admin/clients"
   },
   {
     "renderMode": 0,
     "preload": [
-      "chunk-ZNH7BZPI.js"
+      "chunk-YPNADP2E.js"
+    ],
+    "route": "/project02/public/app/admin/administrateurs"
+  },
+  {
+    "renderMode": 0,
+    "preload": [
+      "chunk-YPNADP2E.js"
     ],
     "route": "/project02/public/app/admin/commandes"
   },
   {
     "renderMode": 0,
     "preload": [
-      "chunk-ZNH7BZPI.js"
+      "chunk-YPNADP2E.js"
     ],
     "route": "/project02/public/app/admin/produits"
   },
@@ -171,12 +178,12 @@ export default {
 ],
   entryPointToBrowserMapping: undefined,
   assets: {
-    'index.csr.html': {size: 17018, hash: 'a6b125b0458a1110538633d80a087af6f7156f2290c25f5b2a4dbf90137e12ec', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
-    'index.server.html': {size: 2857, hash: '15af8dea87f5f011bdb366da04ba3c14669834ebcf1bb21ef4502b5a60b0a9f7', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
-    'project02/public/app/register/index.html': {size: 33226, hash: '26075f8ec083920407e34623799c9454056d32c4d489b468125de3652ba1f4de', text: () => import('./assets-chunks/project02_public_app_register_index_html.mjs').then(m => m.default)},
-    'project02/public/app/login/index.html': {size: 31963, hash: '0f49f6810b100c0bb7e620b9d029f303b51abd57d46b760a73e2fa5c9ed70cff', text: () => import('./assets-chunks/project02_public_app_login_index_html.mjs').then(m => m.default)},
-    'project02/public/app/home/index.html': {size: 34918, hash: '4fa8b379c64cbd4c0598763fa310194c30dbe0524e1214c1c4603e4591b5048c', text: () => import('./assets-chunks/project02_public_app_home_index_html.mjs').then(m => m.default)},
-    'project02/public/app/catalogue/index.html': {size: 38088, hash: '8cd0fbc2b51bf1c5499246e73f77bb0c44b9ae4ef814fe846916654b80a4c984', text: () => import('./assets-chunks/project02_public_app_catalogue_index_html.mjs').then(m => m.default)},
+    'index.csr.html': {size: 17018, hash: '9fef532a6d3b42a9cd1f98764343af64352f4a50e6e33f75d707d504ddb6edad', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
+    'index.server.html': {size: 2857, hash: '76ef29005e4ac6baac7beadd30aef408e19f132c22e7fb9d4b7092069eeee0cb', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
+    'project02/public/app/login/index.html': {size: 31963, hash: '56d114646b8611062d0770b8c6f8c97dec57827ed79e2646ee8b7146a9d7350b', text: () => import('./assets-chunks/project02_public_app_login_index_html.mjs').then(m => m.default)},
+    'project02/public/app/register/index.html': {size: 33226, hash: 'a492061bf75a2c4ae15c7d15e58531f1fc9caaec517e845c137c51074c691969', text: () => import('./assets-chunks/project02_public_app_register_index_html.mjs').then(m => m.default)},
+    'project02/public/app/home/index.html': {size: 34918, hash: '28b63b48ae51a29b44d0a527eee7270592fc34158c9b3e9ad93461664a4c3f06', text: () => import('./assets-chunks/project02_public_app_home_index_html.mjs').then(m => m.default)},
+    'project02/public/app/catalogue/index.html': {size: 38088, hash: 'c8c62b047adb5745b93ad3144e4992aa0527b30b991faf76986388b12ace20c1', text: () => import('./assets-chunks/project02_public_app_catalogue_index_html.mjs').then(m => m.default)},
     'styles-47SJNORG.css': {size: 50382, hash: '2JupB8hwIoE', text: () => import('./assets-chunks/styles-47SJNORG_css.mjs').then(m => m.default)}
   },
 };
