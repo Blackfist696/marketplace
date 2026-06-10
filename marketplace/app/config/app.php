@@ -19,10 +19,13 @@ return [
         // Endpoint Ollama local sur le serveur de production.
         'ollama_url' => getenv('OLLAMA_URL') ?: 'http://localhost:11434/api/chat',
         // Modele par defaut pour le MVP.
-        'model' => getenv('OLLAMA_MODEL') ?: 'mistral',
+        'model' => getenv('OLLAMA_MODEL') ?: 'gpt-oss:120b-cloud',
+        // Modele de secours si le modele principal n'est pas disponible.
+        'fallback_model' => getenv('OLLAMA_FALLBACK_MODEL') ?: 'gpt-oss:120b-cloud',
         // Timeout reseau (secondes) pour eviter les requetes bloquantes.
         'connect_timeout' => (int) (getenv('OLLAMA_CONNECT_TIMEOUT') ?: 5),
         'timeout' => (int) (getenv('OLLAMA_TIMEOUT') ?: 90),
+        'tags_timeout' => (int) (getenv('OLLAMA_TAGS_TIMEOUT') ?: 3),
         // Limite de prompt MVP pour controler cout/latence.
         'max_prompt_chars' => (int) (getenv('OLLAMA_MAX_PROMPT_CHARS') ?: 4000),
     ],
