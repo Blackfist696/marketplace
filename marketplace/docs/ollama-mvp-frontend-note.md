@@ -1,7 +1,7 @@
 # Note frontend - Integration MVP Ollama
 
-Date: 2026-06-05
-Contexte: un endpoint backend MVP est disponible pour proxy vers Ollama.
+Date: 2026-06-10
+Contexte: un endpoint backend MVP est disponible pour proxy vers Ollama et est maintenant branché à l’interface frontend.
 
 ## Endpoint backend a consommer
 
@@ -18,6 +18,8 @@ Payload minimum:
 }
 ```
 
+Le backend accepte aussi un payload JSON brut avec le champ `prompt` en `php://input`.
+
 Reponse succes (HTTP 200):
 
 ```json
@@ -26,7 +28,7 @@ Reponse succes (HTTP 200):
   "message": "Reponse AI",
   "data": {
     "reply": "...texte du modele...",
-    "model": "mistral",
+    "model": "gpt-oss:120b-cloud",
     "correlation_id": "..."
   }
 }
@@ -35,7 +37,7 @@ Reponse succes (HTTP 200):
 Erreurs possibles:
 - 400: prompt absent ou trop long
 - 401: utilisateur non authentifie
-- 502: echec upstream Ollama / reponse invalide
+- 502: echec upstream Ollama / reponse invalide / erreur renvoyee par le modele
 - 500: indisponibilite technique cote backend
 
 ## Exemple Angular (service)
@@ -55,7 +57,8 @@ Notes:
 
 - Reponse non-stream (une seule reponse complete).
 - Un seul message utilisateur par requete (pas de conversation persistante).
-- Modele force cote backend (`mistral` par defaut).
+- Modele principal et modele de secours configures cote backend (`gpt-oss:120b-cloud` par defaut, avec fallback configurable).
+- Le backend interroge aussi l’endpoint `/api/tags` d’Ollama pour choisir un modele disponible si possible.
 
 ## Evolutions prevues (post-MVP)
 
