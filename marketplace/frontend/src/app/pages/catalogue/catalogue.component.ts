@@ -4,12 +4,13 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card.component';
+import { AiAssistantComponent } from '../../shared/ai-assistant/ai-assistant.component';
 import { Produit, Categorie } from '../../core/models/models';
 
 @Component({
   selector: 'app-catalogue',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ProductCardComponent],
+  imports: [CommonModule, RouterLink, FormsModule, ProductCardComponent, AiAssistantComponent],
   template: `
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- Breadcrumb -->
@@ -79,6 +80,12 @@ import { Produit, Categorie } from '../../core/models/models';
               <span class="text-sm text-gray-500">{{ filtered().length }} produits</span>
             </div>
           </div>
+
+          <app-ai-assistant
+            title="Conseiller IA du catalogue"
+            subtitle="Demandez un résumé, un conseil ou un comparatif sur les produits du moment."
+            class="block mb-8"
+          />
 
           @if (loading()) {
             <div class="grid grid-cols-2 lg:grid-cols-3 gap-6">

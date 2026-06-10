@@ -9,12 +9,13 @@ import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { getProductImageSrc } from '../../core/utils/image-path';
 import { ProductCardComponent } from '../../shared/product-card/product-card.component';
+import { AiAssistantComponent } from '../../shared/ai-assistant/ai-assistant.component';
 import { Produit, Avis } from '../../core/models/models';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, ProductCardComponent],
+  imports: [CommonModule, RouterLink, ProductCardComponent, AiAssistantComponent],
   template: `
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- Breadcrumb -->
@@ -76,6 +77,13 @@ import { Produit, Avis } from '../../core/models/models';
             }
           </div>
         </div>
+
+        <app-ai-assistant
+          [product]="produit()"
+          title="Conseiller IA pour ce produit"
+          subtitle="Posez une question sur ce produit, ses avantages ou son usage."
+          class="mb-10"
+        />
 
         <!-- Tabs -->
         <div class="mb-16">
