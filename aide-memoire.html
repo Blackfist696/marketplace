@@ -128,6 +128,17 @@
     <div class="highlight" style="margin-top:16px;">
       <strong>Principe SPA :</strong> Angular charge <em>une seule fois</em> dans le navigateur. La navigation entre pages ne recharge pas le serveur — seules les requêtes API (GET/POST…) partent vers le backend PHP.
     </div>
+    <div class="tip" style="margin-top:14px;">
+      <strong>État réel du dépôt :</strong> le frontend Angular est maintenant compilé vers <code>marketplace/public/app</code> pour être servi par le front controller PHP en production ; le backend Slim expose les routes principales dans <code>marketplace/app/config/routes.php</code> ; les scripts SQL sont conservés dans <code>marketplace/sql/</code>.
+    </div>
+    <div class="purple-box" style="margin-top:12px;">
+      <strong>Arborescence fonctionnelle du projet</strong><br>
+      <code>marketplace/frontend/</code> = SPA Angular + routes + pages métier<br>
+      <code>marketplace/app/</code> = contrôleurs, modèles, middlewares, sécurité<br>
+      <code>marketplace/public/</code> = point d'entrée HTTP + assets build Angular<br>
+      <code>marketplace/sql/</code> = schéma, seed, scripts de migration<br>
+      <code>marketplace/test/</code> = vérifications et checklist API
+    </div>
   </section>
 
   <!-- 2. FICHIERS ANGULAR -->
@@ -271,6 +282,18 @@
           <td>Endpoints <code>/api/auth/login</code>, <code>/api/auth/logout</code>, <code>/api/auth/me</code>, <code>/api/auth/register</code>. Crée/détruit la session PHP.</td>
         </tr>
         <tr>
+          <td><code>app/controllers/StatistiqueArtisanController.php</code><span class="path">app/controllers/StatistiqueArtisanController.php</span></td>
+          <td>Enregistre et récupère les consultations produits pour les artisans. Expose <code>/api/statistiques-artisans</code> et <code>/api/artisan/consultations</code>.</td>
+        </tr>
+        <tr>
+          <td><code>app/controllers/UserAddressController.php</code><span class="path">app/controllers/UserAddressController.php</span></td>
+          <td>Gère le CRUD des adresses utilisateurs et leur type d'adresse, utilisé par le profil et l'administration.</td>
+        </tr>
+        <tr>
+          <td><code>app/controllers/AiController.php</code><span class="path">app/controllers/AiController.php</span></td>
+          <td>Proxy MVP de chat IA vers Ollama local, protégé par authentification pour limiter l'abus.</td>
+        </tr>
+        <tr>
           <td><code>app/controllers/ProductController.php</code><span class="path">app/controllers/ProductController.php</span></td>
           <td>CRUD des produits. Lecture publique, écriture réservée aux artisans/admins via middleware de rôle.</td>
         </tr>
@@ -318,6 +341,10 @@
   <section id="flux">
     <h2>4. Flux complet : d'un clic à un résultat</h2>
     <h3>Exemple : l'utilisateur clique "Ajouter au panier" sur un produit</h3>
+    <div class="purple-box" style="margin-bottom:16px;">
+      <strong>Diagramme réel de bout en bout</strong><br>
+      <code>frontend/src/app/pages/product-detail/</code> → <code>POST /api/statistiques-artisans</code> → <code>app/controllers/StatistiqueArtisanController.php</code> → <code>app/models/StatistiqueArtisanModel.php</code> → <code>MariaDB</code> → <code>frontend/src/app/pages/artisan/stats/</code>
+    </div>
     <div class="flow">
       <div class="flow-step">
         <div class="num">1</div>
