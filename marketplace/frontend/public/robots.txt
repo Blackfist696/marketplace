@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: /project02/public/app/sitemap.xml
+Sitemap: https://bacinfo.eci-liege.info/project02/public/app/sitemap.xml

@@ -11,10 +11,10 @@ return [
     'host' => getenv('DB_HOST') ?: '127.0.0.1',
     'port' => (int) (getenv('DB_PORT') ?: 3306),
     // Credentials: toujours privilegier les variables d'environnement en production.
-    'user' => getenv('DB_USER') ?: 'root',
-    'password' => getenv('DB_PASS') ?: '',
+    'user' => getenv('DB_USER') ?: 'project02@bacinfo.eci-liege.info',
+    'password' => getenv('DB_PASS') ?: 'Project02@4598783',
     // Nom de schema et charset utilises pour construire le DSN PDO.
-    'name' => getenv('DB_NAME') ?: 'marketplace_artisanal',
+    'name' => getenv('DB_NAME') ?: 'project02',
     'charset' => getenv('DB_CHARSET') ?: 'utf8mb4'
 ];
 

@@ -178,12 +178,12 @@ export default {
 ],
   entryPointToBrowserMapping: undefined,
   assets: {
-    'index.csr.html': {size: 17018, hash: 'd2d1d7191e9831044a2f247bc7da8c4d5581ee4b6c4b7c6a59108d4fcee102c1', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
-    'index.server.html': {size: 2857, hash: '86b31b23e93956cb8bec43dd2da5cb2258a83f585d4b17abb6b13506703db22f', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
-    'project02/public/app/login/index.html': {size: 31963, hash: 'c4b4b62387e4a509e038a93b669e93562efaf99050ee59f8f1b2a9132ec06116', text: () => import('./assets-chunks/project02_public_app_login_index_html.mjs').then(m => m.default)},
-    'project02/public/app/home/index.html': {size: 34918, hash: 'bab79063586f902fd0b774535a83c192b5de8d9d63d7cfba9b34cef38a86d712', text: () => import('./assets-chunks/project02_public_app_home_index_html.mjs').then(m => m.default)},
-    'project02/public/app/register/index.html': {size: 33226, hash: 'eaa2a7896e1ced75105536d5c32af267b54354fd67f8e8b36d72e14a3082e374', text: () => import('./assets-chunks/project02_public_app_register_index_html.mjs').then(m => m.default)},
-    'project02/public/app/catalogue/index.html': {size: 42865, hash: 'ac7eee84df13e88e357cfc69c87be5573684c0a33e532ef3d7e2ea498f5f440b', text: () => import('./assets-chunks/project02_public_app_catalogue_index_html.mjs').then(m => m.default)},
+    'index.csr.html': {size: 17135, hash: '0e4ea408c9107c611642d2016283c8735b4fe7635d0eedc1d2df83171cc49fa1', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
+    'index.server.html': {size: 2974, hash: '66f3e45854bbc2c329b8dcc0ccd1dc60bdc623c6a813ac98231e7e43805c8f58', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
+    'project02/public/app/home/index.html': {size: 34940, hash: '9f6e0f8d414bc14d18e6f73051e69ade730b25d11cf0ebdfefdd490334d6202c', text: () => import('./assets-chunks/project02_public_app_home_index_html.mjs').then(m => m.default)},
+    'project02/public/app/login/index.html': {size: 31985, hash: '9bcd996d621f025aae42bde4d2cde537ddc73ab62dd98be4ba55bd107641d6c1', text: () => import('./assets-chunks/project02_public_app_login_index_html.mjs').then(m => m.default)},
+    'project02/public/app/register/index.html': {size: 33248, hash: '1c029e6c1fafd20d6f17a5a286f17af054ca15b3eb2d75b97aa8f64e92597801', text: () => import('./assets-chunks/project02_public_app_register_index_html.mjs').then(m => m.default)},
+    'project02/public/app/catalogue/index.html': {size: 42887, hash: '8603d5925d6700af5cf30791e8f894dc653dce4e7f88f27dd9a5d2a008dcc44b', text: () => import('./assets-chunks/project02_public_app_catalogue_index_html.mjs').then(m => m.default)},
     'styles-NOOEMPK7.css': {size: 51466, hash: 'uD8P+Wi1D+4', text: () => import('./assets-chunks/styles-NOOEMPK7_css.mjs').then(m => m.default)}
   },
 };
