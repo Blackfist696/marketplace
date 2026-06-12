@@ -5,7 +5,10 @@ namespace App\Core;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Utilitaire de reponse JSON normalisee pour les controleurs/middlewares.
+ * Utilitaire de réponse JSON normalisée pour les contrôleurs et middlewares.
+ *
+ * Il fournit un point unique pour produire des réponses homogènes, avec un
+ * format stable exploitable par le frontend et les clients API.
  */
 final class JsonResponder
 {

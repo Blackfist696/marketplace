@@ -10,10 +10,11 @@ use InvalidArgumentException;
 require_once __DIR__ . '/Database.php';
 
 /**
- * Base model providing generic CRUD operations and validation support.
+ * Modèle de base fournissant les opérations CRUD génériques et le support de validation.
  *
- * Les classes enfants définissent le nom de la table, la clé primaire,
- * les champs autorisés et le validateur optionnel.
+ * Les classes filles définissent la table concernée, la clé primaire, les champs
+ * autorisés et le validateur associé. Cette abstraction évite de dupliquer la
+ * logique SQL et la gestion des entrées dans chaque modèle métier.
  */
 abstract class Model
 {

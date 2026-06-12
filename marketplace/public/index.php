@@ -2,7 +2,13 @@
 
 /**
  * Front controller unique du backend.
- * Charge l'application Slim bootstrappee puis execute la requete courante.
+ *
+ * Ce script agit comme passerelle entre le serveur web et l'application Slim.
+ * Son rôle est de :
+ * 1. récupérer la requête HTTP entrante,
+ * 2. servir directement les fichiers statiques quand ils existent,
+ * 3. rediriger les routes frontend vers l'interface SPA si nécessaire,
+ * 4. initialiser le bootstrap backend et déléguer le traitement au framework.
  */
 
 $requestMethod = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));

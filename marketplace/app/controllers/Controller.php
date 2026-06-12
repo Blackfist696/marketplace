@@ -7,7 +7,11 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\Psr7\Response;
 
 /**
- * Base controller permettant de renvoyer des réponses JSON standardisées.
+ * Classe de base commune à tous les contrôleurs.
+ *
+ * Elle centralise la lecture des données entrantes, la production de réponses
+ * JSON cohérentes et la journalisation des erreurs HTTP afin d’uniformiser le
+ * comportement de toutes les actions du backend.
  */
 abstract class Controller
 {
