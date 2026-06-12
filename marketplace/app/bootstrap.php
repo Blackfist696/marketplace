@@ -1,11 +1,15 @@
 <?php
 
 /**
- * Point de composition du backend:
- * - creation de l'app Slim,
- * - branchement des middlewares,
- * - gestionnaire d'erreurs global,
- * - enregistrement des routes.
+ * Point de composition du backend.
+ *
+ * Ce fichier centralise la construction de l'application Slim :
+ * - création du conteneur et de l'objet applicatif,
+ * - configuration des middlewares globaux,
+ * - définition du gestionnaire d'erreurs central,
+ * - chargement et enregistrement du registre de routes.
+ *
+ * Il sert de zone de montage unique pour l'ensemble du pipeline HTTP.
  */
 
 use App\Core\BasePathResolver;

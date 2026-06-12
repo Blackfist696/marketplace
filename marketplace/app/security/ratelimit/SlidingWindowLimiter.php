@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Composant de sécurité du backend. Il encapsule les mécanismes de protection et d’authentification autour des routes sensibles.
+ */
+
 namespace App\Security\RateLimit;
 
 final class SlidingWindowLimiter

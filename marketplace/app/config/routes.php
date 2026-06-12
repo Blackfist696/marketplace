@@ -3,8 +3,10 @@
 /**
  * Registre central des routes HTTP du backend.
  *
- * Chaque endpoint est associe a un handler Controller@action et, si besoin,
- * a une pile de middlewares (auth, role, rate-limit).
+ * Chaque endpoint est associé à un handler de type Controller@action et, si besoin,
+ * à une pile de middlewares (authentification, rôles, validation de requête,
+ * limitation de requêtes). Ce fichier constitue la carte des API et des pages
+ * backend du projet.
  */
 
 use App\Core\ControllerActionInvoker;

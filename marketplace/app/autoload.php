@@ -3,8 +3,9 @@
 /**
  * Charge automatiquement les classes du namespace App\.
  *
- * Ce fichier sert de fallback local d'autoload et conserve une compatibilite
- * avec la convention historique des modeles nommes *Model.php.
+ * Ce fichier sert de fallback local d'autoload et conserve une compatibilité
+ * avec la convention historique des modèles nommés *Model.php. Il permet au
+ * framework et aux contrôleurs de charger les classes sans import explicite.
  */
 
 $composerAutoload = __DIR__ . '/../vendor/autoload.php';

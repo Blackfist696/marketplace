@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * Contrôleur backend pour la logique métier liée à ordercontroller. Le fichier regroupe les actions HTTP associées à cette ressource.
+ */
 namespace App\Controllers;
 
 require_once __DIR__ . '/Controller.php';
