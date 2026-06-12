@@ -255,6 +255,78 @@
     </section>
 
     <section class="card">
+      <h2>Flux IA Ollama : de l'utilisateur au modele puis au frontend</h2>
+      <p>Ce parcours explique en langage simple ce qu'il se passe lorsqu'une question est envoyee a l'IA depuis le marketplace.</p>
+      <div class="steps">
+        <article class="step">
+          <strong>1. L'utilisateur saisit une demande</strong>
+          <span class="mono">Ex: "Donne-moi un résumé du produit #42"</span>
+        </article>
+        <article class="step">
+          <strong>2. Le frontend envoie la demande</strong>
+          <span class="mono">POST /project02/api/ai/chat</span>
+        </article>
+        <article class="step">
+          <strong>3. Le backend valide et securise</strong>
+          <span class="mono">prompt present, taille limite, auth requise</span>
+        </article>
+        <article class="step">
+          <strong>4. Le backend contacte Ollama</strong>
+          <span class="mono">appel HTTP vers /api/chat avec JSON</span>
+        </article>
+        <article class="step">
+          <strong>5. Ollama genere la reponse</strong>
+          <span class="mono">texte complet, modele choisi</span>
+        </article>
+        <article class="step">
+          <strong>6. Le frontend affiche la reponse</strong>
+          <span class="mono">res.data.reply</span>
+        </article>
+      </div>
+      <p class="scenario">Version simplifiee : le frontend pose une question, le backend sert d'intermediaire, Ollama produit une reponse, puis cette reponse revient vers l'interface utilisateur.</p>
+      <div class="scenario-ok">
+        <p><strong>Extrait de code frontend</strong></p>
+        <pre class="mono" style="white-space: pre-wrap;">askAi(prompt: string) {
+  return this.http.post<any>(`${this.base}/api/ai/chat`, { prompt }, { withCredentials: true });
+}</pre>
+        <p><strong>Extrait de code backend</strong></p>
+        <pre class="mono" style="white-space: pre-wrap;">$payload = [
+    'model' => $selectedModel,
+    'messages' => [
+        ['role' => 'user', 'content' => $prompt],
+    ],
+    'stream' => false,
+];</pre>
+        <p><strong>Reponse renvoyee au frontend</strong></p>
+        <pre class="mono" style="white-space: pre-wrap;">{
+  "status": 200,
+  "message": "Reponse AI",
+  "data": {
+    "reply": "...",
+    "model": "mistral",
+    "correlation_id": "..."
+  }
+}</pre>
+      </div>
+      <p><strong>Pourquoi ce chemin existe :</strong> le backend verifie la demande, protege l'application contre les erreurs ou abuses, puis transmet la requete au bon service IA. Le frontend n'interagit pas directement avec Ollama; il passe toujours par le backend.</p>
+      <p><strong>Erreurs possibles :</strong> 400 si le prompt est absent ou trop long, 401 si l'utilisateur n'est pas authentifie, 502 si Ollama echoue ou renvoie une reponse invalide, 500 si un probleme technique survient cote backend.</p>
+    </section>
+
+    <section class="card">
+      <h2>Securite appliquee autour du flux IA et des donnees</h2>
+      <p>Cette documentation s'appuie aussi sur les protections de securite SQL et de validation de donnees.</p>
+      <ul>
+        <li><strong>Validation stricte</strong> : les champs obligatoires, numeriques ou au bon format sont controles avant ecriture.</li>
+        <li><strong>Whitelist des champs</strong> : seuls les champs autorises du modele sont pris en compte.</li>
+        <li><strong>Requetes preparees</strong> : la requete SQL et les valeurs sont envoyees separement via PDO.</li>
+        <li><strong>Nettoyage des donnees</strong> : les valeurs entrantes sont sanitisees avant traitement.</li>
+        <li><strong>Gestion d'erreurs controlee</strong> : les erreurs sont renvoyees sous forme propre et ne sont pas exposees brutement.</li>
+      </ul>
+      <p>Cette logique est essentielle pour garantir que les donnees issue de l'interface ou de l'IA ne deviennent pas une source d'injection ou d'exploitation non voulue.</p>
+      <p>Documentation complementaire disponible dans <span class="mono">docs/ollama-ia-interaction.md</span> et <span class="mono">docs/securite-injections-sql.html</span>.</p>
+    </section>
+
+    <section class="card">
       <h2>Exemple de flux recent : consultation produit</h2>
       <div class="scenario-ok">
         <p><strong>Scenario:</strong> ouverture d'un produit depuis la page detail.</p>
