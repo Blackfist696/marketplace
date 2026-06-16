@@ -1,9 +1,3 @@
 {
-  "routes": {
-    "/project02/public/app": {},
-    "/project02/public/app/catalogue": {},
-    "/project02/public/app/home": {},
-    "/project02/public/app/login": {},
-    "/project02/public/app/register": {}
-  }
+  "routes": {}
 }

@@ -1,5 +1,24 @@
 # Cahier de référence SEO et prerendering – Marketplace
 
+> **Mise à jour — 16 juin 2026 : implémentation SSR révertée**
+>
+> L'implémentation Angular SSR (prerendering + serveur Node/Express) ajoutée le 10 juin 2026 a été annulée. La gestion du SEO est désormais sous la responsabilité de ramyxx.
+>
+> **Ce qui a été retiré :**
+> - `angular.json` : suppression des entrées `server`, `outputMode`, `ssr`
+> - `tsconfig.app.json` : retour à `"types": []`, exclusion des fichiers serveur
+> - `app.config.ts` : suppression de `provideClientHydration`
+> - `home.component.ts` et `catalogue.component.ts` : suppression des guards `isPlatformServer`
+>
+> **Ce qui reste en place :**
+> - `frontend/public/robots.txt` et `frontend/public/sitemap.xml`
+> - Métadonnées dynamiques par route dans `app.ts` (titre, description, Open Graph, canonical)
+> - Le build produit uniquement un bundle navigateur dans `public/app/browser/`
+>
+> Le document ci-dessous décrit l'ancienne implémentation SSR à titre de référence technique.
+
+---
+
 ## 1. Objectif du document
 
 Ce document décrit de façon claire et structurée toutes les modifications réalisées pour améliorer le référencement naturel (SEO) de la partie publique du projet Marketplace, ainsi que l’ajout du prerendering (génération HTML statique au moment du build).

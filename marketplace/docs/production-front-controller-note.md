@@ -63,9 +63,11 @@ RewriteRule ^ index.php [QSA,L]
 
 Le frontend Angular est produit dans le dossier `public/app` et doit etre copie dans le dossier de production correspondant au point d'entree PHP.
 
+> **Note — 16 juin 2026 :** le SSR (Angular Universal / Node Express) a ete retire. Le build produit uniquement un bundle navigateur. Il n'y a **plus** de dossier `server/` a deployer. Seul le contenu de `public/app/browser/` est necessaire.
+
 En pratique :
 1. Generer le build Angular avec `npm run build` depuis `frontend/`.
-2. Copier le contenu de `public/app` vers le dossier equivalent sur le serveur de production.
+2. Copier le contenu de `public/app/browser/` vers le dossier equivalent sur le serveur de production.
 3. S'assurer que le backend PHP continue d'etre servi par `public/index.php` et que la base path `/project02` est preservee.
 
 ## Verification rapide post-deploiement
