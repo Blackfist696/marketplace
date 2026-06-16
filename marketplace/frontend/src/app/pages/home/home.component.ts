@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
-import { CommonModule, isPlatformServer } from '@angular/common';
+import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { ArtisanService } from '../../core/services/artisan.service';
@@ -97,15 +97,9 @@ export class HomeComponent implements OnInit {
   constructor(
     private productSvc: ProductService,
     private artisanSvc: ArtisanService,
-    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   ngOnInit() {
-    if (isPlatformServer(this.platformId)) {
-      this.loading.set(false);
-      return;
-    }
-
     this.productSvc.getAll().subscribe(products => {
       this.featured.set(products.filter(p => p.mis_en_avant && p.actif).slice(0, 6));
       this.loading.set(false);

@@ -720,7 +720,9 @@ Exemple URL complete locale:
 ### 5.4 Artisan
 
 - GET /project02/artisan/products
+- GET /project02/artisan/orders
 - GET /project02/artisan/stats
+- GET /project02/artisan/dashboard
 - POST /project02/products
 - PUT /project02/products/{id}
 - DELETE /project02/products/{id}
@@ -739,6 +741,9 @@ Exemple URL complete locale:
 - GET /project02/admin/products
 - PUT /project02/admin/products/{id}
 - DELETE /project02/admin/products/{id}
+- GET /project02/admin/orders
+- GET /project02/admin/orders/{id}
+- PUT /project02/admin/orders/{id}
 - GET /project02/admin/stats
 
 ### 5.6 API referentiels
@@ -1029,6 +1034,20 @@ Exemple: POST /project02/api/avis
 - APP_LOG_MAX_BYTES doit etre ajuste selon la charge.
 - Les scripts setup clone sont destructifs: a reserver a un environnement maitrise.
 - Les logs app/logs doivent etre exclus des sauvegardes de code source et monitorés.
+
+### 12.1 Vulnerabilites identifiees lors de l'audit (16 juin 2026) — a corriger
+
+| Priorite | Fichier | Probleme |
+|---|---|---|
+| Critique | `AdminController.php` ~339, 369, 384 | Mass assignment : `updateRecord($id, $_POST)` sans whitelist manuelle par contexte |
+| Critique | `LigneCommandeController.php` ~100, 126 | Idem : `createRecord($_POST)` permet de forcer `prix_unitaire_ht`, `id_commande` |
+| Critique | `AdminController.php` ~574, `ProductController.php`, `OrderController.php` | Comparaisons de role faibles `!=` et `==` au lieu de `!==` et `===` (type juggling PHP) |
+| Haute | `AvisController.php` | Verifier que `id_utilisateur` est force depuis la session, jamais du POST |
+| Moyenne | `AiController.php` | Messages d'erreur Ollama exposes verbatim au client (information disclosure) |
+| Moyenne | `/api/ai/chat` | Pas de rate limiting sur l'endpoint IA pour les utilisateurs authentifies |
+| Config | `app/config/app.php` | `cookie_secure` vaut `0` par defaut — forcer `SESSION_COOKIE_SECURE=1` en production |
+
+Voir le detail complet dans [securite-injections-sql.md](securite-injections-sql.md).
 
 ## 13. Fichiers pivots a connaitre
 

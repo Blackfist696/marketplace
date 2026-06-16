@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit, PLATFORM_ID, signal, computed } from '@angular/core';
-import { CommonModule, isPlatformServer } from '@angular/common';
+import { Component, OnInit, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
@@ -20,8 +20,52 @@ import { Produit, Categorie } from '../../core/models/models';
         <span class="text-gray-900 font-medium">Catalogue</span>
       </nav>
 
+      <!-- Filtres mobile (visible uniquement < lg) -->
+      <div class="lg:hidden mb-4">
+        <button (click)="showMobileFilters.set(!showMobileFilters())"
+                class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium w-full justify-between">
+          <span>🔧 Filtres{{ activeFilterCount() > 0 ? ' (' + activeFilterCount() + ')' : '' }}</span>
+          <span>{{ showMobileFilters() ? '▲' : '▼' }}</span>
+        </button>
+
+        @if (showMobileFilters()) {
+          <div class="mt-2 border border-gray-200 rounded-lg p-4 bg-white space-y-4">
+            <!-- Catégorie -->
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase mb-2">Catégorie</p>
+              <div class="grid grid-cols-2 gap-1">
+                <button (click)="selectedCategory.set(''); page.set(1)"
+                        [class]="selectedCategory() === '' ? 'px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500 text-white' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200'">
+                  Toutes
+                </button>
+                @for (cat of categories(); track cat.id_categorie) {
+                  <button (click)="selectedCategory.set(cat.nom); page.set(1)"
+                          [class]="selectedCategory() === cat.nom ? 'px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500 text-white' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200'">
+                    {{ cat.nom | titlecase }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Prix -->
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase mb-2">Prix max : {{ maxPrice() }} €</p>
+              <input type="range" min="0" max="200" step="5"
+                     [ngModel]="maxPrice()"
+                     (ngModelChange)="maxPrice.set($event); page.set(1)"
+                     class="w-full" />
+            </div>
+
+            <button (click)="resetFilters(); showMobileFilters.set(false)"
+                    class="text-xs text-amber-600 hover:underline w-full text-left">
+              Réinitialiser
+            </button>
+          </div>
+        }
+      </div>
+
       <div class="flex gap-8">
-        <!-- Sidebar -->
+        <!-- Sidebar desktop -->
         <aside class="hidden lg:block w-56 shrink-0">
           <div class="card p-5 sticky top-24">
             <h2 class="font-semibold mb-4">Filtrer</h2>
@@ -130,14 +174,15 @@ import { Produit, Categorie } from '../../core/models/models';
   `,
 })
 export class CatalogueComponent implements OnInit {
-  all              = signal<Produit[]>([]);
-  categories       = signal<Categorie[]>([]);
-  loading          = signal(true);
-  page             = signal(1);
-  search           = signal('');
-  selectedCategory = signal('');
-  maxPrice         = signal(200);
-  sortBy           = signal('default');
+  all               = signal<Produit[]>([]);
+  categories        = signal<Categorie[]>([]);
+  loading           = signal(true);
+  page              = signal(1);
+  search            = signal('');
+  selectedCategory  = signal('');
+  maxPrice          = signal(200);
+  sortBy            = signal('default');
+  showMobileFilters = signal(false);
   readonly PER_PAGE = 9;
 
   filtered = computed(() => {
@@ -157,6 +202,14 @@ export class CatalogueComponent implements OnInit {
     return result;
   });
 
+  activeFilterCount = computed(() => {
+    let count = 0;
+    if (this.selectedCategory() !== '') count++;
+    if (this.maxPrice() < 200) count++;
+    if (this.search() !== '') count++;
+    return count;
+  });
+
   totalPages = computed(() => Math.max(1, Math.ceil(this.filtered().length / this.PER_PAGE)));
   paginated  = computed(() => this.filtered().slice((this.page() - 1) * this.PER_PAGE, this.page() * this.PER_PAGE));
   pageRange  = computed(() => Array.from({ length: Math.min(this.totalPages(), 5) }, (_, i) => i + 1));
@@ -164,18 +217,12 @@ export class CatalogueComponent implements OnInit {
   constructor(
     private productSvc: ProductService,
     private route: ActivatedRoute,
-    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   ngOnInit() {
     this.route.queryParams.subscribe(p => {
       if (p['category']) this.selectedCategory.set(p['category']);
     });
-
-    if (isPlatformServer(this.platformId)) {
-      this.loading.set(false);
-      return;
-    }
 
     this.productSvc.getCategories().subscribe(cats => this.categories.set(cats));
     this.productSvc.getAll().subscribe(ps => { this.all.set(ps); this.loading.set(false); });

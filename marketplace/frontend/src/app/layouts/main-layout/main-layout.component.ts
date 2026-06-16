@@ -68,7 +68,7 @@ import { CartService } from '../../core/services/cart.service';
     <footer class="bg-gray-900 text-gray-400 py-10 mt-16">
       <div class="max-w-7xl mx-auto px-4 text-center text-sm">
         <p class="font-serif text-white text-lg mb-2">Artizanat</p>
-        <p>© 2025 — Marketplace artisanal belge</p>
+        <p>© 2026 — Marketplace artisanal belge</p>
       </div>
     </footer>
   `,

@@ -341,3 +341,73 @@ Pour garder ce niveau de sécurité, il est recommandé de :
 - auditer régulièrement les nouveaux contrôleurs et modèles.
 
 Une version HTML plus graphique est disponible dans [securite-injections-sql.html](securite-injections-sql.html).
+
+---
+
+## Audit de sécurité — 16 juin 2026
+
+Un audit complet a été réalisé sur l'ensemble du projet. Voici les points identifiés et leur statut.
+
+### Points bien protégés
+
+| Vecteur | Mécanisme | Statut |
+|---|---|---|
+| Injection SQL | PDO + prepared statements + whitelist `$fields` | Protégé |
+| XSS en sortie | Angular `{{ }}` auto-échappe, aucun `innerHTML` dangereux | Protégé |
+| XSS en entrée | `sanitizeValue()` : `strip_tags()` + `trim()` | Protégé |
+| CSRF | `CsrfMiddleware` valide le token sur mutations authentifiées | Protégé |
+| Brute force login | `SlidingWindowLimiter` (5 tentatives / 5 min) | Protégé |
+| Mots de passe | Bcrypt via `password_verify()` | Protégé |
+| Session fixation | `regenerateId()` au login et logout | Protégé |
+
+### Vulnérabilités à corriger
+
+#### 1. Mass assignment via `$_POST` direct (Critique)
+
+**Où :** `app/controllers/AdminController.php` (~lignes 339, 369, 384) et `app/controllers/LigneCommandeController.php` (~lignes 100, 126)
+
+**Problème :** `Produit::updateRecord($id, $_POST)` passe tout le corps de la requête directement au modèle. Un attaquant admin peut envoyer des champs non prévus (`id_artisan`, `actif`, etc.) qui, s'ils figurent dans `$fields`, seront écrits en base.
+
+**Fix attendu :** extraire manuellement uniquement les champs autorisés par contexte, comme le fait déjà `buildModelPayload()` dans `updateUser()`.
+
+#### 2. Comparaisons de rôle faibles `!=` au lieu de `!==` (Critique)
+
+**Où :** `app/controllers/AdminController.php` (~ligne 574), `app/controllers/ProductController.php`, `app/controllers/OrderController.php`
+
+**Problème :** PHP type juggling — `true != 1` vaut `false`, ce qui pourrait traiter une session corrompue contenant `true` comme un rôle admin.
+
+**Fix attendu :** remplacer `!=` par `!==` et `==` par `===` partout sur les comparaisons de rôle.
+
+#### 3. AvisController — modification cross-utilisateur (Haute)
+
+**Où :** `app/controllers/AvisController.php`
+
+**Problème :** vérifier que `id_utilisateur` ne peut pas être forcé dans le payload lors d'un PUT. Si non exclu, un client peut revendiquer l'avis d'un autre.
+
+**Fix attendu :** forcer `id_utilisateur` à la valeur de la session, jamais du POST.
+
+#### 4. Cookie de session sans flag `Secure` par défaut (Moyenne)
+
+**Où :** `app/config/app.php`
+
+**Problème :** `cookie_secure` vaut `0` par défaut. Sans ce flag, le cookie de session peut transiter sur HTTP non chiffré (Man-in-the-Middle sur Wi-Fi partagé).
+
+**Fix attendu :** définir `SESSION_COOKIE_SECURE=1` sur le serveur de production (variable d'environnement, pas de changement de code).
+
+#### 5. Erreurs du service IA exposées au client (Moyenne)
+
+**Où :** `app/controllers/AiController.php`
+
+**Problème :** `$this->respond(502, 'Le service AI a retourné une erreur: ' . $decoded['error'])` expose les messages internes d'Ollama (chemins, stack, config).
+
+**Fix attendu :** remplacer par un message générique : `"Le service IA est temporairement indisponible."`.
+
+#### 6. Pas de rate limiting sur `/api/ai/chat` (Moyenne)
+
+**Problème :** un utilisateur authentifié peut spammer l'endpoint IA sans limite. Risque de déni de service.
+
+**Fix attendu :** appliquer un `SlidingWindowLimiter` sur cet endpoint (ex. 10 req/min par utilisateur).
+
+#### 7. Credentials en dur dans le code (Rappel critique)
+
+`app/config/databaseConfig.server.php` contient les credentials de production (`user: project02`, `password: Project02@4598783`). Ce fichier est **non committé** et doit le rester absolument. L'idéal à terme est de passer par `getenv()` avec des variables d'environnement serveur.

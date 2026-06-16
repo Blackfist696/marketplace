@@ -3,18 +3,38 @@
 Date: 2026-06-10
 Contexte: architecture SPA + API avec front servi sous /project02/public/app en production (contrainte hebergeur).
 
-## Mise à jour 2026-06-10 — statut réel
+## Mise à jour 2026-06-16 — SSR réverté, SEO repris par ramyxx
+
+L’implémentation SSR/prerendering Angular ajoutée le 10 juin 2026 a été annulée. La gestion du SEO est désormais portée par ramyxx.
+
+### Ce qui a été retiré
+- prerendering Angular (SSR, serveur Node/Express) ;
+- guards `isPlatformServer` dans home et catalogue.
+
+### Ce qui reste livré
+- métadonnées SEO par route : title, description, canonical, Open Graph et Twitter Card (`app.ts`) ;
+- fichiers de référencement de base : `robots.txt` et `sitemap.xml` ;
+- build SPA standard produit dans `public/app/browser/`.
+
+### Statut des phases
+- Phase 1 (métadonnées + robots.txt + sitemap.xml) : **livré et maintenu**.
+- Phase 2 (JSON-LD, Open Graph) : **livré via `app.ts`**.
+- Phase 3 (SSR/prerender) : **revenu à la phase planification** — à ré-implémenter par ramyxx selon l’approche choisie.
+
+---
+
+## Mise à jour 2026-06-10 — statut initial (référence historique)
 
 Le plan SEO a été mis en œuvre de façon concrète sur la branche courante.
 
-### Ce qui est maintenant livré
+### Ce qui était livré
 - métadonnées SEO par route : title, description, canonical, Open Graph et Twitter Card ;
 - prerendering Angular des routes publiques principales : accueil, catalogue, connexion, inscription ;
 - fichiers de référencement de base : robots.txt et sitemap.xml ;
 - protection des composants au moment du build SSR afin d’éviter les erreurs de rendu ;
 - génération HTML statique validée via la commande de build, avec sortie dans [public/app](../public/app).
 
-### Impact fonctionnel
+### Impact fonctionnel (à l’époque)
 - les pages publiques sont plus lisibles par les moteurs de recherche ;
 - les parcours métier privés restent conservés en SPA ;
 - les pages dynamiques sensibles (produits, boutiques, panier, admin) restent traitées de façon adaptée pour éviter les rendus cassés.
