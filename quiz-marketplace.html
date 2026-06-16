@@ -427,6 +427,63 @@
 <div class="expl"><strong>Réponse : D.</strong> Ex : avant d'insérer un produit, <code>ProductController</code> appelle <code>ProduitValidator::validate($data)</code> qui vérifie que <code>nom</code>, <code>prix_ht</code>, <code>stock</code> sont présents et valides. Si non → exception <code>ValidationException</code> → réponse 422 avec les erreurs. Pourquoi séparer ? Le modèle ne fait que du SQL — la validation est une responsabilité distincte (SRP).</div>
 </div>
 
+<h2>G. Sécurité avancée & fonctionnalités récentes</h2>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">33</span> Comment Angular protège-t-il contre les attaques XSS en sortie ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">En encodant manuellement chaque valeur affichée avec encodeURIComponent()</button>
+<button class="opt-btn" data-i="1">En échappant automatiquement les caractères dangereux dans {{ }} et les liaisons [attr]</button>
+<button class="opt-btn" data-i="2">En bloquant toutes les requêtes dont le corps contient du HTML</button>
+<button class="opt-btn" data-i="3">En utilisant Content Security Policy configurée dans angular.json</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Angular convertit automatiquement les caractères <code>&lt;</code>, <code>&gt;</code>, <code>"</code>, <code>'</code>, <code>&amp;</code> en entités HTML avant toute insertion dans le DOM via <code>{{ }}</code>. Même si <code>produit.nom</code> contient <code>&lt;script&gt;alert(1)&lt;/script&gt;</code>, Angular affiche le texte brut, jamais le script. Dans ce projet, aucun <code>[innerHTML]</code> n'est utilisé — tout affichage de données passe par la syntaxe sûre. Côté PHP, <code>sanitizeValue()</code> supprime les balises avec <code>strip_tags()</code> avant stockage en base : double protection entrée + sortie.</div>
+</div>
+
+<div class="q" data-correct="2">
+<div class="q-h"><span class="q-n">34</span> Comment fonctionne la protection CSRF entre Angular et PHP dans ce projet ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Un token CSRF est stocké dans localStorage et envoyé en Authorization header</button>
+<button class="opt-btn" data-i="1">PHP génère un token en cookie httpOnly que Angular lit directement</button>
+<button class="opt-btn" data-i="2">PHP envoie le token en header X-CSRF-Token ; l'intercepteur Angular le stocke et le renvoie sur chaque mutation</button>
+<button class="opt-btn" data-i="3">Le token CSRF est intégré dans chaque réponse JSON dans un champ "_csrf"</button>
+</div>
+<div class="expl"><strong>Réponse : C.</strong> Flux complet : (1) à chaque réponse PHP, <code>CsrfMiddleware</code> ajoute le header <code>X-CSRF-Token</code>. (2) Dans <code>csrf.interceptor.ts</code> : <code>const nextToken = event.headers.get('X-CSRF-Token'); if (nextToken) csrfToken = nextToken;</code> — l'intercepteur mémorise le dernier token reçu. (3) Sur chaque requête mutante (POST/PUT/PATCH/DELETE) avec <code>withCredentials</code>, il réinjecte ce token : <code>req.clone({ setHeaders: { 'X-CSRF-Token': csrfToken } })</code>. Un site malveillant ne connaît jamais ce token car il ne peut pas lire les headers cross-origin.</div>
+</div>
+
+<div class="q" data-correct="0">
+<div class="q-h"><span class="q-n">35</span> À quoi sert le csrfInterceptor déclaré dans app.config.ts ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Intercepter toutes les réponses HTTP pour mémoriser le token CSRF, et l'ajouter sur les requêtes mutantes</button>
+<button class="opt-btn" data-i="1">Bloquer les requêtes GET qui ne portent pas de token CSRF dans leur URL</button>
+<button class="opt-btn" data-i="2">Ajouter automatiquement un header Authorization Bearer sur toutes les requêtes</button>
+<button class="opt-btn" data-i="3">Vérifier que le cookie de session PHP est valide avant chaque appel HTTP</button>
+</div>
+<div class="expl"><strong>Réponse : A.</strong> Dans <code>app.config.ts</code> : <code>provideHttpClient(withFetch(), withInterceptors([csrfInterceptor]))</code>. L'intercepteur est branché sur toute la chaîne HTTP Angular. Il a deux rôles : <strong>lecture</strong> du token sur chaque réponse entrante (stocké en variable de module), et <strong>injection</strong> du token sur les requêtes POST/PUT/PATCH/DELETE. Ce mécanisme est transparent pour les composants et les services — ils n'ont pas à gérer le token manuellement.</div>
+</div>
+
+<div class="q" data-correct="3">
+<div class="q-h"><span class="q-n">36</span> Pourquoi CATEGORY_LABELS est-il nécessaire dans le composant ProductCard ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Pour trier les produits par catégorie dans le catalogue</button>
+<button class="opt-btn" data-i="1">Pour filtrer les produits inactifs selon leur catégorie</button>
+<button class="opt-btn" data-i="2">Pour traduire le slug de catégorie en URL lisible dans le routeur Angular</button>
+<button class="opt-btn" data-i="3">Pour afficher le libellé lisible de la catégorie à partir du slug stocké en base</button>
+</div>
+<div class="expl"><strong>Réponse : D.</strong> La base de données stocke la catégorie sous forme de slug (<code>miels</code>, <code>savons</code>, <code>bougies</code>…). Sans conversion, la carte produit afficherait ce slug brut — ou pire, un identifiant numérique. <code>CATEGORY_LABELS</code> dans <code>models.ts</code> est un <code>Record&lt;string, string&gt;</code> qui mappe <code>'miels' → 'Miels'</code>, <code>'cosmetiques' → 'Cosmétiques'</code>, etc. Dans <code>product-card.component.ts</code>, le getter <code>categoryLabel</code> fait <code>CATEGORY_LABELS[(this.produit as any).categorie] ?? ''</code> — si la catégorie est inconnue, il retourne une chaîne vide plutôt que <code>undefined</code>.</div>
+</div>
+
+<div class="q" data-correct="1">
+<div class="q-h"><span class="q-n">37</span> Comment le filtre mobile du catalogue est-il implémenté en Angular ?</div>
+<div class="opts">
+<button class="opt-btn" data-i="0">Via un composant <code>MatDrawer</code> d'Angular Material déclenché par un @Output</button>
+<button class="opt-btn" data-i="1">Via un signal <code>showMobileFilters</code> qui contrôle la visibilité d'un panneau, avec <code>activeFilterCount</code> en computed()</button>
+<button class="opt-btn" data-i="2">Via un service dédié <code>FilterService</code> qui émet un événement RxJS à chaque toggle</button>
+<button class="opt-btn" data-i="3">Via une directive <code>*ngIf</code> liée à la largeur de fenêtre détectée dans ngOnInit()</button>
+</div>
+<div class="expl"><strong>Réponse : B.</strong> Dans <code>catalogue.component.ts</code> : <code>showMobileFilters = signal(false)</code> contrôle l'affichage du panneau (toggle sur clic). <code>activeFilterCount = computed(() => { let count = 0; if (this.selectedCategory() !== '') count++; if (this.maxPrice() &lt; 200) count++; if (this.search() !== '') count++; return count; })</code> affiche le nombre de filtres actifs dans le bouton (ex. "Filtres (2)"). Le panneau est visible uniquement sur mobile via la classe Tailwind <code>lg:hidden</code> — le desktop garde la sidebar classique <code>hidden lg:block</code>.</div>
+</div>
+
 <div class="final-result" id="final">
   <h3>Résultat final</h3>
   <div class="big" id="final-score">— / —</div>
