@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Produit } from '../../core/models/models';
+import { Produit, CATEGORY_LABELS } from '../../core/models/models';
 import { getProductImageSrc } from '../../core/utils/image-path';
 import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -26,7 +26,7 @@ import { ToastService } from '../../core/services/toast.service';
         </ng-template>
       </a>
       <div class="p-4 flex flex-col flex-1">
-        <p class="text-xs text-gray-500 mb-1">{{ produit.id_artisan }}</p>
+        <p class="text-xs text-gray-500 mb-1">{{ categoryLabel }}</p>
         <a [routerLink]="['/produit', produit.id_produit]"
            class="font-medium text-sm leading-snug mb-2 hover:text-amber-600 line-clamp-2">
           {{ produit.nom }}
@@ -48,6 +48,10 @@ import { ToastService } from '../../core/services/toast.service';
 export class ProductCardComponent {
   @Input() produit!: Produit;
   readonly getProductImageSrc = getProductImageSrc;
+
+  get categoryLabel(): string {
+    return CATEGORY_LABELS[(this.produit as any).categorie] ?? '';
+  }
 
   constructor(private cart: CartService, private toast: ToastService) {}
 

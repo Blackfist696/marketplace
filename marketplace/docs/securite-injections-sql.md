@@ -331,6 +331,102 @@ Cela réduit fortement le risque d’injection SQL et rend le système plus robu
 
 ---
 
+## Protection contre les attaques XSS (Cross-Site Scripting)
+
+### Qu’est-ce qu’une attaque XSS ?
+
+Une attaque XSS consiste à injecter du code JavaScript malveillant dans une page web, de sorte qu’il soit exécuté dans le navigateur d’un autre utilisateur.
+
+Exemple : un attaquant soumet un commentaire contenant `<script>document.cookie...</script>`. Si l’application affiche ce texte tel quel dans la page, le script s’exécute chez tous les visiteurs qui lisent ce commentaire.
+
+Il existe deux vecteurs principaux :
+- **XSS en entrée** : la donnée malveillante est stockée en base, puis réaffichée plus tard.
+- **XSS en sortie** : la donnée est injectée dans le HTML sans être nettoyée avant affichage.
+
+---
+
+### Protection côté frontend — Angular
+
+#### 1. Échappement automatique des templates
+
+Angular échappe systématiquement toutes les valeurs affichées via la syntaxe `{{ }}`. Les caractères dangereux (`<`, `>`, `"`, `’`, `&`) sont convertis en entités HTML avant insertion dans le DOM.
+
+```html
+<!-- Si produit.nom contient <script>alert(1)</script> -->
+{{ produit.nom }}
+<!-- Angular affiche littéralement le texte, jamais le script -->
+```
+
+Ce comportement est activé par défaut pour toutes les interpolations et liaisons de propriété Angular (`[attr]`, `[class]`, `[style]`).
+
+#### 2. Aucun `innerHTML` non contrôlé
+
+La directive `[innerHTML]` court-circuite l’échappement d’Angular et permet d’injecter du HTML brut dans le DOM. Dans ce projet, `[innerHTML]` n’est utilisé nulle part dans les templates.
+
+Tout affichage de contenu dynamique passe par `{{ }}` ou des liaisons de propriété sûres.
+
+#### 3. DomSanitizer d’Angular
+
+Pour les rares cas où du HTML doit être affiché (ex. description mise en forme), Angular fournit le service `DomSanitizer`. Il analyse et nettoie le HTML avant injection, en supprimant les attributs `onerror`, `onload`, les balises `<script>`, etc.
+
+Dans ce projet, ce service n’est pas utilisé car aucun contenu HTML riche n’est affiché côté client.
+
+---
+
+### Protection côté backend — PHP
+
+#### 1. Nettoyage à l’entrée avec `strip_tags()`
+
+La méthode `sanitizeValue()` dans `Model.php` est appelée sur toutes les données avant leur traitement ou enregistrement en base :
+
+```php
+protected static function sanitizeValue($value)
+{
+    if (is_string($value)) {
+        return trim(strip_tags($value));
+    }
+    // ...
+}
+```
+
+`strip_tags()` supprime toutes les balises HTML et PHP d’une chaîne. Ainsi, même si un attaquant envoie `<script>alert(1)</script>` dans un champ, seul le texte brut est conservé en base.
+
+#### 2. Pas de rendu PHP direct
+
+Le backend ne génère pas de HTML. Il renvoie uniquement du JSON via `JsonResponder`. Il n’y a donc pas de risque d’injection XSS côté serveur par concaténation dans un template PHP.
+
+---
+
+### Schéma du double filtre XSS
+
+```text
+[Formulaire utilisateur]
+         │
+         ▼
+[Backend PHP]
+   strip_tags() → supprime les balises à l’entrée
+   Donnée propre stockée en base
+         │
+         ▼
+[API JSON] → renvoie du texte brut sans HTML
+         │
+         ▼
+[Angular {{ }}] → échappe les caractères spéciaux à l’affichage
+         │
+         ▼
+[Navigateur] → texte affiché, jamais exécuté
+```
+
+---
+
+### Ce qui reste à surveiller
+
+- Ne jamais introduire `[innerHTML]` sans passer par `DomSanitizer`.
+- Ne jamais afficher directement du contenu externe (ex. description produit fournie par un artisan) sans vérifier qu’il passe bien par `{{ }}` et non par une liaison non sécurisée.
+- Si un éditeur de texte riche est ajouté à l’avenir (ex. description en Markdown ou HTML), prévoir une sanitisation dédiée côté backend (bibliothèque `HTMLPurifier` par exemple).
+
+---
+
 ## Bonnes pratiques à poursuivre
 
 Pour garder ce niveau de sécurité, il est recommandé de :
