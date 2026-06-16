@@ -2,7 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { Utilisateur } from '../../core/models/models';
+import { OrderService } from '../../core/services/order.service';
+import { Utilisateur, Commande, STATUT_LABELS, StatutCommande } from '../../core/models/models';
 
 @Component({
   selector: 'app-profile',
@@ -106,6 +107,32 @@ import { Utilisateur } from '../../core/models/models';
           </div>
         </form>
 
+        <!-- Historique des commandes -->
+        <div class="mt-10 border-t border-gray-200 pt-8">
+          <h2 class="font-serif text-xl font-semibold text-gray-900 mb-4">Mes commandes</h2>
+
+          @if (ordersLoading()) {
+            <p class="text-sm text-gray-500">Chargement…</p>
+          } @else if (orders().length === 0) {
+            <p class="text-sm text-gray-500">Aucune commande pour le moment.</p>
+          } @else {
+            <div class="space-y-3">
+              @for (order of orders(); track order.id_commande) {
+                <div class="rounded-lg border border-gray-200 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">{{ order.reference }}</p>
+                    <p class="text-xs text-gray-400 mt-0.5">{{ order.date_commande | date:'dd/MM/yyyy' }}</p>
+                  </div>
+                  <span [class]="'text-xs font-medium px-2.5 py-1 rounded-full ' + statutColor(order.statut)">
+                    {{ statutLabels[order.statut] }}
+                  </span>
+                  <p class="text-sm font-bold text-amber-600">{{ order.total_ttc | number:'1.2-2' }} €</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
         <div class="mt-10 border-t border-gray-200 pt-8">
           @if (addressError()) {
             <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -188,12 +215,15 @@ import { Utilisateur } from '../../core/models/models';
 export class ProfileComponent implements OnInit {
   profile = signal<Utilisateur | null>(null);
   addresses = signal<any[]>([]);
+  orders = signal<Commande[]>([]);
   loading = signal(false);
   addressLoading = signal(false);
+  ordersLoading = signal(false);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
   addressError = signal<string | null>(null);
   addressSuccess = signal<string | null>(null);
+  readonly statutLabels = STATUT_LABELS;
 
   form = {
     prenom: '',
@@ -212,10 +242,30 @@ export class ProfileComponent implements OnInit {
     type_adresse: 'livraison',
   };
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private order: OrderService) {}
 
   ngOnInit(): void {
     this.loadProfile();
+    this.loadOrders();
+  }
+
+  loadOrders(): void {
+    this.ordersLoading.set(true);
+    this.order.getClientOrders().subscribe({
+      next: orders => { this.orders.set(orders); this.ordersLoading.set(false); },
+      error: () => this.ordersLoading.set(false),
+    });
+  }
+
+  statutColor(statut: StatutCommande): string {
+    const colors: Record<StatutCommande, string> = {
+      en_attente:     'bg-amber-100 text-amber-800',
+      en_preparation: 'bg-blue-100 text-blue-800',
+      expediee:       'bg-purple-100 text-purple-800',
+      livree:         'bg-emerald-100 text-emerald-800',
+      annulee:        'bg-red-100 text-red-800',
+    };
+    return colors[statut] ?? 'bg-gray-100 text-gray-800';
   }
 
   loadProfile(): void {

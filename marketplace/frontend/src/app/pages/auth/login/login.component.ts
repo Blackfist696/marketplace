@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
@@ -45,7 +46,7 @@ export class LoginComponent {
   loading  = signal(false);
   error    = signal('');
 
-  constructor(private auth: AuthService, private router: Router, private toast: ToastService) {}
+  constructor(private auth: AuthService, private cart: CartService, private router: Router, private toast: ToastService) {}
 
   submit() {
     if (!this.email || !this.password) { this.error.set('Champs requis'); return; }
@@ -55,6 +56,10 @@ export class LoginComponent {
         this.loading.set(false);
         if (res?.status === 200) {
           this.toast.success('Bienvenue !');
+          this.cart.load().subscribe({
+            next: () => this.cart.restoreFromStorage().subscribe(),
+            error: () => {}
+          });
           const user = this.auth.currentUser();
           if (user?.id_role === 1) this.router.navigate(['/admin/dashboard']);
           else if (user?.id_role === 2) this.router.navigate(['/artisan/dashboard']);

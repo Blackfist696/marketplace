@@ -77,6 +77,10 @@ export class MainLayoutComponent {
   constructor(public auth: AuthService, public cart: CartService, private router: Router) {}
 
   logout() {
-    this.auth.logout().subscribe(() => this.router.navigate(['/home']));
+    this.cart.saveToStorage();
+    this.auth.logout().subscribe(() => {
+      this.cart.clear();
+      this.router.navigate(['/home']);
+    });
   }
 }
