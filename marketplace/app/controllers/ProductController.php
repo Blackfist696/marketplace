@@ -59,6 +59,9 @@ class ProductController extends Controller
 
     private function withCategory(array $product): array
     {
+        $artisan = Artisan::getById((int) ($product['id_artisan'] ?? 0));
+        $product['nom_boutique'] = $artisan !== null ? ($artisan['nom_boutique'] ?? null) : null;
+
         $classes = Classe::getByProduitId((int) ($product['id_produit'] ?? 0));
         $firstClass = $classes[0] ?? null;
 

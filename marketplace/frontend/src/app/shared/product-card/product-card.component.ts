@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Produit, CATEGORY_LABELS } from '../../core/models/models';
+import { Produit } from '../../core/models/models';
 import { getProductImageSrc } from '../../core/utils/image-path';
 import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -50,7 +50,7 @@ export class ProductCardComponent {
   readonly getProductImageSrc = getProductImageSrc;
 
   get categoryLabel(): string {
-    return CATEGORY_LABELS[(this.produit as any).categorie] ?? '';
+    return (this.produit as any).nom_boutique ?? '';
   }
 
   constructor(private cart: CartService, private toast: ToastService) {}
