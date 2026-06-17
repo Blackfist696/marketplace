@@ -140,6 +140,7 @@ return function (App $app): void {
     $register('GET', '/artisan/products', 'App\\Controllers\\ArtisanController@myProducts', [$artisanRole]);
     $register('GET', '/artisan/dashboard', 'App\\Controllers\\ArtisanController@dashboard', [$artisanRole]);
     $register('GET', '/artisan/orders', 'App\\Controllers\\ArtisanController@orders', [$artisanRole, $artisanOrdersQueryValidation]);
+    $register('GET', '/artisan/orders/{id}', 'App\\Controllers\\ArtisanController@orderDetail', [$artisanRole]);
     $register('GET', '/artisan/stats', 'App\\Controllers\\ArtisanController@stats', [$artisanRole, $artisanStatsQueryValidation]);
 
     $register('GET', '/admin/users', 'App\\Controllers\\AdminController@users', [$adminRole]);

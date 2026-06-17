@@ -119,6 +119,48 @@ class ArtisanController extends Controller
     }
 
     /**
+     * Retourne le detail d'une commande avec ses lignes filtrees aux produits de l'artisan.
+     */
+    public function orderDetail(int $id): void
+    {
+        if (!$userId = $this->requireRole(2)) {
+            return;
+        }
+
+        $artisans = Artisan::getBy('id_utilisateur', $userId);
+        if (empty($artisans)) {
+            $this->respond(404, 'Profil artisan introuvable');
+            return;
+        }
+
+        $artisanId  = (int) $artisans[0]['id_artisan'];
+        $products   = Produit::getBy('id_artisan', $artisanId);
+        $productMap = array_column($products, 'nom', 'id_produit');
+        $productIds = array_fill_keys(array_map('intval', array_column($products, 'id_produit')), true);
+
+        $allLines     = LigneCommande::getBy('id_commande', $id);
+        $artisanLines = array_values(array_filter($allLines, fn($l) => isset($productIds[(int) ($l['id_produit'] ?? 0)])));
+
+        if (empty($artisanLines)) {
+            $this->respond(403, 'Commande non accessible');
+            return;
+        }
+
+        $artisanLines = array_map(function ($line) use ($productMap) {
+            $line['nom_produit'] = $productMap[(int) ($line['id_produit'] ?? 0)] ?? '';
+            return $line;
+        }, $artisanLines);
+
+        $order = Commande::getById($id);
+        if ($order === null) {
+            $this->respond(404, 'Commande introuvable');
+            return;
+        }
+
+        $this->respond(200, 'Detail commande artisan', ['commande' => $order, 'lignes' => $artisanLines]);
+    }
+
+    /**
      * Retourne uniquement les commandes contenant au moins un produit
      * appartenant a l'artisan connecte.
      */

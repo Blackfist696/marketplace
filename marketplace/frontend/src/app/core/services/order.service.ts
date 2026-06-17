@@ -29,6 +29,11 @@ export class OrderService {
       .pipe(map(r => (r.data ?? []).map((order: any) => this.mapOrder(order))));
   }
 
+  getArtisanOrderDetail(id: number): Observable<{ commande: Commande; lignes: any[] }> {
+    return this.http.get<any>(`${this.base}/artisan/orders/${id}`, { withCredentials: true })
+      .pipe(map(r => r.data));
+  }
+
   getAdminOrders(): Observable<Commande[]> {
     return this.http.get<any>(`${this.base}/admin/orders`, { withCredentials: true })
       .pipe(map(r => r.data ?? []));
